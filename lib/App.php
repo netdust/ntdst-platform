@@ -39,8 +39,7 @@ class App
      *
      * @return void The method does not return any value.
      */
-    public static function setApplication(ApplicationProvider $app)
-    {
+    public static function setApplication(ApplicationProvider $app) {
         static::$app = $app;
     }
 
@@ -53,6 +52,16 @@ class App
      */
     public static function container(): Container {
         return static::$app->container();
+    }
+
+    /**
+     * binding the Application as a Singleton and starting the initialisation
+     */
+    public static function boot( $id, $args ) {
+        $container = new \lucatume\DI52\Container();
+        $container->singleton($id, new ApplicationProvider( $container,  $args));
+        static::setApplication( $container->get( $id ) );
+        static::container()->register( $id );
     }
 
     /**

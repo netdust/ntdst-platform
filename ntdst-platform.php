@@ -19,8 +19,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-if ( ! defined( 'NTDST_PLUGIN_FILE' ) ) {
-    define( 'NTDST_PLUGIN_FILE', __FILE__ );
+if ( ! defined( 'NTDST_APPLICATION' ) ) {
+    define( 'NTDST_APPLICATION', 'ntdst_application' );
 }
 
 // make sure we don't expose any info if called directly
@@ -30,7 +30,7 @@ if ( ! function_exists( 'add_action' ) ) {
 }
 
 /**
- * first setup autoloader, easy lazy like i like it
+ * first setup autoloader, lazy like i like it
  */
 require_once 'lib/Utils/AutoLoader.php';
 
@@ -41,34 +41,11 @@ require_once 'lib/Utils/AutoLoader.php';
     'Netdust\\'=> dirname( __FILE__ ).'/lib/'
 ] );
 
-
 /**
- * using this framework, always use singleton if you need to retrieve object later
- * binding will always create a new instance, even if id stays the same
-
-
-require ('vendor/require.php' );
-require_once 'lib/App.php';
-
-use lucatume\DI52\Container;
-use \Netdust\App;
-
-$container = new Container();
-
-$container->when( NTDST_PLUGIN_FILE )->needs('$args')->give( [
-    'file'                => __FILE__,
-    'text_domain'         => 'ntdst',
-    'version'             => '1.1.1',
-    'minimum_wp_version'  => '6.0',
-    'minimum_php_version' => '7.4',
-    'build_path'          => '/app'
-]);
-
-$container->singleton( NTDST_PLUGIN_FILE , App::class );
-$container->register( NTDST_PLUGIN_FILE );
-
-function app( ) {
-    global $container;
-    return $container->get( NTDST_PLUGIN_FILE );
-}
+ * easy access throughout application
  */
+if ( ! function_exists( 'app' ) ) {
+    function app( $id = NTDST_APPLICATION ) {
+        return \Netdust\App::container()->get( $id );
+    }
+}

@@ -4,14 +4,12 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
+use Netdust\Utils\Logger\LoggerInterface;
 
 use Netdust\Traits\Setters;
 
-use \Netdust\Utils\Logger\Logger;
-
 class ApplicationProvider extends ServiceProvider {
     use Setters;
-
 
     public $name = 'Netdust';
 
@@ -19,9 +17,9 @@ class ApplicationProvider extends ServiceProvider {
 
     public $version = '1.2.0';
 
-    public $minimum_php_version = '7.0';
+    public $minimum_php_version = '7.6';
 
-    public $minimum_wp_version = '5.1';
+    public $minimum_wp_version = '6.0';
 
     public $build_path = "/app";
 
@@ -133,6 +131,16 @@ class ApplicationProvider extends ServiceProvider {
 
     public function boot( ) {
 
+        $path = $this->dir() . '/boot/';
+
+        if (is_dir($path)) {
+            foreach (glob($path . '*.php') as $file) {
+                call_user_func(function ($bootstrap) {
+                    $bootstrap($this);
+                }, require_once($file));
+            }
+        }
+
     }
 
     public function register( ) {
@@ -143,11 +151,10 @@ class ApplicationProvider extends ServiceProvider {
             $this->_load_config_if_exists();
 
             $this->_dependencies( );
-            $this->_hooks( );
 
             add_action( 'after_setup_theme', function() {
                 $this->container->boot();
-                Logger::info(
+                $this->get( LoggerInterface::class )::info(
                     'The application ' . $this->name . ' has been loaded.',
                     'application_load'
                 );
@@ -199,8 +206,6 @@ class ApplicationProvider extends ServiceProvider {
             };
         }
     }
-
-    public function _hooks() {}
 
     /**
      * get a config value.
