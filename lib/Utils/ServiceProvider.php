@@ -17,7 +17,7 @@ abstract class ServiceProvider extends \lucatume\DI52\ServiceProvider {
      *
      * @return App|mixed
      */
-    public function app( $id = APP_PLUGIN_FILE) {
+    public function app( $id = NTDST_APPLICATION) {
         return $this->container->get( $id );
     }
     public function scripts() {
