@@ -131,16 +131,6 @@ class ApplicationProvider extends ServiceProvider {
 
     public function boot( ) {
 
-        $path = $this->dir() . '/boot/';
-
-        if (is_dir($path)) {
-            foreach (glob($path . '*.php') as $file) {
-                call_user_func(function ($bootstrap) {
-                    $bootstrap($this);
-                }, require_once($file));
-            }
-        }
-
     }
 
     public function register( ) {
@@ -149,6 +139,8 @@ class ApplicationProvider extends ServiceProvider {
         if ( $this->_plugin_is_supported() ) {
 
             $this->_load_config_if_exists();
+
+            $this->_register_if_exists();
 
             $this->_dependencies( );
 
@@ -245,6 +237,18 @@ class ApplicationProvider extends ServiceProvider {
         );
 
         add_action( 'admin_notices', array( $this, 'below_version_notice' ) );
+    }
+
+    protected function _register_if_exists() {
+        $path = $this->dir() . '/register/';
+
+        if (is_dir($path)) {
+            foreach (glob($path . '*.php') as $file) {
+                call_user_func(function ($bootstrap) {
+                    $bootstrap($this);
+                }, require_once($file));
+            }
+        }
     }
 
     protected function _load_config_if_exists() {

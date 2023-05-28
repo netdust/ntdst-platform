@@ -9,10 +9,6 @@ if (!function_exists('add_action')) {
     exit;
 }
 
-\Netdust\Utils\AutoLoader::setup_autoloader( [
-    'Netdust\Plugin\\'=> dirname( __FILE__ ).'/app/src/',
-
-] );
 
 //boot application
 \Netdust\App::boot( NTDST_APPLICATION, [
