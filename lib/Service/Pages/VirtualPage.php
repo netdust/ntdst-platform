@@ -10,19 +10,12 @@
 namespace Netdust\Service\Pages;
 
 use Netdust\Traits\Templates;
-use Netdust\Traits\Features;
-use Netdust\Traits\Classes;
-use Netdust\Traits\Setters;
-
-use Netdust\Utils\Logger\Logger;
-use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
 use stdClass;
-use Symfony\Component\HttpFoundation\Response;
 use WP_Post;
 
 
