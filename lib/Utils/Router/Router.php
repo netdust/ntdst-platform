@@ -87,6 +87,12 @@ class Router
         return static::$router->generate($name, $params);
     }
 
+    public static function virtual(string $uri, $virtualPage)
+    {
+        $virtualPage->setUri($uri);
+        static::map(['GET', 'POST'], $uri, [$virtualPage, 'onRoute'], $virtualPage->getTemplate() );
+    }
+
     /**
      * Shutdown PHP
      *

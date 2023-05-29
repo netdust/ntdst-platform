@@ -146,7 +146,7 @@ class ApplicationProvider extends ServiceProvider {
 
             add_action( 'after_setup_theme', function() {
                 $this->container->boot();
-                $this->get( LoggerInterface::class )::info(
+                $this->get( LoggerInterface::class )->info(
                     'The application ' . $this->name . ' has been loaded.',
                     'application_load'
                 );
