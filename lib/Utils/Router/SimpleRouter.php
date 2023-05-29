@@ -106,12 +106,7 @@ class SimpleRouter implements RouterInterface {
 
     public function map(array $methods, string $uri, $callback, $name)
     {
-        // Force all verbs to be uppercase
-        $verbs = array_map('strtoupper', $methods);
-
-        foreach ($verbs as $method) {
-            $this->addRoute( [$method, $uri, $callback] );
-        }
+        $this->addRoute( [implode("|", $methods), $uri, $callback] );
 
         if ($name) {
             $this->namedRoutes[$name] = $uri;
