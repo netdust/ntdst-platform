@@ -39,13 +39,13 @@ class VirtualPage
 
     public function onRoute()
     {
+        add_filter('page_template', [$this, 'template']);
         add_action('template_redirect', [$this, 'createPage']);
 
-        /*
         global $wp_query;
         $wp_query->set_404();
         status_header( 404 );
-        nocache_headers();*/
+        nocache_headers();
     }
 
     public function get_template_group() {
@@ -54,7 +54,8 @@ class VirtualPage
 
     public function template($templateDir)
     {
-        return $this->get_template_directory();
+        remove_filter( 'page_template', [$this, 'template']);
+        return $this->get_template_path( $this->template );
     }
 
     public function getUri()
@@ -80,22 +81,17 @@ class VirtualPage
     public function setTitle($title)
     {
         $this->title = filter_var($title, FILTER_SANITIZE_STRING);
-
-        return $this;
     }
 
     public function setTemplate($template)
     {
         $this->template = $template;
-
-        return $this;
     }
 
     public function setCustomTemplate($templateDirectory)
     {
         if (isset($templateDirectory)) {
             $this->template_root = $templateDirectory;
-            add_filter('page_template', [$this, 'template']);
         }
     }
 
@@ -103,7 +99,7 @@ class VirtualPage
     {
         if (!isset($this->wpPost)) {
             $post = new stdClass();
-            $post->ID = -99;
+            $post->ID = 0;
             $post->ancestors = array(); // 3.6
             $post->comment_status = 'closed';
             $post->comment_count = 0;
@@ -136,6 +132,7 @@ class VirtualPage
 
     public function createPage()
     {
+        remove_action('template_redirect', [$this, 'createPage']);
         $this->createPostInstance();
         global $wp, $wp_query;
 
@@ -182,8 +179,10 @@ class VirtualPage
 
         $wp->query = array();
         $wp->register_globals();
-        wp_cache_add(-99, $this->wpPost, 'posts');
+        wp_cache_add(0, $this->wpPost, 'posts');
+
         //set 200 header
         @status_header(200);
     }
+
 }
