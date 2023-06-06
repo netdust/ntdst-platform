@@ -111,6 +111,8 @@ class ACFBlock {
 
     public function as_shortcode( $atts ) {
 
+        $this->set_values( $atts );
+
         ob_start();
         $this->echo_template( );
         $html = ob_get_contents();
