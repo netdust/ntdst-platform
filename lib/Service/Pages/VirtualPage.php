@@ -49,7 +49,7 @@ class VirtualPage
         return 'virtual';
     }
 
-    public function get_template() {
+    public function template() {
         return $this->template;
     }
 
