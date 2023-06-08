@@ -30,11 +30,9 @@ class VirtualPage
     private $templateDirectory = null;
     private $wpPost;
 
-    public function __construct(string $template, string $title, string $templateDirectory = null)
+    public function __construct(string $templateDirectory = null)
     {
-        $this->setCustomTemplate($templateDirectory);
-        $this->setTemplate($template);
-        $this->setTitle($title);
+        $this->setTemplateDir($templateDirectory);
     }
 
     public function onRoute()
@@ -55,7 +53,7 @@ class VirtualPage
     public function template($templateDir)
     {
         remove_filter( 'page_template', [$this, 'template']);
-        return $this->get_template_path( $this->template );
+        return $this->get_template_path( \WP_CLI\Utils\basename($templateDir) );
     }
 
     public function getUri()
@@ -68,27 +66,7 @@ class VirtualPage
         $this->uri = $uri;
     }
 
-    public function getTemplate()
-    {
-        return $this->template;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = filter_var($title, FILTER_SANITIZE_STRING);
-    }
-
-    public function setTemplate($template)
-    {
-        $this->template = $template;
-    }
-
-    public function setCustomTemplate($templateDirectory)
+    public function setTemplateDir($templateDirectory)
     {
         if (isset($templateDirectory)) {
             $this->template_root = $templateDirectory;
