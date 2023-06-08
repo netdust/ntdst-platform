@@ -31,7 +31,7 @@ class VirtualPage
     public function __construct(string $template, string $templateDirectory = null)
     {
         $this->template = $template;
-        $this->setTemplateDir($templateDirectory);
+        $this->setTemplateRootPath($templateDirectory);
     }
 
     public function onRoute()
@@ -69,7 +69,7 @@ class VirtualPage
         $this->uri = $uri;
     }
 
-    public function setTemplateDir($templateDirectory)
+    public function setTemplateRootPath($templateDirectory)
     {
         if (isset($templateDirectory)) {
             $this->template_root = $templateDirectory;
