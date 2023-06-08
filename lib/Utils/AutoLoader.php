@@ -54,10 +54,11 @@ class AutoLoader
     private static function find_file( $class )  {
         $class = ltrim( $class, '\\' );
 
+
+
         foreach ( self::$prefixes as $current ) {
             [ $prefix, $base_dir ] = $current;
-
-            if ( 0 === strpos( $class, $prefix ) ) {
+            if ( is_string($prefix) && 0 === strpos( $class, $prefix ) ) {
 
                 //$prefix = trim( $prefix, '\\' ) . '\\';
 

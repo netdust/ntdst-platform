@@ -46,7 +46,7 @@ class ApplicationProvider extends ServiceProvider {
      * @return string
      */
     public function css_url() {
-        return apply_filters( 'ntdst_css_url', $this->url() . DIRECTORY_SEPARATOR . $this->build_path .'/assets/css' );
+        return apply_filters( 'ntdst_css_url', $this->url() . $this->build_path .'/assets/css' );
     }
 
     /**
@@ -57,7 +57,7 @@ class ApplicationProvider extends ServiceProvider {
      * @return string
      */
     public function js_url() {
-        return apply_filters( 'ntdst_js_url', $this->url() . DIRECTORY_SEPARATOR . $this->build_path .'/assets/js' );
+        return apply_filters( 'ntdst_js_url', $this->url() . $this->build_path .'/assets/js' );
     }
 
     /**
