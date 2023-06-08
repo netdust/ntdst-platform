@@ -21,23 +21,22 @@ use WP_Post;
 
 class VirtualPage
 {
-
     use Templates;
 
-    private $uri;
-    private $title;
-    private $template;
-    private $templateDirectory = null;
-    private $wpPost;
+    protected $uri;
 
-    public function __construct(string $templateDirectory = null)
+    protected $template;
+
+
+    public function __construct(string $template, string $templateDirectory = null)
     {
+        $this->template = $template;
         $this->setTemplateDir($templateDirectory);
     }
 
     public function onRoute()
     {
-        add_filter('page_template', [$this, 'template']);
+        add_filter('page_template', [$this, 'page_template']);
         add_action('template_redirect', [$this, 'createPage']);
 
         global $wp_query;
@@ -50,10 +49,14 @@ class VirtualPage
         return 'virtual';
     }
 
-    public function template($templateDir)
+    public function get_template() {
+        return $this->template;
+    }
+
+    public function page_template( string $templateDir )
     {
-        remove_filter( 'page_template', [$this, 'template']);
-        return $this->get_template_path( \WP_CLI\Utils\basename($templateDir) );
+        remove_filter( 'page_template', [$this, 'page_template']);
+        return $this->get_template_path( $this->template );
     }
 
     public function getUri()
