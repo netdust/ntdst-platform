@@ -16,6 +16,8 @@ final class Request
         'query_method' => '',
     ];
 
+    private array $vars = [];
+
     /**
      * @var array
      */
@@ -35,7 +37,6 @@ final class Request
     {
         $this->server = $server ? : $_SERVER;
     }
-
 
     public function getScheme(): string
     {
@@ -114,10 +115,15 @@ final class Request
 
     public function vars()
     {
-        $vars = [];
-        parse_str($this->getQuery(), $vars);
+        parse_str($this->getQuery(), $this->vars);
+        return $this->vars;
+    }
 
-        return $vars;
+    public function set( string $key, $value ) {
+        $this->vars[$key]=$value;
+    }
+    public function get( string $key ) {
+        return $this->vars[$key];
     }
 
     /**

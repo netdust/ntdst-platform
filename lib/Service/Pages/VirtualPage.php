@@ -25,11 +25,13 @@ class VirtualPage
 
     protected $uri;
 
+    protected $title;
     protected $template;
 
 
-    public function __construct(string $template, string $templateDirectory = null)
+    public function __construct(string $title, string $template, string $templateDirectory = null)
     {
+        $this->title = $title;
         $this->template = $template;
         $this->setTemplateRootPath($templateDirectory);
     }
@@ -51,6 +53,10 @@ class VirtualPage
 
     public function template() {
         return $this->template;
+    }
+
+    public function title() {
+        return $this->title;
     }
 
     public function page_template( string $templateDir )
