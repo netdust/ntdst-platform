@@ -190,7 +190,7 @@ class ApplicationProvider extends ServiceProvider {
         if( is_array( $providers ) && count( $providers ) > 0 ) {
             foreach($providers as $key => $value ) {
                 if( is_array($value) ) // map alias too
-                    $this->container->register( $value[0], $value[1] );
+                    call_user_func_array( [$this->container,'register'], $value );
                 else {
                     $this->container->register( $value );
                 }
