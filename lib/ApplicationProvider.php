@@ -254,7 +254,7 @@ class ApplicationProvider extends ServiceProvider {
     protected function _load_config_if_exists() {
 
         $data = [];
-        $path = $this->dir() . DIRECTORY_SEPARATOR . $this->build_path . '/config/';
+        $path = $this->dir() . $this->build_path . '/config/';
 
         if (is_dir($path)) {
             foreach (glob($path . '*.php') as $file) {
