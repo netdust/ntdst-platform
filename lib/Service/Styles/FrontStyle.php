@@ -16,7 +16,7 @@ class FrontStyle implements StyleInterface
     }
 
     public function do_actions() {
-        add_action( 'wp_enqueue_styles', [ $this, 'enqueue' ] );
+        add_action( 'wp_enqueue_scripts', [ $this, 'enqueue' ] );
         $this->decorated->do_actions();
     }
 
