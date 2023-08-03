@@ -23,6 +23,8 @@ class VirtualPage
 {
     use Templates;
 
+    protected $wpPost;
+
     protected $uri;
 
     protected $title;
