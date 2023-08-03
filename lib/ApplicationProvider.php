@@ -144,13 +144,13 @@ class ApplicationProvider extends ServiceProvider {
 
             $this->_dependencies( );
 
-            add_action( 'after_setup_theme', function() {
+            //add_action( 'after_setup_theme', function() {
                 $this->container->boot();
                 $this->get( LoggerInterface::class )->info(
                     'The application ' . $this->name . ' has been loaded.',
                     'application_load'
                 );
-            });
+            //});
 
         } else {
             // Run unsupported actions if requirements are not met.
