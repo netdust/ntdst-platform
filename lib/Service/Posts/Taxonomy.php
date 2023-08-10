@@ -79,6 +79,8 @@ class Taxonomy {
             $this->args['label'] = $this->name;
         }
 
+        $this->args['labels'] = $this->create_labels( );
+
         $registered = register_taxonomy( $this->id, $this->post_type, $this->args );
 
         if ( is_wp_error( $registered ) ) {
@@ -251,6 +253,42 @@ class Taxonomy {
         }
 
         return $deleted;
+    }
+
+    protected function create_labels( ): array {
+
+        $tax = $this->args['labels']['name'] ?? $this->args['label'];
+        $tax_single = $this->args['labels']['singular_name'] ?? $this->args['label'];
+
+        return array_merge( array(
+            'name'                  => _x( $tax, 'Post type general name', app()->text_domain ),
+            'singular_name'         => _x( $tax_single, 'Post type singular name', app()->text_domain ),
+            'search_items'          => __( 'Search '.$tax, app()->text_domain ),
+            'all_items'             => __( 'All '.$tax, app()->text_domain ),
+
+            'edit_item'             => __( 'Edit '.$tax_single, app()->text_domain ),
+            'view_item'             => __( 'View '.$tax_single, app()->text_domain ),
+            'update_item'           => __( 'Update '.$tax_single, app()->text_domain ),
+            'add_new_item'          => __( 'Add New '.$tax_single, app()->text_domain ),
+            'new_item_name'         => __( 'New '.$tax_single.' Name', app()->text_domain ),
+
+            // non-hierarchical
+            'all_items'             => __( 'All '.$tax, app()->text_domain ),
+
+            // hierarchical
+            'parent_item'           => __( 'Parent '.$tax, app()->text_domain ),
+            'parent_item_colon'     => __( 'Parent '.$tax.':', app()->text_domain ),
+
+
+            'not_found'             => __( 'No '.$tax.' found.', app()->text_domain ),
+            'not_found_in_trash'    => __( 'No '.$tax.' found in Trash.', app()->text_domain ),
+            'no_terms '             => __( 'No '.$tax, app()->text_domain ),
+
+            'items_list_navigation' => _x( $tax_single.' list navigation', 'Screen reader text for the pagination heading on the post type listing screen. Default “Posts list navigation”/”Pages list navigation”. Added in 4.4', app()->text_domain ),
+            'items_list'            => _x( $tax_single.' list', 'Screen reader text for the items list heading on the post type listing screen. Default “Posts list”/”Pages list”. Added in 4.4', app()->text_domain ),
+        ),
+            $this->args['labels']??[]
+        );
     }
 
 }
