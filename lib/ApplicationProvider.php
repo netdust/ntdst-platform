@@ -46,7 +46,7 @@ class ApplicationProvider extends ServiceProvider {
      * @return string
      */
     public function css_url() {
-        return apply_filters( 'ntdst_css_url', $this->url() . DIRECTORY_SEPARATOR . $this->build_path .'/assets/css' );
+        return apply_filters( 'ntdst_css_url', $this->url() . $this->build_path .'/assets/css' );
     }
 
     /**
@@ -57,7 +57,7 @@ class ApplicationProvider extends ServiceProvider {
      * @return string
      */
     public function js_url() {
-        return apply_filters( 'ntdst_js_url', $this->url() . DIRECTORY_SEPARATOR . $this->build_path .'/assets/js' );
+        return apply_filters( 'ntdst_js_url', $this->url() . $this->build_path .'/assets/js' );
     }
 
     /**
@@ -144,13 +144,13 @@ class ApplicationProvider extends ServiceProvider {
 
             $this->_dependencies( );
 
-            add_action( 'after_setup_theme', function() {
+            //add_action( 'after_setup_theme', function() {
                 $this->container->boot();
                 $this->get( LoggerInterface::class )->info(
                     'The application ' . $this->name . ' has been loaded.',
                     'application_load'
                 );
-            });
+            //});
 
         } else {
             // Run unsupported actions if requirements are not met.
@@ -190,7 +190,7 @@ class ApplicationProvider extends ServiceProvider {
         if( is_array( $providers ) && count( $providers ) > 0 ) {
             foreach($providers as $key => $value ) {
                 if( is_array($value) ) // map alias too
-                    $this->container->register( $value[0], $value[1] );
+                    call_user_func_array( [$this->container,'register'], $value );
                 else {
                     $this->container->register( $value );
                 }
@@ -254,7 +254,7 @@ class ApplicationProvider extends ServiceProvider {
     protected function _load_config_if_exists() {
 
         $data = [];
-        $path = $this->dir() . DIRECTORY_SEPARATOR . $this->build_path . '/config/';
+        $path = $this->dir() . $this->build_path . '/config/';
 
         if (is_dir($path)) {
             foreach (glob($path . '*.php') as $file) {

@@ -70,7 +70,7 @@ class ACFBlock {
     }
 
     public function get_field( $name, $default='' ) {
-        if( !empty( get_field( $name ) ) )
+        if( function_exists( 'get_field ')  &&  !empty( get_field( $name ) ) )
             return get_field( $name );
 
         if( !is_wp_error($value = $this->{$name}) ) return $value;

@@ -21,25 +21,26 @@ use WP_Post;
 
 class VirtualPage
 {
-
     use Templates;
 
-    private $uri;
-    private $title;
-    private $template;
-    private $templateDirectory = null;
-    private $wpPost;
+    protected $wpPost;
 
-    public function __construct(string $template, string $title, string $templateDirectory = null)
+    protected $uri;
+
+    protected $title;
+    protected $template;
+
+
+    public function __construct(string $title, string $template, string $templateDirectory = null)
     {
-        $this->setCustomTemplate($templateDirectory);
-        $this->setTemplate($template);
-        $this->setTitle($title);
+        $this->title = $title;
+        $this->template = $template;
+        $this->setTemplateRootPath($templateDirectory);
     }
 
     public function onRoute()
     {
-        add_filter('page_template', [$this, 'template']);
+        add_filter('page_template', [$this, 'page_template']);
         add_action('template_redirect', [$this, 'createPage']);
 
         global $wp_query;
@@ -52,9 +53,17 @@ class VirtualPage
         return 'virtual';
     }
 
-    public function template($templateDir)
+    public function template() {
+        return $this->template;
+    }
+
+    public function title() {
+        return $this->title;
+    }
+
+    public function page_template( string $templateDir )
     {
-        remove_filter( 'page_template', [$this, 'template']);
+        remove_filter( 'page_template', [$this, 'page_template']);
         return $this->get_template_path( $this->template );
     }
 
@@ -68,27 +77,7 @@ class VirtualPage
         $this->uri = $uri;
     }
 
-    public function getTemplate()
-    {
-        return $this->template;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = filter_var($title, FILTER_SANITIZE_STRING);
-    }
-
-    public function setTemplate($template)
-    {
-        $this->template = $template;
-    }
-
-    public function setCustomTemplate($templateDirectory)
+    public function setTemplateRootPath($templateDirectory)
     {
         if (isset($templateDirectory)) {
             $this->template_root = $templateDirectory;

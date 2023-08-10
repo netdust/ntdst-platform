@@ -90,7 +90,7 @@ class Router
     public static function virtual(string $uri, $virtualPage, $callback=null)
     {
         $virtualPage->setUri($uri);
-        static::map(['GET', 'POST'], $uri, [$virtualPage, $callback??'onRoute'], $virtualPage->getTemplate() );
+        static::map(['GET', 'POST'], $uri, [$virtualPage, $callback??'onRoute'], $virtualPage->template() );
     }
 
     /**

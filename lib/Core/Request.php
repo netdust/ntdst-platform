@@ -14,7 +14,10 @@ final class Request
         'path'         => '/',
         'query_string' => '',
         'query_method' => '',
+        'http_referer' => '',
     ];
+
+    private array $vars = [];
 
     /**
      * @var array
@@ -35,7 +38,6 @@ final class Request
     {
         $this->server = $server ? : $_SERVER;
     }
-
 
     public function getScheme(): string
     {
@@ -79,6 +81,13 @@ final class Request
         return $this->storage['query_string'];
     }
 
+    public function getReferer(): string
+    {
+        $this->parsed or $this->marshallFromServer();
+
+        return $this->storage['http_referer'];
+    }
+
     public function scheme(): string
     {
         return $this->getScheme();
@@ -114,10 +123,15 @@ final class Request
 
     public function vars()
     {
-        $vars = [];
-        parse_str($this->getQuery(), $vars);
+        parse_str($this->getQuery(), $this->vars);
+        return $this->vars;
+    }
 
-        return $vars;
+    public function set( string $key, $value ) {
+        $this->vars[$key]=$value;
+    }
+    public function get( string $key ) {
+        return $this->vars[$key];
     }
 
     /**
@@ -145,7 +159,12 @@ final class Request
             $request_method = strtoupper($this->server['REQUEST_METHOD']);
         }
 
-        $this->storage = compact('scheme', 'host', 'path', 'query_string', 'request_method');
+        $http_referer = '';
+        if (isset($this->server['HTTP_REFERER'])) {
+            $http_referer = strtoupper($this->server['HTTP_REFERER']);
+        }
+
+        $this->storage = compact('scheme', 'host', 'path', 'query_string', 'request_method', 'http_referer');
         $this->parsed = true;
     }
 

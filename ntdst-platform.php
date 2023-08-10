@@ -49,3 +49,5 @@ if ( ! function_exists( 'app' ) ) {
         return \Netdust\App::container()->get( $id );
     }
 }
+
+do_action('netdust_platform_loaded');
