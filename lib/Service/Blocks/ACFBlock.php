@@ -73,7 +73,7 @@ class ACFBlock {
         if( function_exists( 'get_field ')  &&  !empty( get_field( $name ) ) )
             return get_field( $name );
 
-        if( !is_wp_error($value = $this->{$name}) ) return $value;
+        if( isset($this->{$name}) && !is_wp_error($value = $this->{$name}) ) return $value;
         else return $default;
     }
     public function add_fields( $fields=[] ) {

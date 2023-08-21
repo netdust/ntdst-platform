@@ -37,7 +37,7 @@ class DependencyRegistry {
         // make sure the constructor gets the arguments when needed
         $this->container->when( $id )->needs( '$args' )->give( $args );
 
-        if( key_exists('singleton', $args ) && $args['singleton'] === FALSE  ) {
+        if( !key_exists('singleton', $args ) || !$args['singleton'] ) {
             $this->bind($id, $args);
         }
         else {
@@ -48,7 +48,7 @@ class DependencyRegistry {
         unset( $args['middlewares'] );
 
         if( in_array(Setters::class, class_uses($this->instanceClass) ) && count($args)>0 ) {
-            $this->container->get($id)->add( $args );
+            $this->container->get($id)->set( $args );
         }
         if( in_array(Features::class, class_uses($this->instanceClass)) ) {
             $this->container->get($id)->do_actions();

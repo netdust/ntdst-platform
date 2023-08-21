@@ -18,7 +18,7 @@ trait Setters {
      *
      * @param array $args List of arguments used to create this menu page.
      */
-    public function add( array &$args ) {
+    public function set( array &$args ): void {
         $this->set_values( $args );
     }
 
@@ -29,7 +29,7 @@ trait Setters {
 	 *
 	 * @param array $args Arguments to set, and manipulate.
 	 */
-	protected function set_values( array &$args ) {
+	protected function set_values( array &$args ): void {
 		// Override default params.
 		foreach ( $args as $arg => $value ) {
             try { $this->{$arg} = $value; } catch (Exception $e){};

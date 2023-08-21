@@ -270,13 +270,6 @@ class AdminSection {
 		return 'admin';
 	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function get_template_root_path() {
-        return dirname(__DIR__, 2) . '/templates';
-    }
-
     public function __get( $key ) {
 		if ( isset( $this->$key ) ) {
 			return $this->$key;

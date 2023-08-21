@@ -182,17 +182,7 @@ class AdminPage {
         return null;
 	}
 
-    /**
-     * Admin_Page factory method.
-     *
-     * @since 3.0.0
-     *
-     * @param array $args List of arguments used to create this menu page.
-     */
-    public function add( array &$args ) {
-        $this->set_values( $args );
-        $this->page_title = $this->page_title ?? $this->name;
-    }
+
 
 	/**
 	 * @inheritDoc
@@ -513,6 +503,7 @@ class AdminPage {
 	protected function get_template_group() {
 		return 'admin/layouts/' . $this->layout;
 	}
+
     public function __get( $key ) {
         if ( isset( $this->$key ) ) {
             return $this->$key;

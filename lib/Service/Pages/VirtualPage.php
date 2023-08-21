@@ -116,6 +116,7 @@ class VirtualPage
             $post->to_ping = '';
             $this->wpPost = new WP_Post($post);
         }
+
         return $this->wpPost;
     }
 
