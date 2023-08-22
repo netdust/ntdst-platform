@@ -34,7 +34,6 @@ class AdminSection {
 
 	use Templates;
     use Setters;
-	use Classes;
 
 	/**
 	 * The section ID
@@ -42,6 +41,10 @@ class AdminSection {
 	 * @var string
 	 */
 	protected $id = '';
+
+    public function id():string {
+        return $this->id;
+    }
 
     /**
      * The section name
@@ -77,6 +80,16 @@ class AdminSection {
 	 */
 	protected $options_key = false;
 
+    /**
+     * Section views
+     * Created views() method.
+     *
+     * @since 1.0.0
+     *
+     * @var
+     */
+    protected $views = [];
+
 	/**
 	 * Section fields
 	 * Created using fields() method.
@@ -106,6 +119,92 @@ class AdminSection {
         $this->set_values( $args );
 		$this->options_key = false === $this->options_key ? $this->id . '_settings' : $this->options_key;
 	}
+
+    public function get_url( $query = [] ) {
+
+        $url = add_query_arg( array(
+            'page' => $_REQUEST['page'],
+            'section' => $this->id,
+        ), get_admin_url( null, 'admin.php' ) );
+
+        return add_query_arg( $query, $url );
+    }
+
+    public function get_view_url( $view ) {
+
+        $url = $this->get_url();
+
+        if ( ! is_wp_error( $this->view( $view ) ) ) {
+            $url = add_query_arg( 'view', $view, $url );
+        }
+
+        return apply_filters( 'admin_section:view_url', $url );
+    }
+
+    public function get_current_view_key() {
+        if ( isset( $_GET['view'] ) && ! is_wp_error( $this->view( $_GET['view'] ) ) ) {
+            return $_GET['view'];
+        }
+
+        if( count($this->views) > 0 ) {
+            return $this->views[0]->id;
+        }
+
+        return null;
+    }
+
+    public function view( $id = '' ) {
+
+        if ( '' === $id ) {
+            $id = $this->get_current_view_key();
+        }
+
+        $view_key = 0;
+
+        foreach ( $this->views as $key => $view_to_check ) {
+
+            if ( $view_to_check instanceof AdminSection && $id === $view_to_check->id ) {
+                $view_key = $key;
+                break;
+            }
+
+            $view = self::make_class( $view_to_check, 'Netdust\Loaders\Admin\Factories\AdminSection' );
+
+            if ( $id === $view->id ) {
+                $this->views[ $key ] = $view;
+                $view_key            = $key;
+                break;
+            }
+        }
+
+        if ( isset( $this->views[ $view_key ] ) && $this->views[ $view_key ] instanceof AdminSection ) {
+            return $this->views[ $view_key ];
+        }
+
+        return Logger::log_as_error(
+            'error',
+            'no_section_view_found',
+            'No valid view could be found',
+            [ 'views' => $this->views, 'section' => $this->id ]
+        );
+    }
+
+    public function get_views() {
+        // Force-construct all sections.
+        foreach ( $this->views as $view ) {
+            if ( $view instanceof AdminSection ) {
+                $id = $view->id;
+            } elseif ( is_array( $view ) && isset( $view['id'] ) ) {
+                $id = $view['id'];
+            }
+            elseif ( is_array( $view ) && isset( $view['args'] ) && isset( $view['args']['id'] ) ) {
+                $id = $view['args']['id'];
+            }
+            $this->view( $id );
+        }
+
+        return $this->views;
+    }
 
 	public function get_field( $key ) {
 		if ( isset( $this->fields[ $key ] ) ) {
@@ -254,10 +353,6 @@ class AdminSection {
 		return $errors->has_errors() ? true : $errors;
 	}
 
-    public function get_views() {
-        return null;
-    }
-
 
 	/**
 	 * Fetches the template group name.
@@ -267,7 +362,7 @@ class AdminSection {
 	 * @return string The template group name
 	 */
 	protected function get_template_group() {
-		return 'admin';
+		return 'admin/sections/' . $this->id;
 	}
 
     public function __get( $key ) {

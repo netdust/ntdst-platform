@@ -47,9 +47,11 @@ class DependencyRegistry {
         unset( $args['singleton'] );
         unset( $args['middlewares'] );
 
+        /*
         if( in_array(Setters::class, class_uses($this->instanceClass) ) && count($args)>0 ) {
             $this->container->get($id)->set( $args );
-        }
+        }*/
+
         if( in_array(Features::class, class_uses($this->instanceClass)) ) {
             $this->container->get($id)->do_actions();
         }

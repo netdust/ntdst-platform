@@ -32,7 +32,6 @@ class AdminPage {
 	use Templates;
 	use Features;
     use Setters;
-    use Classes;
 
 	/**
 	 * Parent slug for this menu. This can either be a slug, or a registered primary menu key
@@ -175,14 +174,11 @@ class AdminPage {
 		}
 
         if( is_array($this->sections) && count( $this->sections ) > 0 ) {
-            $section = self::make_class( $this->sections[0], AdminSection::class );
-            return $section->id;
+            return reset($this->sections)->id();
         }
 
         return null;
 	}
-
-
 
 	/**
 	 * @inheritDoc
@@ -218,26 +214,8 @@ class AdminPage {
 			$id = $this->get_current_section_key();
 		}
 
-		$section_key = 0;
-
-		foreach ( $this->sections as $key => $section_to_check ) {
-
-			if ( $section_to_check instanceof AdminSection && $id === $section_to_check->id ) {
-				$section_key = $key;
-				break;
-			}
-
-			$section = self::make_class( $section_to_check, AdminSection::class );
-
-			if ( $id === $section->id ) {
-				$this->sections[ $key ] = $section;
-				$section_key            = $key;
-				break;
-			}
-		}
-
-		if ( isset( $this->sections[ $section_key ] ) && $this->sections[ $section_key ] instanceof AdminSection ) {
-			return $this->sections[ $section_key ];
+		if ( isset( $this->sections[ $id ] ) && $this->sections[ $id ] instanceof AdminSection ) {
+			return $this->sections[ $id ];
 		}
 
 		return Logger::error(
@@ -247,24 +225,12 @@ class AdminPage {
 		);
 	}
 
+    public function add_section( AdminSection $section ) {
+        $this->sections[ $section->id() ] = $section;
+    }
+
 	public function get_sections() {
-
-        $this->sections = apply_filters('admin_page:sections', $this->sections );
-
-		// Force-construct all sections.
-		foreach ( $this->sections as $section ) {
-			if ( $section instanceof AdminSection ) {
-				$id = $section->id;
-			} elseif ( is_array( $section ) && isset( $section['id'] ) ) {
-				$id = $section['id'];
-			}
-			elseif ( is_array( $section ) && isset( $section['args'] ) && isset( $section['args']['id'] ) ) {
-				$id = $section['args']['id'];
-			}
-			$this->section( $id );
-		}
-
-		return $this->sections;
+		return apply_filters('admin_page:sections', $this->sections );
 	}
 
 	/**
@@ -412,12 +378,12 @@ class AdminPage {
 	 */
 	public function get_url( $query = [] ) {
 
-		$url = get_admin_url();
-		$url .= $this->parent_menu;
-		$url .= '?page=' . $this->menu_slug;
-		$url = add_query_arg( $query, $url );
+        $url = add_query_arg( array(
+            'page' => $this->menu_slug,
+        ), get_admin_url( null, 'admin.php' ) );
 
-		return $url;
+        return add_query_arg( $query, $url );
+
 	}
 
 	/**
@@ -429,15 +395,14 @@ class AdminPage {
 	 *
 	 * @return string a URL of the specified section of this settings page.
 	 */
-	public function get_section_url( $section ) {
-		$url = get_admin_url( null, 'admin.php' );
-		$url .= '?page=' . $this->menu_slug;
+	public function get_section_url( string $section ) {
+        $url = $this->get_url();
 
-		if ( ! is_wp_error( $this->section( $section ) ) ) {
-			$url .= '&section=' . $section;
-		}
+        if ( ! is_wp_error( $this->sections( $section ) ) ) {
+            $url = add_query_arg( 'section', $section, $url );
+        }
 
-		return $url;
+        return apply_filters( 'admin_section:section_url', $url );
 	}
 
     /**
