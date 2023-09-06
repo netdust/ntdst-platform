@@ -70,12 +70,15 @@ class ACFBlock {
     }
 
     public function get_field( $name, $default='' ) {
-        if( function_exists( 'get_field ')  &&  !empty( get_field( $name ) ) )
-            return get_field( $name );
+        if( !is_wp_error($value = get_field( $name ))  &&  !empty( $value ) )
+            return $value;
 
-        if( isset($this->{$name}) && !is_wp_error($value = $this->{$name}) ) return $value;
-        else return $default;
+        if( !is_wp_error($value = $this->{$name}) && !empty( $value ) )
+            return $value;
+
+        return $default;
     }
+
     public function add_fields( $fields=[] ) {
         if( ! empty( $fields ))
             acf_add_local_field_group( $fields );
