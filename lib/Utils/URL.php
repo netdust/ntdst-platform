@@ -61,7 +61,11 @@ class URL {
 
 
     public static function basePath() {
+        $path = ltrim(static::pathname(), '/');
 
+        $pathSegments = explode('/', $path);
+
+        return '/' . reset($pathSegments);
     }
 
     /**
