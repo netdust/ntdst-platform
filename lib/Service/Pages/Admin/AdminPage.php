@@ -8,6 +8,7 @@
 
 namespace Netdust\Service\Pages\Admin;
 
+use Netdust\App;
 use Netdust\Traits\Templates;
 use Netdust\Traits\Features;
 use Netdust\Traits\Classes;
@@ -143,6 +144,10 @@ class AdminPage {
      */
     public function __construct( array $args = [] ) {
         $this->set_values( $args );
+        if( !empty($this->sections) ) foreach ($this->sections as &$section ) {
+            App::container()->get(AdminSection::class)->add( $section['id'] , $section );
+            $section = App::container()->get( $section['id'] );
+        }
     }
 
 	/**
@@ -172,9 +177,8 @@ class AdminPage {
         if ( isset( $_GET['section'] ) && ! is_wp_error( $this->section( $_GET['section'] ) ) ) {
 			return $_GET['section'];
 		}
-
-        if( is_array($this->sections) && count( $this->sections ) > 0 ) {
-            return reset($this->sections)->id();
+        if( is_array( $this->sections ) && count( $this->sections ) > 0 ) {
+            return reset($this->sections )->id();
         }
 
         return null;

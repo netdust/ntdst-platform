@@ -9,9 +9,9 @@
 
 namespace Netdust\Service\Pages\Admin;
 
+use Netdust\App;
 use Netdust\Traits\Setters;
 use Netdust\Traits\Templates;
-use Netdust\Traits\Classes;
 
 use Netdust\Utils\Logger\Logger;
 
@@ -117,6 +117,10 @@ class AdminSection {
 	 */
 	public function __construct(  array $args = [] ) {
         $this->set_values( $args );
+        if( !empty($this->views) ) foreach ($this->views as &$views ) {
+            App::container()->get(AdminSection::class)->add( $views['id'] , $views );
+            $views = App::container()->get( $views['id'] );
+        }
 		$this->options_key = false === $this->options_key ? $this->id . '_settings' : $this->options_key;
 	}
 
@@ -145,9 +149,9 @@ class AdminSection {
         if ( isset( $_GET['view'] ) && ! is_wp_error( $this->view( $_GET['view'] ) ) ) {
             return $_GET['view'];
         }
-
-        if( count($this->views) > 0 ) {
-            return $this->views[0]->id;
+        error_log( print_r( $this->views, true ));
+        if( is_array( $this->views ) && count( $this->views ) > 0 ) {
+            return reset($this->views )->id();
         }
 
         return null;
@@ -159,52 +163,24 @@ class AdminSection {
             $id = $this->get_current_view_key();
         }
 
-        $view_key = 0;
-
-        foreach ( $this->views as $key => $view_to_check ) {
-
-            if ( $view_to_check instanceof AdminSection && $id === $view_to_check->id ) {
-                $view_key = $key;
-                break;
-            }
-
-            $view = self::make_class( $view_to_check, 'Netdust\Loaders\Admin\Factories\AdminSection' );
-
-            if ( $id === $view->id ) {
-                $this->views[ $key ] = $view;
-                $view_key            = $key;
-                break;
-            }
+        if ( isset( $this->views[ $id ] ) && $this->views[ $id ] instanceof AdminSection ) {
+            return $this->views[ $id ];
         }
 
-        if ( isset( $this->views[ $view_key ] ) && $this->views[ $view_key ] instanceof AdminSection ) {
-            return $this->views[ $view_key ];
-        }
-
-        return Logger::log_as_error(
-            'error',
-            'no_section_view_found',
+        return Logger::error(
             'No valid view could be found',
+            'no_section_view_found',
             [ 'views' => $this->views, 'section' => $this->id ]
         );
+
     }
 
     public function get_views() {
-        // Force-construct all sections.
-        foreach ( $this->views as $view ) {
-            if ( $view instanceof AdminSection ) {
-                $id = $view->id;
-            } elseif ( is_array( $view ) && isset( $view['id'] ) ) {
-                $id = $view['id'];
-            }
-            elseif ( is_array( $view ) && isset( $view['args'] ) && isset( $view['args']['id'] ) ) {
-                $id = $view['args']['id'];
-            }
-            $this->view( $id );
-        }
-
-        return $this->views;
+        return apply_filters('admin_section:views', $this->views );
     }
+
+
+
 
 	public function get_field( $key ) {
 		if ( isset( $this->fields[ $key ] ) ) {

@@ -10,6 +10,7 @@ use Netdust\Service\Scripts\Script;
 
 abstract class ServiceProvider extends \lucatume\DI52\ServiceProvider {
 
+
     abstract public function register();
 
     /**
