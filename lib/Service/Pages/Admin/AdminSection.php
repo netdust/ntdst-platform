@@ -42,6 +42,13 @@ class AdminSection {
 	 */
 	protected $id = '';
 
+    /**
+     * The parent section ID
+     *
+     * @var string
+     */
+    protected $parent_id = '';
+
     public function id():string {
         return $this->id;
     }
@@ -117,9 +124,11 @@ class AdminSection {
 	 */
 	public function __construct(  array $args = [] ) {
         $this->set_values( $args );
-        if( !empty($this->views) ) foreach ($this->views as &$views ) {
-            App::container()->get(AdminSection::class)->add( $views['id'] , $views );
-            $views = App::container()->get( $views['id'] );
+        if( !empty($this->views) ) foreach ($this->views as &$view ) {
+            App::container()->get(AdminSection::class)->add( $view['id'], $view );
+            $view = App::container()->get( $view['id'] );
+            $view->setParent( $this->id );
+
         }
 		$this->options_key = false === $this->options_key ? $this->id . '_settings' : $this->options_key;
 	}
@@ -149,7 +158,7 @@ class AdminSection {
         if ( isset( $_GET['view'] ) && ! is_wp_error( $this->view( $_GET['view'] ) ) ) {
             return $_GET['view'];
         }
-        error_log( print_r( $this->views, true ));
+
         if( is_array( $this->views ) && count( $this->views ) > 0 ) {
             return reset($this->views )->id();
         }
@@ -170,7 +179,7 @@ class AdminSection {
         return Logger::error(
             'No valid view could be found',
             'no_section_view_found',
-            [ 'views' => $this->views, 'section' => $this->id ]
+            [ 'views' => $this->views, 'id'=> $id, 'section' => $this->id ]
         );
 
     }
@@ -179,8 +188,9 @@ class AdminSection {
         return apply_filters('admin_section:views', $this->views );
     }
 
-
-
+    public function setParent( $id ) {
+        $this->parent_id = $id;
+    }
 
 	public function get_field( $key ) {
 		if ( isset( $this->fields[ $key ] ) ) {
@@ -338,7 +348,7 @@ class AdminSection {
 	 * @return string The template group name
 	 */
 	protected function get_template_group() {
-		return 'admin/sections/' . $this->id;
+		return 'admin/sections/'.  (isset( $this->parent_id ) ? $this->parent_id.'/' : '') . $this->id;
 	}
 
     public function __get( $key ) {
