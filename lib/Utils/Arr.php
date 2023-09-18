@@ -55,7 +55,7 @@ class Arr {
         return $default;
     }
 
-    public function exists($array, $key)
+    public static function exists($array, $key)
     {
         // Don't use "isset", since it returns false for null values
         return array_key_exists($key, $array);
@@ -68,7 +68,7 @@ class Arr {
      * @param string $key   The name of the parameter
      * @return void
      */
-    public function remove($array, $key)
+    public static function remove($array, $key)
     {
         unset($array[$key]);
     }
