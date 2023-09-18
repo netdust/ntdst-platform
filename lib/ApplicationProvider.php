@@ -4,12 +4,14 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
+use Netdust\Traits\Templates;
 use Netdust\Utils\Logger\LoggerInterface;
 
 use Netdust\Traits\Setters;
 
 class ApplicationProvider extends ServiceProvider {
     use Setters;
+    use Templates;
 
     public $name = 'Netdust';
 
@@ -266,6 +268,11 @@ class ApplicationProvider extends ServiceProvider {
 
     }
 
+    protected function get_template_group()
+    {
+        return '';
+    }
+
     public function __call( $method, $arguments ) {
         // If this method exists, bail and just get the method.
         if ( method_exists( $this, $method ) ) {
@@ -282,5 +289,6 @@ class ApplicationProvider extends ServiceProvider {
             ]
         );
     }
+
 
 }

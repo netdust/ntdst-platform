@@ -72,7 +72,7 @@ class Script implements ScriptInterface {
      *
      * @var array Array of params.
      */
-    protected $localized_params = [];
+    public $localized_params = [];
 
     /**
      * The variable name for the localized object.
@@ -82,7 +82,7 @@ class Script implements ScriptInterface {
      *
      * @var string The localized object name.
      */
-    protected $localized_var;
+    public $localized_var;
 
     /**
      * Script constructor
