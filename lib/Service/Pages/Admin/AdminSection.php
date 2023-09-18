@@ -125,27 +125,35 @@ class AdminSection {
 	public function __construct(  array $args = [] ) {
         $this->set_values( $args );
         if( !empty($this->views) ) foreach ($this->views as &$view ) {
-            App::container()->get(AdminSection::class)->add( $view['id'], $view );
+            App::container()->get(AdminSection::class)->add(
+                $view['id'],
+                array_merge( $view, ['singleton'=>true, 'parent_id'=>$this->id] )
+            );
             $view = App::container()->get( $view['id'] );
-            $view->setParent( $this->id );
-
         }
 		$this->options_key = false === $this->options_key ? $this->id . '_settings' : $this->options_key;
 	}
 
     public function get_url( $query = [] ) {
 
-        $url = add_query_arg( array(
-            'page' => $_REQUEST['page'],
-            'section' => $this->id,
-        ), get_admin_url( null, 'admin.php' ) );
+        if( empty( $this->parent_id ) ){
+            $url = add_query_arg( array(
+                'page' => $_REQUEST['page'],
+                'section' => $this->id,
+            ), get_admin_url( null, 'admin.php' ) );
+        }
+        else {
+            $url = add_query_arg( array(
+                'view' => $this->id
+            ), App::container()->get( $this->parent_id )->get_url() );
+        }
 
         return add_query_arg( $query, $url );
     }
 
-    public function get_view_url( $view ) {
+    public function get_view_url( $view, $query = [] ) {
 
-        $url = $this->get_url();
+        $url = $this->get_url( $query );
 
         if ( ! is_wp_error( $this->view( $view ) ) ) {
             $url = add_query_arg( 'view', $view, $url );

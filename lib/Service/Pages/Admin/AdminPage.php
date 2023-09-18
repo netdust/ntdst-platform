@@ -145,7 +145,9 @@ class AdminPage {
     public function __construct( array $args = [] ) {
         $this->set_values( $args );
         if( !empty($this->sections) ) foreach ($this->sections as &$section ) {
-            App::container()->get(AdminSection::class)->add( $section['id'] , $section );
+            App::container()->get(AdminSection::class)->add(
+                $section['id'] , array_merge( $section, ['singleton'=>true] )
+            );
             $section = App::container()->get( $section['id'] );
         }
     }
