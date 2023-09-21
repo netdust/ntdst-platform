@@ -6,7 +6,7 @@
  */
 
 
-namespace Netdust\Service\Pages\Admin;
+namespace Netdust\Utils\UI;
 
 use Netdust\Traits\Templates;
 use Netdust\Utils\Logger\Logger;
@@ -83,28 +83,14 @@ abstract class SettingsField {
 	 * ]
 	 */
 	public function __construct( $value, array $params ) {
-		$this->value        = $value;
-		$this->field_params = $params;
+
+		$this->value         = $value;
+		$this->field_params  = $params;
+        $this->template_root = dirname(__FILE__).'/templates';
 
 		if ( ! isset( $this->field_params['wrapper_class'] ) ) {
 			$this->field_params['wrapper_class'] = false;
 		}
-
-        /*
-		$errors = Logger::gather_errors(
-			$this->get_field_param( 'name' )
-		);
-
-		if ( $errors->has_errors() ) {
-			Logger::log(
-				'warning',
-				'invalid_field_missing_required_field_params',
-				'A constructed field is missing required field params.',
-				[ 'ref' => $this->get_field_type(), 'required_params' => [ 'name' ], 'field' => $this ]
-			);
-		}*/
-
-
 	}
 
 	/**
@@ -162,6 +148,7 @@ abstract class SettingsField {
 	 * @return string The template HTML output, or the error message for the template.
 	 */
 	public function place( $as_table = false ) {
+
 		$template_name = true === $as_table ? 'settings-field' : 'field';
 		$template      = $this->get_template( $template_name, $this->field_params );
 
@@ -254,92 +241,27 @@ abstract class SettingsField {
 		return $this->value;
 	}
 
-	/**
-	 * Fetches the valid templates and their visibility.
-	 *
-	 * override_visibility can be either "theme", "plugin", "public" or "private".
-	 *  theme   - sets the template to only be override-able by a parent, or child theme.
-	 *  plugin  - sets the template to only be override-able by another plugin.
-	 *  public  - sets the template to be override-able anywhere.
-	 *  private - sets the template to be non override-able.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return array of template properties keyed by the template name
-	 */
-	public function get_templates() {
-		return [
-			'settings-field' => [
-				'override_visibility' => 'private',
-			],
-			'input'          => [
-				'override_visibility' => 'private',
-			],
-			'field'          => [
-				'override_visibility' => 'private',
-			],
-		];
-	}
+    /**
+     * Locates the template based on the settings field's different hierarchy.
+     *
+     * @since 1.0.0
+     *
+     * @param $template_name string The template name to locate.
+     * @return string The path to the located template.
+     */
+    protected function get_template_path( $template_name ) {
+        // Bail early if this is the input template, or if the template path has a file to override.
+        $template_path = 'input' === $template_name
+            ? trailingslashit( $this->get_template_directory() ) . '/' .$template_name . '.php'
+            : trailingslashit( $this->get_template_root_directory() ) .'/' . $template_name . '.php';
 
-	/**
-	 * Locates the template based on the settings field's different hierarchy.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param $template_name string The template name to locate.
-	 * @return string The path to the located template.
-	 */
-	protected function locate_template( $template_name ) {
+        return apply_filters( "template:path", $template_path );
+    }
 
-		// Bail early if this is the input template, or if the template path has a file to override.
-		if ( 'input' === $template_name || file_exists( $this->get_template_path( $template_name ) ) ) {
-			return $this->get_template_path( $template_name );
-		} else {
-			return $this->get_admin_template_path( $template_name );
-		}
-	}
+    protected function get_template_group() {
+        return $this->get_field_type();
+    }
 
-	/**
-	 * Gets the admin template path.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $template_name The template name to locate.
-	 * @return string The path to the admin template.
-	 */
-	protected function get_admin_template_path( $template_name ) {
-		return $this->get_template_root_path() .'/admin/settings-fields/' . $template_name . '.php';
-	}
-
-	/**
-	 * Checks to see if the template file exists.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param $template_name string The template name to check.
-	 * @return bool True if the template file exists, false otherwise.
-	 */
-	public function template_file_exists( $template_name ) {
-		$template_file_exists = file_exists( $this->get_template_path( $template_name ) );
-		$settings_file_exists = file_exists( $this->get_admin_template_path( $template_name ) );
-
-		return $template_file_exists || $settings_file_exists;
-	}
-
-	/**
-	 * Fetches the template group name. This determines the sub-directory for the templates.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The template group name
-	 */
-	protected function get_template_group() {
-		return 'admin/settings-fields/' . $this->get_field_type();
-	}
-
-	protected function get_template_root_path() {
-		return dirname(__DIR__, 2) . '/templates';
-	}
 
 	public function __get( $key ) {
 		if ( isset( $this->$key ) ) {

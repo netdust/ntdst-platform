@@ -1,33 +1,32 @@
 <?php
 /**
- * Settings Select Field
+ * Settings Text Field
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
 
 
-namespace Netdust\Loaders\Admin\Factories\SettingsFields;
-
-use Netdust\Loaders\Admin\Abstracts\SettingsField;
+namespace Netdust\Utils\UI\SettingsFields;
+use Netdust\Utils\UI\SettingsField;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Class Select
+ * Class Text
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
-class Select extends SettingsField {
+class Text extends SettingsField {
 
 	/**
 	 * @inheritDoc
 	 */
 	function get_field_type() {
-		return 'select';
+		return 'text';
 	}
 
 	/**

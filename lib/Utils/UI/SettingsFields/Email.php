@@ -7,9 +7,9 @@
  */
 
 
-namespace Netdust\Loaders\Admin\Factories\SettingsFields;
+namespace Netdust\Utils\UI\SettingsFields;
 
-use Netdust\Loaders\Admin\Abstracts\SettingsField;
+use Netdust\Utils\UI\SettingsField;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

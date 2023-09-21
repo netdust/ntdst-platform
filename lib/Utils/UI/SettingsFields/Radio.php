@@ -1,33 +1,32 @@
 <?php
 /**
- * Settings Password Field
+ * Settings Radio Field
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
 
+namespace Netdust\Utils\UI\SettingsFields;
 
-namespace Netdust\Loaders\Admin\Factories\SettingsFields;
-
-use Netdust\Loaders\Admin\Abstracts\SettingsField;
+use Netdust\Utils\UI\SettingsField;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Class Password
+ * Class Radio
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
-class Password extends SettingsField {
+class Radio extends SettingsField {
 
 	/**
 	 * @inheritDoc
 	 */
 	function get_field_type() {
-		return 'password';
+		return 'radio';
 	}
 
 	/**

@@ -6,6 +6,7 @@ use lucatume\DI52\Container;
 
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
+use Netdust\Vormingen\Services\Learndash\VAD_Learndash_API;
 
 /**
  * Class DependencyRegistry
@@ -80,6 +81,27 @@ class DependencyRegistry {
             $this->container->singleton($id, $this->instanceClass);
         }
 
+    }
+
+    public function __call( $method, $arguments ) {
+        // If this method exists, bail and just get the method.
+        if ( method_exists( $this, $method ) ) {
+            return $this->$method( ...$arguments );
+        }
+
+        if ( method_exists( $instance = $this->container->get( $this->instanceClass ), $method ) ) {
+            return $instance->$method( ...$arguments );
+        }
+
+        return new \WP_Error(
+            'method_not_found',
+            "The method could not be called. Either register this method as api, or create a method for this call.",
+            [
+                'method'    => $method,
+                'args'      => $arguments,
+                'backtrace' => debug_backtrace(),
+            ]
+        );
     }
 
 }

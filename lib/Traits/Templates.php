@@ -57,18 +57,6 @@ trait Templates {
 	 */
 	protected abstract function get_template_group();
 
-	/**
-	 * Retrieves the template group's path. This determines where templates will be searched for within this plugin.
-	 *
-     * @todo figure out how to set this dynamicly without dependencies
-	 * @since 1.0.0
-	 *
-	 * @return string The full path to the template root directory.
-	 */
-	protected function get_template_root_path() {
-        return $this->template_root ?? dirname( APP_PLUGIN_FILE ) . '/app/templates';
-    }
-
 
 	/**
 	 * Gets the specified template, if it is valid.
@@ -154,6 +142,18 @@ trait Templates {
 		return [];
 	}
 
+    /**
+     * Retrieves the template group's path. This determines where templates will be searched for within this plugin.
+     *
+     * @todo figure out how to set this dynamicly without dependencies
+     * @since 1.0.0
+     *
+     * @return string The full path to the template root directory.
+     */
+    protected function get_template_root_directory() {
+        return $this->template_root ?? dirname( APP_PLUGIN_FILE ) . '/app/templates';
+    }
+
 	/**
 	 * Gets the template directory based on the template group.
 	 *
@@ -163,7 +163,7 @@ trait Templates {
 	 */
 	protected function get_template_directory() {
 		$template_group     = $this->get_template_group();
-		$template_directory = trailingslashit( $this->get_template_root_path() ) . $template_group;
+		$template_directory = trailingslashit( $this->get_template_root_directory() ) . $template_group;
 
 		return $template_directory;
 	}
@@ -178,23 +178,7 @@ trait Templates {
 	 * @return string The complete template path.
 	 */
 	protected function get_template_path( $template_name ) {
-		return trailingslashit( $this->get_template_directory() ) . $template_name . '.php';
-	}
-
-	/**
-	 * Locates the template that should be loaded.
-	 *
-	 * If a template is defined as public, the template can be overridden inside a theme, or child theme.
-	 * This function checks the child theme, then the parent theme, and finally the plugin fallback.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param $template_name string The template name to locate.
-	 *
-	 * @return string The path to the located template.
-	 */
-	protected function locate_template( $template_name ) {
-        return apply_filters( "template:path", $this->get_template_path( $template_name ) );
+		return apply_filters( "template:path",  trailingslashit( $this->get_template_directory() ) . '/' .$template_name . '.php' );
 	}
 
 	/**
@@ -231,7 +215,7 @@ trait Templates {
 
         do_action( 'template:before_template', $template_filter_args );
 
-        $this->include_file_with_scope( $this->locate_template( $template_name ), [
+        $this->include_file_with_scope( $this->get_template_path( $template_name ), [
             'template' => $this,
         ] );
 
