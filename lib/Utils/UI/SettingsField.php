@@ -253,8 +253,8 @@ abstract class SettingsField {
     protected function get_template_path( $template_name ) {
         // Bail early if this is the input template, or if the template path has a file to override.
         $template_path = 'input' === $template_name
-            ? trailingslashit( $this->get_template_directory() ) . '/' .$template_name . '.php'
-            : trailingslashit( $this->get_template_root_directory() ) .'/' . $template_name . '.php';
+            ? trailingslashit( $this->get_template_directory() )  . $template_name . '.php'
+            : trailingslashit( $this->get_template_root_directory() )  . $template_name . '.php';
 
         return apply_filters( "template:path", $template_path );
     }

@@ -48,7 +48,7 @@ class UIHelper implements UIInterface {
 
 
         if ( $echo && ($output instanceof  SettingsField) ) {
-            echo $output->place( );
+            echo $output->place(  );
         }else{
             return $output;
         }
