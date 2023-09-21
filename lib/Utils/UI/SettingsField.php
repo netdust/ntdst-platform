@@ -210,7 +210,8 @@ abstract class SettingsField {
 		$attribute_value = $this->get_param( $name );
 		$result          = '';
 		if ( false !== $attribute_value ) {
-			$result = "$name=\"$attribute_value\"";
+            if( is_bool($attribute_value) ) $result = "$name";
+			else $result = "$name=\"$attribute_value\"";
 		}
 
 		return $result;

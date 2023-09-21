@@ -34,6 +34,7 @@ $name = $template->get_param( 'name', '' );
 		'min',
 		'placeholder',
 		'readonly',
+        'required',
 		'step',
 	] ) ?>
 >

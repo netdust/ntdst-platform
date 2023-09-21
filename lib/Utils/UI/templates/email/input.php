@@ -36,6 +36,7 @@ $name = $template->get_param( 'name' );
 					'pattern',
 					'placeholder',
 					'readonly',
+                    'required',
 					'size',
 				] ); ?>
 >

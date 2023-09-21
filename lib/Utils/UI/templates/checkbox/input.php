@@ -29,5 +29,5 @@ $name = $template->get_param( 'name', '' );
 	<?php if ( $template->get_param( 'has_description' ) ): ?>
 		aria-describedby="<?= $name ?>_description"
 	<?php endif; ?>
-	<?= $template->attributes( [ 'readonly' ] ) ?>
+	<?= $template->attributes( [ 'readonly', 'required' ] ) ?>
 >
