@@ -34,7 +34,7 @@ class AutoLoader
                 $file = self::find_file( $class );
 
                 // If the file exists, use it.
-                if ( file_exists( $file ) ) {
+                if ( isset($file) && file_exists( $file ) ) {
                     require_once $file;
                     return true;
                 }
