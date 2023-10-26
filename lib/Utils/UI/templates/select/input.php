@@ -27,6 +27,7 @@ $description = $template->get_param( 'description', '' );
 		aria-describedby="<?= $name ?>_description"
 	<?php endif; ?>
 
+        style="display: block;"
 		class="<?= $template->get_param( 'class', 'regular-text' ) ?>"
 		<?= $template->attributes([
 			'autocomplete',

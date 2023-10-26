@@ -4,14 +4,14 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
-use Netdust\Traits\Templates;
 use Netdust\Utils\Logger\LoggerInterface;
 
 use Netdust\Traits\Setters;
 
+interface APIInterface {}
+
 class ApplicationProvider extends ServiceProvider {
     use Setters;
-    use Templates;
 
     public $name = 'Netdust';
 
@@ -268,15 +268,15 @@ class ApplicationProvider extends ServiceProvider {
 
     }
 
-    protected function get_template_group()
-    {
-        return '';
-    }
 
     public function __call( $method, $arguments ) {
         // If this method exists, bail and just get the method.
         if ( method_exists( $this, $method ) ) {
             return $this->$method( ...$arguments );
+        }
+
+        if ( method_exists( app( APIInterface::class ), $method ) ) {
+            return app( APIInterface::class )->$method( ...$arguments );
         }
 
         return new \WP_Error(
