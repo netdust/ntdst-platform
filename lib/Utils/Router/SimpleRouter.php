@@ -76,8 +76,12 @@ class SimpleRouter implements RouterInterface {
 
         $route = $this->router->match( '/' . ltrim( $requestUri, '/'), $method);
 
-        if( $route !== FALSE )
+        if( $route !== FALSE ) {
+            foreach ( $route['params'] as $param => $value ) {
+                \Netdust\App::get( Request::class )->set_var( $param, $value );
+            }
             return call_user_func_array( $route['target'], $route['params'] );
+        }
 
         return FALSE;
     }

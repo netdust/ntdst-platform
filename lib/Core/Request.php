@@ -2,6 +2,8 @@
 
 namespace Netdust\Core;
 
+use Netdust\Utils\Logger\Logger;
+
 final class Request
 {
 
@@ -16,6 +18,8 @@ final class Request
         'query_method' => '',
         'http_referer' => '',
     ];
+
+    private array $query_vars = [];
 
     private array $vars = [];
 
@@ -123,14 +127,14 @@ final class Request
 
     public function vars()
     {
-        parse_str($this->getQuery(), $this->vars);
-        return $this->vars;
+        parse_str($this->getQuery(), $this->query_vars);
+        return array_merge( $this->vars, $this->query_vars );
     }
 
-    public function set( string $key, $value ) {
+    public function set_var( string $key, $value ) {
         $this->vars[$key]=$value;
     }
-    public function get( string $key ) {
+    public function get_var( string $key ) {
         return $this->vars[$key];
     }
 
