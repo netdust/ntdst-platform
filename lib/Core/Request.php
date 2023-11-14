@@ -19,8 +19,6 @@ final class Request
         'http_referer' => '',
     ];
 
-    private array $query_vars = [];
-
     private array $vars = [];
 
     /**
@@ -41,6 +39,7 @@ final class Request
     public function __construct(array $server = [])
     {
         $this->server = $server ? : $_SERVER;
+        parse_str($this->getQuery(), $this->vars);
     }
 
     public function getScheme(): string
@@ -127,8 +126,7 @@ final class Request
 
     public function vars()
     {
-        parse_str($this->getQuery(), $this->query_vars);
-        return array_merge( $this->vars, $this->query_vars );
+        return $this->vars;
     }
 
     public function set_var( string $key, $value ) {
@@ -137,6 +135,11 @@ final class Request
     public function get_var( string $key ) {
         return $this->vars[$key];
     }
+
+    public function has_var( string $key ) {
+        return ! empty( $this->vars[$key] );
+    }
+
 
     /**
      * Parse server array to find url components.
