@@ -15,6 +15,8 @@ use Netdust\Traits\Templates;
 
 use Netdust\Utils\Logger\Logger;
 
+use Netdust\Utils\UI\SettingsField;
+use Netdust\Utils\UI\UIInterface;
 use WP_Error;
 
 
@@ -125,11 +127,14 @@ class AdminSection {
 	public function __construct(  array $args = [] ) {
         $this->set_values( $args );
         if( !empty($this->views) ) foreach ($this->views as &$view ) {
-            App::container()->get(AdminSection::class)->add(
+            App::get(AdminSection::class)->add(
                 $view['id'],
                 array_merge( $view, ['singleton'=>true, 'parent_id'=>$this->id] )
             );
-            $view = App::container()->get( $view['id'] );
+            $view = App::get( $view['id'] );
+        }
+        if( !empty($this->fields) ) foreach ($this->fields as &$field ) {
+            app(UIInterface::class)->make( $field['type'], $field['value'],  $field, false);
         }
 		$this->options_key = false === $this->options_key ? $this->id . '_settings' : $this->options_key;
 	}
@@ -138,7 +143,7 @@ class AdminSection {
 
         if( empty( $this->parent_id ) ){
             $url = add_query_arg( array(
-                'page' => $_REQUEST['page'],
+                'page' => $_REQUEST['page']??'',
                 'section' => $this->id,
             ), get_admin_url( null, 'admin.php' ) );
         }
@@ -203,7 +208,7 @@ class AdminSection {
 	public function get_field( $key ) {
 		if ( isset( $this->fields[ $key ] ) ) {
 			if ( ! $this->fields[ $key ] instanceof SettingsField ) {
-				$this->fields[ $key ] = self::make_class( $this->fields[ $key ] );
+				$this->fields[ $key ] = app(UIInterface::class)->make( $this->fields[ $key ]['type'], $this->fields[ $key ]['value'],  $this->fields[ $key ], false);
 			}
 
 			return $this->fields[ $key ];
@@ -240,14 +245,10 @@ class AdminSection {
 		}
 
 		if ( ! isset( $updated ) ) {
-			return Logger::error(
-				'The field was not updated because the value is the same as the current field value',
-                'field_not_changed',
-				[
-					'field_name' => $field_name,
-					'value'      => $_POST[ $field_name ] ?? 'value not set',
-				]
-			);
+            return new \WP_Error( 'field_not_changed', 'The field was not updated because the value is the same as the current field value', [
+                'field_name' => $field_name,
+                'value'      => $_POST[ $field_name ] ?? 'value not set',
+            ]);
 		}
 
 		return $updated;
@@ -268,83 +269,34 @@ class AdminSection {
 
 		// Bail early if this field was already set.
 		if ( is_wp_error( $updated ) ) {
-			return Logger::error(  $updated->get_error_message(), $updated->get_error_code(), $updated->get_error_data()  );
+			return $updated;
 		}
 
-        /*
-		// Update the option.
-		$updated = Underpin()->options()->get( $options_key )->update( $updated, $field->get_setting_key() );
-
-		if ( true !== $updated ) {
-			$updated = Logger::error(
-                'A setting failed to update.',
-				'update_request_settings_failed_to_update',
-				[ 'setting' => $options_key, 'updated_return' => $updated ]
-			);
-		} else {
-			Logger::debug(
-                'A setting updated successfully.',
-				'update_request_settings_succeeded_to_update',
-			);
-		}*/
+        update_option( $field->get_setting_key(), $updated );
 
 		return $updated;
 	}
 
-	/**
-	 * Validates this request.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return true|WP_Error True if request is validated, otherwise WP_Error containing what went wrong.
-	 */
-	public function validate_request() {
-		$errors = new \WP_Error();
-
-		foreach ( $this->fields as $key => $field ) {
-			if ( ! $this->get_field( $key ) instanceof SettingsField ) {
-				$errors->add(
-					'field_invalid',
-					'The provided field is not an instance of a settings field',
-					[ 'field' => $field ]
-				);
-			}
-		}
-
-		return $errors->has_errors() ? $errors : true;
-	}
 
 	/**
 	 * Action to save all fields.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return true|WP_Error True if all fields were saved, WP_Error containing errors if not.
 	 */
-	public function save() {
+	public function save(): bool|WP_Error {
 		$errors = new \WP_Error;
 
 		foreach ( $this->fields as $key => $field ) {
 			$field = $this->get_field( $key );
-			$saved = $this->save_field( $field );
+            $errors = $this->save_field( $field );
 
-			if ( is_wp_error( $saved ) || ! $field instanceof SettingsField ) {
-				if ( 'field_not_changed' !== $saved->get_error_code() ) {
-					Logger::debug( $saved->get_error_code(), 'failed_to_save_field');
-				}
-			} else {
-				$this->saved_fields[ $field->get_field_param( 'name' ) ] = $field;
+			if ( !is_wp_error( $errors ) ) {
+                $this->saved_fields[ $field->get_field_param( 'name' ) ] = $field;
 			}
 		}
 
-		if ( $errors->has_errors() ) {
-			Logger::debug(
-                'some settings failed to save',
-				'failed_to_save_settings'
-			);
-		}
-
-		return $errors->has_errors() ? true : $errors;
+		return is_wp_error( $errors ) ? $errors : true;
 	}
 
 

@@ -114,6 +114,18 @@ abstract class SettingsField {
 		}
 	}
 
+    /**
+     * Adds the specified field parameter.
+     *
+     * @since 1.0.0
+     *
+     * @param string $param The param to add.
+     * @param mixed $value The param value.
+     */
+    public function add_field_param( $param, $value ) {
+        $this->field_params[ $param ] = $value;
+    }
+
 	/**
 	 * Retrieves the specified field parameter.
 	 *

@@ -123,7 +123,7 @@ class AdminPage {
 	 *
 	 * @var string the nonce action.
 	 */
-	protected $nonce_action;
+	protected $nonce_action = 'netdust_options_action';
 
 	/**
 	 * Determines how this settings page will be laid out.
@@ -145,10 +145,10 @@ class AdminPage {
     public function __construct( array $args = [] ) {
         $this->set_values( $args );
         if( !empty($this->sections) ) foreach ($this->sections as &$section ) {
-            App::container()->get(AdminSection::class)->add(
+            App::get(AdminSection::class)->add(
                 $section['id'] , array_merge( $section, ['singleton'=>true] )
             );
-            $section = App::container()->get( $section['id'] );
+            $section = App::get( $section['id'] );
         }
     }
 
@@ -191,7 +191,7 @@ class AdminPage {
 	 */
 	public function do_actions() {
 		add_action( 'admin_menu', [ $this, 'register_menu' ], 8 );
-		add_action( 'admin_init', [ $this, 'handle_update_request' ], 99 );
+		add_action( 'admin_post_save_settings', [ $this, 'handle_update_request' ], 99 );
 	}
 
 	/**
@@ -301,42 +301,28 @@ class AdminPage {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return true|WP_Error True if saved successfully, otherwise WP_Error.
 	 */
 	public function handle_update_request() {
 
-        $page_valid    = $this->validate_request();
-		$section_valid = new WP_Error();
+        if ( is_wp_error( $errors = $this->validate_request() ) ) {
+            Logger::error( $errors );
+        }
+
+        $errors = new \WP_Error();
 
 		if ( 'single' === $this->layout ) {
 			foreach ( $this->get_sections() as $section ) {
-                if(  $section instanceof AdminSection ) {
-                    $section_valid = $section->validate_request();
-                }
-			}
-		} else if(  $this->section() instanceof AdminSection ) {
-			$section_valid = $this->section()->validate_request();
-		}
-
-		if ( is_wp_error( $section_valid ) ) {
-			return $section_valid;
-		}
-
-		if ( 'single' === $this->layout ) {
-			$errors = new \WP_Error();
-
-			foreach ( $this->get_sections() as $section ) {
-				$errors = $section->save();
-			}
-
-			if ( is_wp_error( $errors ) ) {
-				return $errors;
-			} else {
-				return true;
+                $errors = $section->save();
 			}
 		} else {
-			return $this->section()->save();
+            $errors = $this->section()->save();
 		}
+
+        if( is_wp_error( $errors ) ) {
+            Logger::error( $errors );
+        }
+        else wp_redirect($_POST['_wp_http_referer']);
+
 	}
 
 	/**

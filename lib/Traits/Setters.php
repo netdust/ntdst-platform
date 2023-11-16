@@ -37,7 +37,9 @@ trait Setters {
 		}
 	}
 
-	/**
+
+
+    /**
 	 * Set a custom callback from the provided argument, and set or arguments.
 	 *
 	 * @since 1.2.0
