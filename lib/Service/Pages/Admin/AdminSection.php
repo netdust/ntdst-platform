@@ -139,11 +139,11 @@ class AdminSection {
 		$this->options_key = false === $this->options_key ? $this->id . '_settings' : $this->options_key;
 	}
 
-    public function get_url( $query = [] ) {
+    public function get_url( $query = [], $page='' ) {
 
         if( empty( $this->parent_id ) ){
             $url = add_query_arg( array(
-                'page' => $_REQUEST['page']??'',
+                'page' => $_REQUEST['page']??$page,
                 'section' => $this->id,
             ), get_admin_url( null, 'admin.php' ) );
         }
