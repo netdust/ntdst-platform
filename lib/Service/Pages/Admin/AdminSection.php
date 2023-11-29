@@ -143,14 +143,14 @@ class AdminSection {
 
         if( empty( $this->parent_id ) ){
             $url = add_query_arg( array(
-                'page' => $_REQUEST['page']??$page,
+                'page' => app()->config('admin')['menu_slug'],
                 'section' => $this->id,
             ), get_admin_url( null, 'admin.php' ) );
         }
         else {
             $url = add_query_arg( array(
                 'view' => $this->id
-            ), App::container()->get( $this->parent_id )->get_url() );
+            ), App::container()->get( $this->parent_id )->get_url( ) );
         }
 
         return add_query_arg( $query, $url );

@@ -370,6 +370,7 @@ class AdminPage {
 	 */
 	public function get_url( $query = [] ) {
 
+        Logger::error($this->menu_slug);
         $url = add_query_arg( array(
             'page' => $this->menu_slug,
         ), get_admin_url( null, 'admin.php' ) );
