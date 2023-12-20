@@ -12,6 +12,7 @@ use Netdust\Utils\Logger\Logger;
 
 use Netdust\Traits\Templates;
 use Netdust\Traits\Features;
+use Netdust\Utils\Logger\LoggerInterface;
 
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -35,7 +36,7 @@ abstract class Shortcode {
      *
      * @var array
      */
-    protected $atts = [];
+    protected array $atts = [];
 
     /**
      * The default shortcode att values.
@@ -44,7 +45,7 @@ abstract class Shortcode {
      *
      * @var array
      */
-    protected $defaults = [];
+    protected array $defaults = [];
 
     /**
      * The name of this shortcode.
@@ -53,7 +54,7 @@ abstract class Shortcode {
      *
      * @var string
      */
-    protected $shortcode;
+    protected string $shortcode;
 
     /**
      * Shortcode constructor
@@ -73,15 +74,15 @@ abstract class Shortcode {
      *
      * @return mixed The shortcode action result.
      */
-    protected abstract function shortcode_actions( array $atts );
+    protected abstract function shortcode_actions( array $atts ): string;
 
     /**
      * @inheritDoc
      */
-    public function do_actions() {
+    public function do_actions(): void {
         add_shortcode( $this->shortcode, [ $this, 'shortcode' ] );
 
-        Logger::info(
+	    app()->make( LoggerInterface::class )->info(
             'A shortcode has been added',
             'shortcode'
         );
@@ -95,21 +96,24 @@ abstract class Shortcode {
      * @param array $atts The shortcode attributes
      * @return mixed The shortcode action result.
      */
-    public function shortcode( $atts = [], string $content='', string $shortcode='' ) {
+    public function shortcode( array $atts = [], string $content='', string $shortcode='' ): string {
         $atts = array_merge( $this->defaults, is_array($atts) ? $atts : [] );
         return $this->shortcode_actions( $atts );
     }
 
-    protected function get_template_group() {
+    protected function get_template_group(): string {
         return 'shortcodes';
     }
 
 
-    public function __get( $key ) {
+    public function __get( string $key ): mixed {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-            return new \WP_Error( 'shortcode_param_not_set', 'The key ' . $key . ' could not be found.' );
+	        return app()->make( LoggerInterface::class )->error(
+		        'The key ' . $key . ' could not be found.',
+		        'shortcode_param_not_set'
+	        );
         }
     }
 

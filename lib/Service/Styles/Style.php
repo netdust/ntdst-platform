@@ -5,7 +5,7 @@ namespace Netdust\Service\Styles;
 
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
-use Netdust\Utils\Logger\Logger;
+use Netdust\Utils\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -20,17 +20,15 @@ class Style implements StyleInterface {
      * The handle for this style.
      *
      * @since 1.0.0
-     * @var string the script handle.
      */
-    public $handle;
+    public string $handle;
 
     /**
      * The version.
      *
      * @since 1.0.0
-     * @var string
      */
-    public $ver = false;
+    public string|bool $ver = false;
 
     /**
      * The source url for this style.
@@ -38,7 +36,7 @@ class Style implements StyleInterface {
      * @since 1.0.0
      * @var bool|string
      */
-    public $src = false;
+    public string|bool $src = false;
 
     /**
      * The dependencies for this style.
@@ -46,7 +44,7 @@ class Style implements StyleInterface {
      * @since 1.0.0
      * @var array
      */
-    public $deps = [];
+    public array $deps = [];
 
     /**
      * If this style should be displayed in the footer.
@@ -54,7 +52,7 @@ class Style implements StyleInterface {
      * @since 1.0.0
      * @var bool
      */
-    public $in_footer = false;
+    public bool $in_footer = false;
 
     /**
      * If this script needs decoration.
@@ -62,7 +60,7 @@ class Style implements StyleInterface {
      * @since 1.0.0
      * @var bool
      */
-    public $middlewares;
+    public bool $middlewares;
 
     /**
      * Style constructor
@@ -76,7 +74,7 @@ class Style implements StyleInterface {
     /**
      * @inheritDoc
      */
-    public function do_actions() {
+    public function do_actions(): void {
         add_action( 'init', [ $this, 'register' ] );
     }
 
@@ -87,7 +85,7 @@ class Style implements StyleInterface {
      *
      * @return bool
      */
-    public function is_enqueued() {
+    public function is_enqueued(): bool {
         return (bool) wp_styles()->query( $this->handle, 'enqueued' );
     }
 
@@ -97,18 +95,18 @@ class Style implements StyleInterface {
      *
      * @since 1.0.0
      */
-    public function register() {
+    public function register(): void {
 
         $registered = wp_register_style( $this->handle, $this->src, $this->deps, $this->ver, $this->in_footer );
 
         if ( false === $registered ) {
-            Logger::error(
+            app()->make( LoggerInterface::class )->error(
                 'The style ' . $this->handle . ' failed to register. That is all I know, unfortunately.',
                 'style_was_not_registered',
                 [ 'ref' => $this->handle ]
             );
         } else {
-            Logger::info(
+	        app()->make( LoggerInterface::class )->info(
                 'The style ' . $this->handle . ' registered successfully.',
                 'style_was_registered'
             );
@@ -120,18 +118,18 @@ class Style implements StyleInterface {
      *
      * @since 1.0.0
      */
-    public function enqueue() {
+    public function enqueue(): void {
 
         wp_enqueue_style( $this->handle );
 
         // Confirm it was enqueued.
         if ( wp_style_is( $this->handle ) ) {
-            Logger::info(
+	        app()->make( LoggerInterface::class )->info(
                 'The style ' . $this->handle . ' has been enqueued.',
                 'style_was_enqueued'
             );
         } else {
-            Logger::error(
+	        app()->make( LoggerInterface::class )->error(
                 'The style ' . $this->handle . ' failed to enqueue.',
                 'style_failed_to_enqueue',
                 [ 'ref' => $this->handle ]
@@ -140,11 +138,14 @@ class Style implements StyleInterface {
 
     }
 
-    public function __get( $key ) {
+    public function __get( string $key ): mixed {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-            return new \WP_Error( 'style_param_not_set', 'The key ' . $key . ' could not be found.' );
+	        return app()->make( LoggerInterface::class )->error(
+		        'The key ' . $key . ' could not be found',
+		        'style_param_not_set'
+	        );
         }
     }
 

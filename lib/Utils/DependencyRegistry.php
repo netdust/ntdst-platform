@@ -29,11 +29,11 @@ class DependencyRegistry {
         $this->instanceClass = end($instanceClass);
     }
 
-    public function get( $id ) {
+    public function get( string $id ): mixed {
         return $this->container->get( $id );
     }
 
-    public function add( $id, $args = [] ) {
+    public function add( string $id, array $args = [] ): void {
 
         // make sure the constructor gets the arguments when needed
         $this->container->when( $id )->needs( '$args' )->give( $args );
@@ -59,9 +59,9 @@ class DependencyRegistry {
 
     }
 
-    protected function bind( $id, $args ) {
+    protected function bind( string $id, array $args ): void {
 
-        if( key_exists('middlewares', $args ) ) {
+        if( !empty($args) && key_exists('middlewares', $args ) ) {
             $args['middlewares'][] = $this->instanceClass;
             $this->container->bindDecorators($id, $args['middlewares'] );
         }
@@ -71,9 +71,9 @@ class DependencyRegistry {
 
     }
 
-    protected function bindSingleton( $id, $args ) {
+    protected function bindSingleton( string $id, array $args ): void {
 
-        if( key_exists('middlewares', $args ) ) {
+        if( !empty($args) && key_exists('middlewares', $args ) ) {
             $args['middlewares'][] = $this->instanceClass;
             $this->container->singletonDecorators($id, $args['middlewares'] );
         }
@@ -83,7 +83,7 @@ class DependencyRegistry {
 
     }
 
-    public function __call( $method, $arguments ) {
+    public function __call( $method, $arguments ): mixed {
         // If this method exists, bail and just get the method.
         if ( method_exists( $this, $method ) ) {
             return $this->$method( ...$arguments );

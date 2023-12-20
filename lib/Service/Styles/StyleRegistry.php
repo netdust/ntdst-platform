@@ -3,8 +3,9 @@
 namespace Netdust\Service\Styles;
 
 use lucatume\DI52\Container;
-use Netdust\Utils\Logger\Logger;
+
 use Netdust\Utils\DependencyRegistry;
+use Netdust\Utils\Logger\LoggerInterface;
 
 
 class StyleRegistry extends DependencyRegistry {
@@ -16,7 +17,7 @@ class StyleRegistry extends DependencyRegistry {
         }
     }
 
-    public function get( $id ) {
+    public function get( array|string $id ): mixed {
         if( is_array($id) ) {
             $instances = [];
             foreach ( $id as $style ){
@@ -28,20 +29,19 @@ class StyleRegistry extends DependencyRegistry {
         return $this->container->get( $id );
     }
 
-    public function enqueue( $handle )
+    public function enqueue( string $handle ): bool
     {
         $style = $this->get($handle);
         $style->enqueue();
         return true;
     }
 
-    protected function is_valid( $instanceClass ) {
+    protected function is_valid( string $instanceClass ): bool|\WP_Error {
         if( ! in_array( StyleInterface::class, class_implements($instanceClass) ) ) {
-            $error = Logger::error(
+            return app()->make( LoggerInterface::class )->error(
                 'The specified style could not be added because it doesnt implement StyleInterface.',
                 'style_not_added'
             );
-            throw new \Exception($error->get_error_message());
         }
 
         return true;

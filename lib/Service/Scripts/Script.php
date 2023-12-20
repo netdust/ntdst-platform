@@ -7,6 +7,7 @@ use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
 
 use Netdust\Utils\Logger\Logger;
+use Netdust\Utils\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -96,7 +97,7 @@ class Script implements ScriptInterface {
     /**
      * @inheritDoc
      */
-    public function do_actions() {
+    public function do_actions(): void {
         add_action( 'init', [ $this, 'register' ] );
     }
 
@@ -142,7 +143,7 @@ class Script implements ScriptInterface {
      *
      * @since 1.0.0
      */
-    public function enqueue() {
+    public function enqueue(): void {
 
         $this->localize();
 
@@ -150,16 +151,16 @@ class Script implements ScriptInterface {
 
         // Confirm it was enqueued.
         if ( wp_script_is( $this->handle ) ) {
-            Logger::info(
+	        app()->make( LoggerInterface::class )->info(
                 'The script ' . $this->handle . ' has been enqueued.',
                 'script_was_enqueued'
             );
 
         } else {
-            Logger::error(
+	        app()->make( LoggerInterface::class )->error(
                 'The script ' . $this->handle . ' failed to enqueue.',
                 'script_failed_to_enqueue',
-                [ 'ref' => $this->handle ]
+                [ 'ref' => $this->handle, 'src' => $this->src ]
             );
 
         }
@@ -171,7 +172,7 @@ class Script implements ScriptInterface {
      * @since 3.0.0
      *
      */
-    protected function get_dependencies( ) {
+    protected function get_dependencies( ): void {
 
         if ( empty( $this->localized_var ) ) {
             $this->localized_var = $this->handle;
@@ -187,7 +188,7 @@ class Script implements ScriptInterface {
                     $this->ver = $file['version'];
                 }
             } else {
-                Logger::error(
+	            app()->make( LoggerInterface::class )->error(
                     'A dependency file was specified, but it could not be found.',
                     'dependencies_file_not_found',
                     [
@@ -208,7 +209,7 @@ class Script implements ScriptInterface {
      * @param $param
      * @return mixed|\WP_Error
      */
-    public function get_param( $param ) {
+    public function get_param( string $param ): mixed {
         if ( isset( $this->localized_params[ $param ] ) ) {
             return $this->localized_params[ $param ];
         }
@@ -225,35 +226,35 @@ class Script implements ScriptInterface {
      * @param mixed  $value The value
      * @return true|\WP_Error True if successful, \WP_Error if param was added too late.
      */
-    public function set_param( $key, $value ) {
+    public function set_param( string $key, mixed $value ): bool|\WP_Error {
 
         // If the script is already enqueued, return an error.
         if ( $this->is_enqueued() ) {
-            return Logger::error(
-                'The localized param ' . $key . ' was set after the script was already enqueued.',
-                'param_set_too_late',
-                [ 'handle' => $this->handle, 'key' => $key, 'value' => $value ]
-            );
+	        return app()->make( LoggerInterface::class )->error(
+		        'The localized param ' . $key . ' was set after the script was already enqueued.',
+		        'param_set_too_late'
+	        );
         }
 
         $this->localized_params[ $key ] = $value;
 
-        return true;
+	    return true;
     }
 
     /**
      * Removes a localized param.
      *
-     * @since 1.0.0
-     *
      * @param string $key The key to remove.
+          *
      * @return true|\WP_Error True if successful, \WP_Error if param was added too late.
+     *@since 1.0.0
+     *
      */
-    public function remove_param( $key ) {
+    public function remove_param( string $key ): bool|\WP_Error {
 
         // If the script is already enqueued, return an error.
         if ( wp_script_is( $this->handle ) ) {
-            return Logger::error(
+            return app()->make( LoggerInterface::class )->error(
                 'The localized param ' . $key . ' attempted to be removed after the script was already enqueued.',
                 'param_removed_too_late',
                 [ 'handle' => $this->handle, 'key' => $key ]
@@ -274,7 +275,7 @@ class Script implements ScriptInterface {
      * @since 1.0.0
      * @return array list of localized params as key => value pairs.
      */
-    public function get_localized_params() {
+    public function get_localized_params(): array {
         return $this->localized_params;
     }
 
@@ -283,7 +284,7 @@ class Script implements ScriptInterface {
      *
      * @since 1.0.0
      */
-    public function localize() {
+    public function localize(): void {
         $localized_params = $this->get_localized_params();
 
         // If we actually have localized params, localize and enqueue.
@@ -291,13 +292,13 @@ class Script implements ScriptInterface {
             $localized = wp_localize_script( $this->handle, $this->localized_var, $localized_params );
 
             if ( false === $localized ) {
-                Logger::error(
+	            app()->make( LoggerInterface::class )->error(
                     'The script ' . $this->handle . ' failed to localize. That is all I know, unfortunately.',
                     'script_was_not_localized',
                     [ 'handle' => $this->handle, 'params' => $localized_params ]
                 );
             } else {
-                Logger::info(
+	            app()->make( LoggerInterface::class )->info(
                     'The script ' . $this->handle . ' localized successfully.',
                     'script_was_localized'
                 );
@@ -305,11 +306,14 @@ class Script implements ScriptInterface {
         }
     }
 
-    public function __get( $key ) {
+    public function __get( string $key ): mixed {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-            return new \WP_Error( 'scrip_param_not_set', 'The key ' . $key . ' could not be found.' );
+	        return app()->make( LoggerInterface::class )->error(
+		        'The key ' . $key . ' could not be found.',
+		        'scrip_param_not_set'
+	        );
         }
     }
 

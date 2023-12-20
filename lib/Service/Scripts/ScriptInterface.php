@@ -3,6 +3,7 @@
 namespace Netdust\Service\Scripts;
 
 interface ScriptInterface {
-    public function do_actions();
-    public function enqueue();
+
+    public function do_actions(): void;
+    public function enqueue(): void;
 }

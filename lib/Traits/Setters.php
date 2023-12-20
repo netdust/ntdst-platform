@@ -6,21 +6,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use mysql_xdevapi\Exception;
+
+use Exception;
 use Netdust\Factories\Logger;
+use Netdust\Utils\Logger\LoggerInterface;
+use ReflectionObject;
+use ReflectionProperty;
 
 trait Setters {
 
-    /**
-     * Factory method.
-     *
-     * @since 3.0.0
-     *
-     * @param array $args List of arguments used to create this menu page.
-     */
-    public function set( array &$args ): void {
-        $this->set_values( $args );
-    }
+	protected array $values = [];
+
 
 	/**
 	 * Loop through each argument, set the value, and remove the value if it was already set.
@@ -38,7 +34,6 @@ trait Setters {
 	}
 
 
-
     /**
 	 * Set a custom callback from the provided argument, and set or arguments.
 	 *
@@ -49,12 +44,12 @@ trait Setters {
 	 *
 	 * @return false|mixed|\WP_Error
 	 */
-	protected function set_callable( $callable, ...$args ) {
+	protected function set_callable( callable $callable, mixed ...$args ): mixed {
 		if ( is_callable( $callable ) ) {
 			return call_user_func( $callable, ...$args );
 		}
 
-		return Logger::warning(
+		return app()->make( LoggerInterface::class )->warning(
             'The provided callback is invalid',
 			'invalid_callback',
 			[

@@ -26,7 +26,7 @@ class Role {
      *
      * @var string Role
      */
-    protected $id = '';
+    protected string $id = '';
 
     /**
      * capabilities
@@ -34,7 +34,7 @@ class Role {
      *
      * @var array
      */
-    protected $capabilities = array();
+    protected array $capabilities = array();
 
     /**
      * Role constructor
@@ -48,7 +48,7 @@ class Role {
     /**
      * @inheritDoc
      */
-    public function do_actions() {
+    public function do_actions(): void {
         // Add the role.
         add_role( $this->id, $this->name, $this->capabilities );
     }
