@@ -158,6 +158,10 @@ class ApplicationProvider extends ServiceProvider {
         return $this->container->get( $id );
     }
 
+	public function alias( string $id, mixed $implementation = null, array $afterBuildMethods = null ): void {
+		$this->container->bind( $id, $implementation, $afterBuildMethods );
+	}
+
     /**
      * get a config value.
      *
