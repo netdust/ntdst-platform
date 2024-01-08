@@ -1,26 +1,30 @@
 <?php
 
-namespace Netdust\Utils;
+namespace Netdust\Core;
 
-use lucatume\DI52\Container;
 use Netdust\App;
+
+
 use Netdust\Service\Posts\Post;
-use Netdust\Service\Styles\Style;
 use Netdust\Service\Scripts\Script;
+use Netdust\Service\Styles\Style;
 
 abstract class ServiceProvider extends \lucatume\DI52\ServiceProvider {
 
 
     public function register() {
-
+		/*
+	    $this->container->bind( WordPressController::class, function ( $c ) {
+		    return new WordPressController( $c[ WPEMERGE_VIEW_SERVICE_KEY ] );
+	    } );*/
     }
 
     /**
      * access to main ServiceProvider
      *
-     * @return App|mixed
+     * @return mixed
      */
-    public function app( $id = NTDST_APPLICATION) {
+    public function app( string $id = NTDST_APPLICATION): mixed {
         return $this->container->get( $id );
     }
     public function scripts() {

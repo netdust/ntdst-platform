@@ -34,7 +34,7 @@ if ( ! function_exists( 'add_action' ) ) {
  */
 require_once 'lib/Utils/AutoLoader.php';
 
-\Netdust\Utils\AutoLoader::setup_autoloader( [
+\Netdust\Core\AutoLoader::setup_autoloader( [
     'Psr\Container\\'=> dirname( __FILE__ ).'/vendor/psr/container/src/',
     'lucatume\DI52\\'=> dirname( __FILE__ ).'/vendor/di52-master/src/',
     'AltoRouter'=> dirname( __FILE__ ).'/vendor/AltoRouter-master/',

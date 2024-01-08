@@ -1,6 +1,6 @@
 <?php
 
-namespace Netdust\Utils;
+namespace Netdust\Core;
 
 class AutoLoader
 {
