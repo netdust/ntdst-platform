@@ -15,6 +15,7 @@ use Netdust\Traits\Classes;
 use Netdust\Traits\Setters;
 
 use Netdust\Utils\Logger\Logger;
+use Netdust\Utils\Logger\LoggerInterface;
 use WP_Error;
 
 
@@ -42,7 +43,7 @@ class AdminPage {
 	 *
 	 * @var string the parent slug.
 	 */
-	protected $parent_menu = 'options-general.php';
+	protected string $parent_menu = 'options-general.php';
 
 	/**
 	 * The title to display in the admin Page.
@@ -51,7 +52,7 @@ class AdminPage {
 	 *
 	 * @var string the menu title.
 	 */
-	protected $menu_title = '';
+	protected string $menu_title = '';
 
 	/**
 	 * The page title to display on the page.
@@ -60,7 +61,7 @@ class AdminPage {
 	 *
 	 * @var string the page title.
 	 */
-	protected $page_title = '';
+	protected string $page_title = '';
 
 	/**
 	 * The capability required to visit this admin page.
@@ -69,7 +70,7 @@ class AdminPage {
 	 *
 	 * @var string the capability.
 	 */
-	protected $capability = 'administrator';
+	protected string $capability = 'administrator';
 
 	/**
 	 * The unique identifier for this menu.
@@ -78,7 +79,7 @@ class AdminPage {
 	 *
 	 * @var string the menu slug.
 	 */
-	protected $menu_slug = '';
+	protected string $menu_slug = '';
 
 	/**
 	 * The slug for the menu that this should be placed under.
@@ -87,7 +88,7 @@ class AdminPage {
 	 *
 	 * @var string the menu slug.
 	 */
-	protected $parent_slug = '';
+	protected string $parent_slug = '';
 
 	/**
 	 * Icon to display in menu.
@@ -95,7 +96,7 @@ class AdminPage {
 	 * @var string The URL to the icon to be used for this menu. Can be a base64-encoded SVG, a dashicons helper class,
 	 *      or an empty string, if you want to manipulate this via CSS.
 	 */
-	public $icon = '';
+	public string $icon = '';
 
 	/**
 	 * The position in the menu order this item should appear.
@@ -104,7 +105,7 @@ class AdminPage {
 	 *
 	 * @var int the menu position.
 	 */
-	protected $position = null;
+	protected ?int $position = null;
 
 
 	/**
@@ -114,7 +115,7 @@ class AdminPage {
 	 *
 	 * @var array
 	 */
-	protected $sections = [];
+	protected array $sections = [];
 
 	/**
 	 * The nonce action used to validate when interfacing with this page.
@@ -123,7 +124,7 @@ class AdminPage {
 	 *
 	 * @var string the nonce action.
 	 */
-	protected $nonce_action = 'netdust_options_action';
+	protected string $nonce_action = 'netdust_options_action';
 
 	/**
 	 * Determines how this settings page will be laid out.
@@ -135,7 +136,7 @@ class AdminPage {
 	 *
 	 * @var string The layout type. Either "single", or "tabs"
 	 */
-	protected $layout = 'single';
+	protected string $layout = 'single';
 
     /**
      * AdminPage constructor
@@ -157,7 +158,7 @@ class AdminPage {
 	 *
 	 * @since 1.0.0
 	 */
-	public function render_callback() {
+	public function render_callback(): void {
 		echo $this->get_template( 'admin', [
 			'title'        => $this->page_title,
 			'section'      => $this->get_current_section_key(),
@@ -174,7 +175,7 @@ class AdminPage {
 	 *
 	 * @return string The current section name, or an empty string.
 	 */
-	public function get_current_section_key() {
+	public function get_current_section_key(): ?string {
 
         if ( isset( $_GET['section'] ) && ! is_wp_error( $this->section( $_GET['section'] ) ) ) {
 			return $_GET['section'];
@@ -189,7 +190,7 @@ class AdminPage {
 	/**
 	 * @inheritDoc
 	 */
-	public function do_actions() {
+	public function do_actions(): void {
 		add_action( 'admin_menu', [ $this, 'register_menu' ], 8 );
 		add_action( 'admin_post_save_settings', [ $this, 'handle_update_request' ], 99 );
 	}
@@ -200,7 +201,7 @@ class AdminPage {
 	 * @since 1.0.0
 	 * @return bool
 	 */
-	public function is_admin_page() {
+	public function is_admin_page(): bool {
 		return is_admin() && isset( $_GET['page'] ) && $this->menu_slug === $_GET['page'];
 	}
 
@@ -214,7 +215,7 @@ class AdminPage {
 	 *
 	 * @return AdminSection|\WP_Error
 	 */
-	public function section( $id = '' ) {
+	public function section( string $id = '' ): AdminSection|\WP_Error {
 
 		if ( '' === $id ) {
 			$id = $this->get_current_section_key();
@@ -224,18 +225,16 @@ class AdminPage {
 			return $this->sections[ $id ];
 		}
 
-		return Logger::error(
-			'No valid section could be found',
-            'no_admin_section_found',
+		return app()->make( LoggerInterface::class )->error( 'No valid section could be found', 'no_admin_section_found',
 			[ 'sections' => $this->sections, 'admin_page' => $this->parent_menu ]
 		);
 	}
 
-    public function add_section( AdminSection $section ) {
+    public function add_section( AdminSection $section ): void {
         $this->sections[ $section->id() ] = $section;
     }
 
-	public function get_sections() {
+	public function get_sections(): array {
 		return apply_filters('admin_page:sections', $this->sections );
 	}
 
@@ -246,7 +245,7 @@ class AdminPage {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function validate_request() {
+	public function validate_request(): bool|WP_Error {
 		$errors = new \WP_Error();
 
 		// If this is not an admin page, bail
@@ -302,10 +301,10 @@ class AdminPage {
 	 * @since 1.0.0
 	 *
 	 */
-	public function handle_update_request() {
+	public function handle_update_request():void {
 
         if ( is_wp_error( $errors = $this->validate_request() ) ) {
-            Logger::error( $errors );
+            app()->make( LoggerInterface::class )->error( $errors );
         }
 
         $errors = new \WP_Error();
@@ -319,7 +318,7 @@ class AdminPage {
 		}
 
         if( is_wp_error( $errors ) ) {
-            Logger::error( $errors );
+            app()->make( LoggerInterface::class )->error( $errors );
         }
         else wp_redirect($_POST['_wp_http_referer']);
 
@@ -330,7 +329,7 @@ class AdminPage {
 	 *
 	 * @since 1.0.0
 	 */
-	public function register_menu() {
+	public function register_menu(): void {
 		if ( empty( $this->parent_slug ) ) {
 			add_menu_page(
 				$this->page_title,
@@ -353,7 +352,7 @@ class AdminPage {
 			);
 		}
 
-		Logger::info(
+        app()->make( LoggerInterface::class )->info(
 			'A page has been added.',
 			'admin_page_added'
 		);
@@ -368,9 +367,7 @@ class AdminPage {
 	 *
 	 * @return string
 	 */
-	public function get_url( $query = [] ) {
-
-        Logger::error($this->menu_slug);
+	public function get_url( array $query = [] ): string {
         $url = add_query_arg( array(
             'page' => $this->menu_slug,
         ), get_admin_url( null, 'admin.php' ) );
@@ -388,7 +385,7 @@ class AdminPage {
 	 *
 	 * @return string a URL of the specified section of this settings page.
 	 */
-	public function get_section_url( string $section ) {
+	public function get_section_url( string $section ): string {
         $url = $this->get_url();
 
         if ( ! is_wp_error( $this->sections( $section ) ) ) {
@@ -405,7 +402,7 @@ class AdminPage {
      *
      * @return string page title.
      */
-    public function get_admin_page_title() {
+    public function get_admin_page_title(): string {
         /**
          * Filters whether the admin settings page title should be displayed or not.
          *
@@ -433,7 +430,7 @@ class AdminPage {
      *
      * @return string form HTML.
      */
-    public function get_admin_page_form( $start = true ) {
+    public function get_admin_page_form( bool $start = true ): string {
         if ( true === $this->settings_form_wrap ) {
             if ( true === $start ) {
                 /**
@@ -458,15 +455,15 @@ class AdminPage {
 	 *
 	 * @return string The template group name
 	 */
-	protected function get_template_group() {
+	protected function get_template_group(): string {
 		return 'admin/layouts/' . $this->layout;
 	}
 
-    public function __get( $key ) {
+    public function __get( string $key ): mixed {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-            return new \WP_Error( 'admin_page_not_set', 'The key ' . $key . ' could not be found.' );
+            return app()->make( LoggerInterface::class )->error( 'The section key ' . $key . ' could not be found.', 'param_not_set' );
         }
     }
 

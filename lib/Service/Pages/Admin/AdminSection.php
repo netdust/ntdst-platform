@@ -15,6 +15,7 @@ use Netdust\Traits\Templates;
 
 use Netdust\Utils\Logger\Logger;
 
+use Netdust\Utils\Logger\LoggerInterface;
 use Netdust\Utils\UI\SettingsField;
 use Netdust\Utils\UI\UIInterface;
 use WP_Error;
@@ -42,14 +43,14 @@ class AdminSection {
 	 *
 	 * @var string
 	 */
-	protected $id = '';
+	protected string $id = '';
 
     /**
      * The parent section ID
      *
      * @var string
      */
-    protected $parent_id = '';
+    protected string $parent_id = '';
 
     public function id():string {
         return $this->id;
@@ -60,7 +61,7 @@ class AdminSection {
      *
      * @var string
      */
-	public $name = '';
+	public string $name = '';
 
 	/**
 	 * List of fields that were successfully saved in this request.
@@ -69,7 +70,7 @@ class AdminSection {
 	 *
 	 * @var array
 	 */
-	protected $saved_fields = [];
+	protected array $saved_fields = [];
 
 	/**
 	 * The nonce action used to validate when interfacing with this page.
@@ -78,16 +79,16 @@ class AdminSection {
 	 *
 	 * @var string the nonce action.
 	 */
-	protected $nonce_action;
+	protected string $nonce_action;
 
 	/**
 	 * The key to use when updating options.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var string The options key
+	 * @var string|bool The options key
 	 */
-	protected $options_key = false;
+	protected string|bool $options_key = false;
 
     /**
      * Section views
@@ -97,7 +98,7 @@ class AdminSection {
      *
      * @var
      */
-    protected $views = [];
+    protected array $views = [];
 
 	/**
 	 * Section fields
@@ -107,7 +108,7 @@ class AdminSection {
 	 *
 	 * @var
 	 */
-	protected $fields = [];
+	protected array $fields = [];
 
 	/**
 	 * Determines if this request is valid for saving.
@@ -139,7 +140,7 @@ class AdminSection {
 		$this->options_key = false === $this->options_key ? $this->id . '_settings' : $this->options_key;
 	}
 
-    public function get_url( $query = [], $page='' ) {
+    public function get_url( array $query = [], string $page='' ): string {
 
         if( empty( $this->parent_id ) ){
             $url = add_query_arg( array(
@@ -156,7 +157,7 @@ class AdminSection {
         return add_query_arg( $query, $url );
     }
 
-    public function get_view_url( $view, $query = [] ) {
+    public function get_view_url( string $view, array $query = [] ): string {
 
         $url = $this->get_url( $query );
 
@@ -167,7 +168,7 @@ class AdminSection {
         return apply_filters( 'admin_section:view_url', $url );
     }
 
-    public function get_current_view_key() {
+    public function get_current_view_key(): ?string {
         if ( isset( $_GET['view'] ) && ! is_wp_error( $this->view( $_GET['view'] ) ) ) {
             return $_GET['view'];
         }
@@ -179,7 +180,7 @@ class AdminSection {
         return null;
     }
 
-    public function view( $id = '' ) {
+    public function view( string $id = '' ): string|WP_Error {
 
         if ( '' === $id ) {
             $id = $this->get_current_view_key();
@@ -189,23 +190,21 @@ class AdminSection {
             return $this->views[ $id ];
         }
 
-        return Logger::error(
-            'No valid view could be found',
-            'no_section_view_found',
+        return app()->make( LoggerInterface::class )->error( 'No valid view could be found', 'no_section_view_found',
             [ 'views' => $this->views, 'id'=> $id, 'section' => $this->id ]
         );
 
     }
 
-    public function get_views() {
+    public function get_views(): array {
         return apply_filters('admin_section:views', $this->views );
     }
 
-    public function setParent( $id ) {
+    public function setParent( string $id ): void {
         $this->parent_id = $id;
     }
 
-	public function get_field( $key ) {
+	public function get_field( string $key ): mixed {
 		if ( isset( $this->fields[ $key ] ) ) {
 			if ( ! $this->fields[ $key ] instanceof SettingsField ) {
 				$this->fields[ $key ] = app(UIInterface::class)->make( $this->fields[ $key ]['type'], $this->fields[ $key ]['value'],  $this->fields[ $key ], false);
@@ -214,11 +213,9 @@ class AdminSection {
 			return $this->fields[ $key ];
 		}
 
-		return Logger::error(
-            'The provided field could not be found',
-			'invalid_field',
-			[ 'key' => $key ]
-		);
+		return app()->make( LoggerInterface::class )->error( 'The provided field could not be found', 'invalid_field',
+            [ 'key' => $key ]
+        );
 	}
 
 	/**
@@ -230,7 +227,7 @@ class AdminSection {
 	 *
 	 * @return mixed|WP_Error
 	 */
-	public function update_field( SettingsField $field ) {
+	public function update_field( SettingsField $field ): mixed {
 		// Get the field name.
 		$field_name = $field->get_field_param( 'name' );
 
@@ -245,11 +242,11 @@ class AdminSection {
 		}
 
 		if ( ! isset( $updated ) ) {
-            return new \WP_Error( 'field_not_changed', 'The field was not updated because the value is the same as the current field value', [
+            return app()->make( LoggerInterface::class )->error( 'The field was not updated because the value is the same as the current field value', 'field_not_changed', [
                 'field_name' => $field_name,
                 'value'      => $_POST[ $field_name ] ?? 'value not set',
-            ]);
-		}
+            ] );
+        }
 
 		return $updated;
 	}
@@ -263,7 +260,7 @@ class AdminSection {
 	 *
 	 * @return true|WP_Error true if the field saved, WP_Error otherwise.
 	 */
-	public function save_field( SettingsField $field ) {
+	public function save_field( SettingsField $field ): bool|WP_Error {
 		$options_key = $this->options_key;
 		$updated     = $this->update_field( $field );
 
@@ -307,15 +304,17 @@ class AdminSection {
 	 *
 	 * @return string The template group name
 	 */
-	protected function get_template_group() {
+	protected function get_template_group(): string {
 		return 'admin/sections/'.  (isset( $this->parent_id ) ? $this->parent_id.'/' : '') . $this->id;
 	}
 
-    public function __get( $key ) {
+    public function __get( string $key ): mixed {
 		if ( isset( $this->$key ) ) {
 			return $this->$key;
-		} else {
-			return new WP_Error( 'batch_task_param_not_set', 'The batch task key ' . $key . ' could not be found.' );
-		}
+        } else {
+            return app()->make( LoggerInterface::class )->error( 'The section key ' . $key . ' could not be found.', 'param_not_set' );
+        }
+
+
 	}
 }
