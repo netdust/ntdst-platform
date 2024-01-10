@@ -7,6 +7,7 @@ use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
 
 use Netdust\Utils\Logger\Logger;
+use Netdust\Utils\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -24,7 +25,7 @@ class Post {
      *
      * @var string The post type "$type" argument.
      */
-    protected $type = '';
+    protected string $type = '';
 
     /**
      * The post type args.
@@ -33,7 +34,7 @@ class Post {
      *
      * @var array The list of post type args. See https://developer.wordpress.org/reference/functions/register_post_type/
      */
-    protected $args = [];
+    protected array $args = [];
 
     /**
      * Custom_Post_Type_Instance constructor.
@@ -47,7 +48,7 @@ class Post {
     /**
      * @inheritDoc
      */
-    public function do_actions() {
+    public function do_actions(): void {
         add_action( 'init', [ $this, 'register' ] );
         add_filter( 'rest_' . $this->type . '_query', [ $this, 'rest_query' ], 10, 2 );
     }
@@ -55,14 +56,14 @@ class Post {
     /**
      * Updates REST Requests to use prepared query arguments for REST Requests.
      *
-     * @since 1.0.0
-     *
      * @param array            $args
      * @param \WP_REST_Request $request
      *
      * @return array
+     *@since 1.0.0
+     *
      */
-    public function rest_query( $args, \WP_REST_Request $request ) {
+    public function rest_query( array $args, \WP_REST_Request $request ): array {
         return $this->prepare_query_args( $args );
     }
 
@@ -71,7 +72,7 @@ class Post {
      *
      * @since 1.0.0
      */
-    public function register() {
+    public function register(): bool|\WP_Error {
 
         $this->args['labels'] = $this->create_labels( );
 
@@ -80,16 +81,18 @@ class Post {
         add_filter( 'enter_title_here', [$this,'change_title_text'] );
 
         if ( is_wp_error( $registered ) ) {
-            Logger::error( $registered->get_error_message(), $registered->get_error_code(), $registered->get_error_data() );
+	        return app()->make( LoggerInterface::class )->error( $registered->get_error_message(), $registered->get_error_code(), $registered->get_error_data() );
         } else {
-            Logger::info(
+	        app()->make( LoggerInterface::class )->info(
                 'The custom post type ' . $this->type . ' has been registered.',
                 'custom_post_type_registered'
             );
         }
+
+		return true;
     }
 
-    public function change_title_text( $title ): string {
+    public function change_title_text( string $title ): string {
         $screen = get_current_screen();
 
         if  ( $this->type == $screen->post_type ) {
@@ -98,24 +101,24 @@ class Post {
         return $title;
     }
 
-    public function __get( $key ) {
+    public function __get( string $key ): mixed {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-            return new \WP_Error( 'custom_post_type_param_not_set', 'The custom post type key ' . $key . ' could not be found.' );
+            return app()->make( LoggerInterface::class )->error( 'The custom post type key ' . $key . ' could not be found.', 'custom_post_type_param_not_set' );
         }
     }
 
     /**
      * Run a WP_Query against this post type.
      *
-     * @since 1.0.0
-     *
      * @param array $args Query arguments to provide.
      *
      * @return \WP_Query The WP Query object.
+     *@since 1.0.0
+     *
      */
-    public function query( $args = [] ) {
+    public function query( array $args = [] ): \WP_Query {
         return new \WP_Query( $this->prepare_query_args( $args ) );
     }
 
@@ -128,7 +131,7 @@ class Post {
      *
      * @return array Processed query arguments.
      */
-    protected function prepare_query_args( array $args ) {
+    protected function prepare_query_args( array $args ): array {
         $args['post_type'] = $this->type;
 
         return $args;

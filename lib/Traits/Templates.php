@@ -6,8 +6,7 @@
  */
 
 namespace Netdust\Traits;
-
-use Netdust\Utils\Logger\Logger;
+use Netdust\Utils\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,7 +27,7 @@ trait Templates {
 	 *
 	 * @var array of parameter value arrays keyed by their parameter names.
 	 */
-	private $params = [];
+	private array $params = [];
 
 	/**
 	 * Depth
@@ -37,7 +36,7 @@ trait Templates {
 	 *
 	 * @var int The current depth of this instance
 	 */
-	private $depth = 0;
+	private int $depth = 0;
 
     /**
      * Root path
@@ -46,7 +45,7 @@ trait Templates {
      *
      * @var string The root path to the templates
      */
-    protected $template_root;
+    protected string $template_root;
 
 	/**
 	 * Fetches the template group name. This determines the sub-directory for the templates.
@@ -55,19 +54,7 @@ trait Templates {
 	 *
 	 * @return string The template group name
 	 */
-	protected abstract function get_template_group();
-
-	/**
-	 * Retrieves the template group's path. This determines where templates will be searched for within this plugin.
-	 *
-     * @todo figure out how to set this dynamicly without dependencies
-	 * @since 1.0.0
-	 *
-	 * @return string The full path to the template root directory.
-	 */
-	protected function get_template_root_path() {
-        return $this->template_root ?? dirname( APP_PLUGIN_FILE ) . '/app/templates';
-    }
+	protected abstract function get_template_group(): string;
 
 
 	/**
@@ -80,14 +67,14 @@ trait Templates {
 	 *
 	 * @return string The template contents.
 	 */
-	public function get_template( $template_name, array $params = [] ) {
+	public function get_template( string $template_name, array $params = [] ): string {
 
         if ( $this->template_file_exists( $template_name ) ) {
             $template = $this->include_template( $template_name, $params );
         } else {
             $template_path = $this->get_template_path( $template_name );
 
-            Logger::error(
+            app()->make( LoggerInterface::class )->error(
                 "Template $template_name was not loaded because the file located at $template_path does not exist.",
                 'template_file_does_not_exist'
             );
@@ -113,7 +100,7 @@ trait Templates {
 	 *
 	 * @return int The current template depth.
 	 */
-	public function get_depth() {
+	public function get_depth(): int {
 		return $this->depth;
 	}
 
@@ -129,14 +116,8 @@ trait Templates {
 	 *
 	 * @return mixed The parameter value, if it exists. Otherwise, this will use the default value.
 	 */
-	public function get_param( $param, $default = false ) {
-		if ( isset( $this->params[ $this->depth ] ) && isset( $this->params[ $this->depth ][ $param ] ) ) {
-			$param = $this->params[ $this->depth ][ $param ];
-		} else {
-			$param = $default;
-		}
-
-		return $param;
+	public function get_param( string $param, mixed $default = false ): mixed {
+		return $this->params[ $this->depth ][ $param ] ?? $default;
 	}
 
 	/**
@@ -146,13 +127,25 @@ trait Templates {
 	 *
 	 * @return array List of params for the current template
 	 */
-	public function get_params() {
+	public function get_params(): array {
 		if ( isset( $this->params[ $this->depth ] ) ) {
 			return $this->params[ $this->depth ];
 		}
 
 		return [];
 	}
+
+    /**
+     * Retrieves the template group's path. This determines where templates will be searched for within this plugin.
+     *
+     * @todo figure out how to set this dynamicly without dependencies
+     * @since 1.0.0
+     *
+     * @return string The full path to the template root directory.
+     */
+    protected function get_template_root_directory(): string {
+        return $this->template_root ?? dirname( APP_PLUGIN_FILE ) . '/app/templates';
+    }
 
 	/**
 	 * Gets the template directory based on the template group.
@@ -161,9 +154,9 @@ trait Templates {
 	 *
 	 * @return string
 	 */
-	protected function get_template_directory() {
+	protected function get_template_directory(): string {
 		$template_group     = $this->get_template_group();
-		$template_directory = trailingslashit( $this->get_template_root_path() ) . $template_group;
+		$template_directory = trailingslashit( $this->get_template_root_directory() ) . $template_group;
 
 		return $template_directory;
 	}
@@ -177,24 +170,8 @@ trait Templates {
 	 *
 	 * @return string The complete template path.
 	 */
-	protected function get_template_path( $template_name ) {
-		return trailingslashit( $this->get_template_directory() ) . $template_name . '.php';
-	}
-
-	/**
-	 * Locates the template that should be loaded.
-	 *
-	 * If a template is defined as public, the template can be overridden inside a theme, or child theme.
-	 * This function checks the child theme, then the parent theme, and finally the plugin fallback.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param $template_name string The template name to locate.
-	 *
-	 * @return string The path to the located template.
-	 */
-	protected function locate_template( $template_name ) {
-        return apply_filters( "template:path", $this->get_template_path( $template_name ) );
+	protected function get_template_path( $template_name ): string {
+		return apply_filters( "template:path",  trailingslashit( $this->get_template_directory() ) . '/' .$template_name . '.php' );
 	}
 
 	/**
@@ -206,7 +183,7 @@ trait Templates {
 	 *
 	 * @return bool True if the template file exists, false otherwise.
 	 */
-	public function template_file_exists( $template_name ) {
+	public function template_file_exists( $template_name ): bool {
 		return file_exists( $this->get_template_path( $template_name ) );
 	}
 
@@ -220,7 +197,7 @@ trait Templates {
 	 *
 	 * @return false|string The template contents if the file exists, false otherwise.
 	 */
-	private function include_template( $template_name, $params ) {
+	private function include_template( string $template_name, array $params ): bool|string {
 		$this->depth++;
 
         $this->params[ $this->depth ] = apply_filters( "template:params", $params );
@@ -231,7 +208,7 @@ trait Templates {
 
         do_action( 'template:before_template', $template_filter_args );
 
-        $this->include_file_with_scope( $this->locate_template( $template_name ), [
+        $this->include_file_with_scope( $this->get_template_path( $template_name ), [
             'template' => $this,
         ] );
 
@@ -245,7 +222,7 @@ trait Templates {
 		return $result;
 	}
 
-    private function include_file_with_scope( $file, $scope ) {
+    private function include_file_with_scope( string $file, array $scope ): bool {
         if ( file_exists( $file ) ) {
             extract( $scope );
             include $file;

@@ -3,6 +3,6 @@
 namespace Netdust\Service\Styles;
 
 interface StyleInterface {
-    public function do_actions();
-    public function enqueue();
+    public function do_actions(): void;
+    public function enqueue(): void;
 }

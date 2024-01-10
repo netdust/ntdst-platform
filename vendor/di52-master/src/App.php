@@ -8,6 +8,7 @@
 namespace lucatume\DI52;
 
 use lucatume\DI52\Builders\ValueBuilder;
+use Netdust\Core\ServiceProvider;
 
 /**
  * Class App

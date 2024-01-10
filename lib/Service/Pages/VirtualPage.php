@@ -25,10 +25,10 @@ class VirtualPage
 
     protected $wpPost;
 
-    protected $uri;
+    protected string $uri;
 
-    protected $title;
-    protected $template;
+    protected string $title;
+    protected string $template;
 
 
     public function __construct(string $title, string $template, string $templateDirectory = null)
@@ -38,7 +38,7 @@ class VirtualPage
         $this->setTemplateRootPath($templateDirectory);
     }
 
-    public function onRoute()
+    public function onRoute(): void
     {
         add_filter('page_template', [$this, 'page_template']);
         add_action('template_redirect', [$this, 'createPage']);
@@ -49,43 +49,39 @@ class VirtualPage
         nocache_headers();
     }
 
-    public function get_template_group() {
+    public function get_template_group(): string {
         return 'virtual';
     }
 
-    public function template() {
+    public function template(): string {
         return $this->template;
     }
 
-    public function title() {
+    public function title(): string {
         return $this->title;
     }
 
-    public function page_template( string $templateDir )
-    {
+    public function page_template( string $templateDir ): string {
         remove_filter( 'page_template', [$this, 'page_template']);
         return $this->get_template_path( $this->template );
     }
 
-    public function getUri()
-    {
+    public function getUri(): string {
         return $this->uri;
     }
 
-    public function setUri($uri)
+    public function setUri( string $uri): void
     {
         $this->uri = $uri;
     }
 
-    public function setTemplateRootPath($templateDirectory)
-    {
-        if (isset($templateDirectory)) {
+    public function setTemplateRootPath( string $templateDirectory): void {
+        if (!empty($templateDirectory)) {
             $this->template_root = $templateDirectory;
         }
     }
 
-    private function createPostInstance()
-    {
+    private function createPostInstance(): WP_Post {
         if (!isset($this->wpPost)) {
             $post = new stdClass();
             $post->ID = 0;
@@ -120,8 +116,7 @@ class VirtualPage
         return $this->wpPost;
     }
 
-    public function createPage()
-    {
+    public function createPage(): void {
         remove_action('template_redirect', [$this, 'createPage']);
         $this->createPostInstance();
         global $wp, $wp_query;

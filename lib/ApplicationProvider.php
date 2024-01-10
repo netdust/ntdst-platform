@@ -8,24 +8,22 @@ use Netdust\Utils\Logger\LoggerInterface;
 
 use Netdust\Traits\Setters;
 
+interface APIInterface {}
+
 class ApplicationProvider extends ServiceProvider {
     use Setters;
 
-    public $name = 'Netdust';
+    public string $name = 'Netdust';
+    public string $text_domain = 'netdust';
 
-    public $text_domain = 'netdust';
+    public string $version = '1.2.0';
+    public string $minimum_php_version = '7.6';
+    public string $minimum_wp_version = '6.0';
+    public string $build_path = "/app";
 
-    public $version = '1.2.0';
+    protected ?array $config = null;
 
-    public $minimum_php_version = '7.6';
-
-    public $minimum_wp_version = '6.0';
-
-    public $build_path = "/app";
-
-    protected $config = null;
-
-    protected $file;
+    protected string $file;
 
     /**
      * URL Getter.
@@ -34,7 +32,7 @@ class ApplicationProvider extends ServiceProvider {
      *
      * @return string
      */
-    public function url() {
+    public function url(): string {
         return untrailingslashit( plugins_url( '/', $this->file ) );
     }
 
@@ -45,7 +43,7 @@ class ApplicationProvider extends ServiceProvider {
      *
      * @return string
      */
-    public function css_url() {
+    public function css_url(): string {
         return apply_filters( 'ntdst_css_url', $this->url() . $this->build_path .'/assets/css' );
     }
 
@@ -56,7 +54,7 @@ class ApplicationProvider extends ServiceProvider {
      *
      * @return string
      */
-    public function js_url() {
+    public function js_url(): string {
         return apply_filters( 'ntdst_js_url', $this->url() . $this->build_path .'/assets/js' );
     }
 
@@ -67,7 +65,7 @@ class ApplicationProvider extends ServiceProvider {
      *
      * @return string
      */
-    public function dir() {
+    public function dir(): string {
         return untrailingslashit( plugin_dir_path( $this->file ) );
     }
 
@@ -78,8 +76,8 @@ class ApplicationProvider extends ServiceProvider {
      *
      * @return string
      */
-    public function tpl_dir() {
-        return apply_filters( 'ntdst_template_path', $this->dir() . DIRECTORY_SEPARATOR . $this->build_path . '/templates' );
+    public function tpl_dir(): string {
+        return apply_filters( 'ntdst_template_path', $this->dir() . DIRECTORY_SEPARATOR . $this->build_path . '/src/templates' );
     }
 
     /**
@@ -89,7 +87,7 @@ class ApplicationProvider extends ServiceProvider {
      *
      * @return string
      */
-    public function file() {
+    public function file(): string {
         return $this->file;
     }
 
@@ -100,7 +98,7 @@ class ApplicationProvider extends ServiceProvider {
      *
      * @return string
      */
-    public function version() {
+    public function version(): string {
         return $this->version;
     }
 
@@ -111,7 +109,7 @@ class ApplicationProvider extends ServiceProvider {
      *
      * @return Container
      */
-    public function container() {
+    public function container(): Container {
         return $this->container;
     }
 
@@ -120,20 +118,20 @@ class ApplicationProvider extends ServiceProvider {
      *
      * @since 2.1
      */
-    public function i18n( $text ) {
+    public function i18n( string $text ): string {
         return __( $text, $this->text_domain );
     }
 
-    public function __construct(Container $container, $args = [] ) {
+    public function __construct(Container $container, array $args = [] ) {
         $this->set_values( $args );
         parent::__construct( $container );
     }
 
-    public function boot( ) {
+    public function boot( ): void {
 
     }
 
-    public function register( ) {
+    public function register( ): void {
 
         // First, check to make sure the minimum requirements are met.
         if ( $this->_plugin_is_supported() ) {
@@ -142,15 +140,12 @@ class ApplicationProvider extends ServiceProvider {
 
             $this->_register_if_exists();
 
-            $this->_dependencies( );
+	        $this->container->boot();
 
-            //add_action( 'after_setup_theme', function() {
-                $this->container->boot();
-                $this->get( LoggerInterface::class )->info(
-                    'The application ' . $this->name . ' has been loaded.',
-                    'application_load'
-                );
-            //});
+			$this->make( LoggerInterface::class )->info(
+		        'The application ' . $this->name . ' has been loaded.',
+		        'application_load'
+	        );
 
         } else {
             // Run unsupported actions if requirements are not met.
@@ -159,45 +154,13 @@ class ApplicationProvider extends ServiceProvider {
 
     }
 
-    public function get( $id ) {
+    public function make( string $id ): mixed {
         return $this->container->get( $id );
     }
 
-    protected function _dependencies() {
-
-        /**
-         * add wordPress dependencies, this helps creating a unified api
-         * Bind a dependency class to a Registry, we can access it easly
-         * The Registry is told to make dependency classes as singleton
-         * note : passing parameter $key as array prevents the object from being build
-         * **/
-        $dependencies = $this->config( 'dependencies' );
-        if( is_array( $dependencies) && count( $dependencies) > 0 ) {
-            array_walk($dependencies, function(&$value, $key)  {
-                $this->container->when( $key )->needs('$instanceClass')->give( [$key] );
-                $this->container->singleton($key, $value[0]);
-                if( $this->container->get($key) instanceof ServiceProvider ) {
-                    $this->container->get($key)->register();
-                }
-            });
-        }
-
-        /**
-         * register the other serviceproviders, this is early in the process
-         * we can still register actions in the serviceproviders
-         */
-        $providers = $this->config( 'providers' );
-        if( is_array( $providers ) && count( $providers ) > 0 ) {
-            foreach($providers as $key => $value ) {
-                if( is_array($value) ) // map alias too
-                    call_user_func_array( [$this->container,'register'], $value );
-                else {
-                    $this->container->register( $value );
-                }
-
-            };
-        }
-    }
+	public function alias( string $id, mixed $implementation = null, array $afterBuildMethods = null ): void {
+		$this->container->bind( $id, $implementation, $afterBuildMethods );
+	}
 
     /**
      * get a config value.
@@ -205,7 +168,7 @@ class ApplicationProvider extends ServiceProvider {
      * @param string      $mod module where to search in.
      * @param string $key key to search for.
      */
-    public function config($mod, $key='') {
+    public function config( string $mod, string $key=''): mixed {
         if( empty( $mod ) || !isset( $this->config[$mod] ) )
             return null;
 
@@ -216,30 +179,28 @@ class ApplicationProvider extends ServiceProvider {
     }
 
 
-    protected function _plugin_is_supported() {
+    protected function _plugin_is_supported(): bool {
         global $wp_version;
         $supports_php_version = version_compare( phpversion(), $this->minimum_php_version, '>=' );
         $supports_wp_version = version_compare( $wp_version, $this->minimum_wp_version, '>=' );
         return $supports_php_version && $supports_wp_version;
     }
 
-    protected function _unsupported_actions() {
-        global $wp_version;
+    protected function _unsupported_actions(): void {
 
-        self::$instances[ __CLASS__ ] = new \WP_Error(
-            'minimum_version_not_met',
-            __( sprintf(
-                "The plugin requires at least WordPress %s, and PHP %s.",
-                $this->minimum_wp_version,
-                $this->minimum_php_version
-            ), $this->text_domain ),
-            array( 'current_wp_version' => $wp_version, 'php_version' => phpversion() )
-        );
+	    add_action( 'admin_notices', function() {
+		    $class = 'notice notice-error';
+		    $message = __( sprintf(
+			    "The plugin requires at least WordPress %s, and PHP %s.",
+			    $this->minimum_wp_version,
+			    $this->minimum_php_version
+		    ), $this->text_domain );
 
-        add_action( 'admin_notices', array( $this, 'below_version_notice' ) );
+		    printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+	    } );
     }
 
-    protected function _register_if_exists() {
+    protected function _register_if_exists(): void {
         $path = $this->dir() . '/register/';
 
         if (is_dir($path)) {
@@ -251,7 +212,7 @@ class ApplicationProvider extends ServiceProvider {
         }
     }
 
-    protected function _load_config_if_exists() {
+    protected function _load_config_if_exists(): void {
 
         $data = [];
         $path = $this->dir() . $this->build_path . '/config/';
@@ -266,15 +227,20 @@ class ApplicationProvider extends ServiceProvider {
 
     }
 
-    public function __call( $method, $arguments ) {
+
+    public function __call( $method, $arguments ): mixed {
         // If this method exists, bail and just get the method.
         if ( method_exists( $this, $method ) ) {
             return $this->$method( ...$arguments );
         }
 
+        if ( method_exists( app( APIInterface::class ), $method ) ) {
+            return app( APIInterface::class )->$method( ...$arguments );
+        }
+
         return new \WP_Error(
             'method_not_found',
-            "The method could not be called. Either register this item as dependecy, install an extension, or create a method for this call.",
+            "The method could not be called. Either register this item as dependency, install an extension, or create a method for this call.",
             [
                 'method'    => $method,
                 'args'      => $arguments,
@@ -282,5 +248,6 @@ class ApplicationProvider extends ServiceProvider {
             ]
         );
     }
+
 
 }

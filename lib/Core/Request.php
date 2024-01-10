@@ -2,6 +2,8 @@
 
 namespace Netdust\Core;
 
+use Netdust\Utils\Logger\Logger;
+
 final class Request
 {
 
@@ -37,6 +39,7 @@ final class Request
     public function __construct(array $server = [])
     {
         $this->server = $server ? : $_SERVER;
+        parse_str($this->getQuery(), $this->vars);
     }
 
     public function getScheme(): string
@@ -123,16 +126,20 @@ final class Request
 
     public function vars()
     {
-        parse_str($this->getQuery(), $this->vars);
         return $this->vars;
     }
 
-    public function set( string $key, $value ) {
+    public function set_var( string $key, $value ) {
         $this->vars[$key]=$value;
     }
-    public function get( string $key ) {
+    public function get_var( string $key ) {
         return $this->vars[$key];
     }
+
+    public function has_var( string $key ) {
+        return ! empty( $this->vars[$key] );
+    }
+
 
     /**
      * Parse server array to find url components.

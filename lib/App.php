@@ -27,8 +27,7 @@ class App
      *
      * @return ApplicationProvider
      */
-    public static function application()
-    {
+    public static function application(): ?ApplicationProvider {
         return static::$app;
     }
 
@@ -39,7 +38,7 @@ class App
      *
      * @return void The method does not return any value.
      */
-    public static function setApplication(ApplicationProvider $app) {
+    public static function setApplication(ApplicationProvider $app): void {
         static::$app = $app;
     }
 
@@ -57,7 +56,7 @@ class App
     /**
      * binding the Application as a Singleton and starting the initialisation
      */
-    public static function boot( $id, $args ) {
+    public static function boot( string $id, array $args ): void {
         $container = new \lucatume\DI52\Container();
         $container->singleton($id, new ApplicationProvider( $container,  $args));
         static::setApplication( $container->get( $id ) );

@@ -5,18 +5,19 @@ namespace Netdust\Service\Scripts;
 use lucatume\DI52\Container;
 use Netdust\Utils\Logger\Logger;
 use Netdust\Utils\DependencyRegistry;
+use Netdust\Utils\Logger\LoggerInterface;
 
 
 class ScriptRegistry extends DependencyRegistry {
 
-    public function __construct(Container $container, $instanceClass )
+    public function __construct(Container $container, array $instanceClass )
     {
         if( $this->is_valid( end($instanceClass) ) ) {
             parent::__construct($container, $instanceClass);
         }
     }
 
-    public function get( $id ) {
+    public function get( string $id ): mixed {
         if( is_array($id) ) {
             $instances = [];
             foreach ( $id as $style ){
@@ -28,20 +29,18 @@ class ScriptRegistry extends DependencyRegistry {
         return $this->container->get( $id );
     }
 
-    public function enqueue( $handle )
-    {
+    public function enqueue( $handle ): bool {
         $script = $this->get( $handle );
         $script->enqueue();
         return true;
     }
 
-    protected function is_valid( $instanceClass ) {
+    protected function is_valid( $instanceClass ): bool|\WP_Error {
         if( ! in_array( ScriptInterface::class, class_implements($instanceClass) ) ) {
-            $error = Logger::error(
+            return app()->make( LoggerInterface::class )->error(
                 'The specified script could not be added because it doesnt implement ScriptInterface.',
-                'script_not_added'
+                'script_not_valid'
             );
-            throw new \Exception($error->get_error_message());
         }
 
         return true;
