@@ -4,7 +4,6 @@ namespace Netdust\Utils\Router;
 
 use AltoRouter;
 use Netdust\Core\Request;
-use Netdust\Utils\Logger\Logger;
 use Netdust\Utils\URL;
 
 class SimpleRouter implements RouterInterface {

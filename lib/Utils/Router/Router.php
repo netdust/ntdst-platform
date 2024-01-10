@@ -3,10 +3,6 @@
 namespace Netdust\Utils\Router;
 
 use Netdust\Core\Request;
-use Netdust\Utils\Logger\LoggerInterface;
-use Netdust\Utils\Router\RouterInterface;
-use Netdust\Utils\Router\SimpleRouter;
-use Netdust\Utils\Logger\SimpleLogger;
 
 
 class Router
