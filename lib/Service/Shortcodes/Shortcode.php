@@ -96,7 +96,7 @@ abstract class Shortcode {
      * @param array $atts The shortcode attributes
      * @return mixed The shortcode action result.
      */
-    public function shortcode( array $atts = [], string $content='', string $shortcode='' ): string {
+    public function shortcode( string|array $atts = [], string $content='', string $shortcode='' ): string {
         $atts = array_merge( $this->defaults, is_array($atts) ? $atts : [] );
         return $this->shortcode_actions( $atts );
     }
