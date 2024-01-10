@@ -32,7 +32,7 @@ if ( ! function_exists( 'add_action' ) ) {
 /**
  * first setup autoloader, lazy like i like it
  */
-require_once 'lib/Utils/AutoLoader.php';
+require_once 'lib/Core/AutoLoader.php';
 
 \Netdust\Core\AutoLoader::setup_autoloader( [
     'Psr\Container\\'=> dirname( __FILE__ ).'/vendor/psr/container/src/',

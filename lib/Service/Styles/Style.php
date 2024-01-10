@@ -28,7 +28,7 @@ class Style implements StyleInterface {
      *
      * @since 1.0.0
      */
-    public string|bool $ver = false;
+    public string $ver = '0.1';
 
     /**
      * The source url for this style.
@@ -58,9 +58,9 @@ class Style implements StyleInterface {
      * If this script needs decoration.
      *
      * @since 1.0.0
-     * @var bool
+     * @var array
      */
-    public bool $middlewares;
+    public array $middlewares = [];
 
     /**
      * Style constructor

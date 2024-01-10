@@ -24,7 +24,7 @@ class Script implements ScriptInterface {
      * @since 1.0.0
      * @var string the script handle.
      */
-    public $handle;
+    public string $handle;
 
     /**
      * The version.
@@ -32,7 +32,7 @@ class Script implements ScriptInterface {
      * @since 1.0.0
      * @var string
      */
-    public $ver = false;
+    public string $ver = '0.1';
 
     /**
      * The source url for this script.
@@ -40,7 +40,7 @@ class Script implements ScriptInterface {
      * @since 1.0.0
      * @var bool|string
      */
-    public $src = false;
+    public bool|string $src = false;
 
     /**
      * The dependencies for this script.
@@ -48,7 +48,7 @@ class Script implements ScriptInterface {
      * @since 1.0.0
      * @var array
      */
-    public $deps = [];
+    public array $deps = [];
 
     /**
      * If this script should be displayed in the footer.
@@ -56,15 +56,15 @@ class Script implements ScriptInterface {
      * @since 1.0.0
      * @var bool
      */
-    public $in_footer = false;
+    public bool $in_footer = false;
 
     /**
      * If this script needs decoration.
      *
      * @since 1.0.0
-     * @var bool
+     * @var array
      */
-    public $middlewares;
+    public array $middlewares = [];
 
     /**
      * Params to send to the script when it is enqueued.

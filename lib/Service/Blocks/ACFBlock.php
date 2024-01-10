@@ -130,7 +130,7 @@ class ACFBlock {
 
 
 
-    public function get_template_group() {
+    public function get_template_group(): string {
         return 'blocks';
     }
 
