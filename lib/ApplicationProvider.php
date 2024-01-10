@@ -154,6 +154,10 @@ class ApplicationProvider extends ServiceProvider {
 
     }
 
+    public function get( string $id ): mixed {
+        return $this->container->get( $id );
+    }
+
     public function make( string $id ): mixed {
         return $this->container->get( $id );
     }
