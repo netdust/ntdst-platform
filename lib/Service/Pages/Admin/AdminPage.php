@@ -147,7 +147,7 @@ class AdminPage {
         $this->set_values( $args );
         if( !empty($this->sections) ) foreach ($this->sections as &$section ) {
             App::get(AdminSection::class)->add(
-                $section['id'] , array_merge( $section, ['singleton'=>true] )
+                $section['id'] , array_merge( $section, ['singleton'=>true, 'template_root'=>$this->template_root??''] )
             );
             $section = App::get( $section['id'] );
         }
@@ -456,7 +456,7 @@ class AdminPage {
 	 * @return string The template group name
 	 */
 	protected function get_template_group(): string {
-		return 'admin/layouts/' . $this->layout;
+		return 'layouts/' . $this->layout;
 	}
 
     public function __get( string $key ): mixed {

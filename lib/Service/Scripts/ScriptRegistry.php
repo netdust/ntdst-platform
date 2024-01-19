@@ -17,7 +17,7 @@ class ScriptRegistry extends DependencyRegistry {
         }
     }
 
-    public function get( string $id ): mixed {
+    public function get( string|array $id ): mixed {
         if( is_array($id) ) {
             $instances = [];
             foreach ( $id as $style ){

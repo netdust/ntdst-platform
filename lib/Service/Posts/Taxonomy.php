@@ -82,7 +82,13 @@ class Taxonomy {
 
         $this->args['labels'] = $this->create_labels( );
 
+        $this->post_type = is_string( $this->post_type ) ? [$this->post_type] : $this->post_type;
+
         $registered = register_taxonomy( $this->id, $this->post_type, $this->args );
+
+        foreach ( $this->post_type as $object_type ) {
+            register_taxonomy_for_object_type( $this->id , $object_type);
+        }
 
         if ( is_wp_error( $registered ) ) {
 	        return app()->make( LoggerInterface::class )->error( $registered->get_error_message(), $registered->get_error_code(), $registered->get_error_data() );

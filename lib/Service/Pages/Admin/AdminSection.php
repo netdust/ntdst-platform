@@ -130,7 +130,7 @@ class AdminSection {
         if( !empty($this->views) ) foreach ($this->views as &$view ) {
             App::get(AdminSection::class)->add(
                 $view['id'],
-                array_merge( $view, ['singleton'=>true, 'parent_id'=>$this->id] )
+                array_merge( $view, ['singleton'=>true, 'parent_id'=>$this->id, 'template_root'=>$this->template_root??''] )
             );
             $view = App::get( $view['id'] );
         }
@@ -305,7 +305,7 @@ class AdminSection {
 	 * @return string The template group name
 	 */
 	protected function get_template_group(): string {
-		return 'admin/sections/'.  (isset( $this->parent_id ) ? $this->parent_id.'/' : '') . $this->id;
+		return 'sections/'.  (isset( $this->parent_id ) ? $this->parent_id.'/' : '') . $this->id;
 	}
 
     public function __get( string $key ): mixed {

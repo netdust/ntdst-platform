@@ -77,7 +77,7 @@ class ApplicationProvider extends ServiceProvider {
      * @return string
      */
     public function tpl_dir(): string {
-        return apply_filters( 'ntdst_template_path', $this->dir() . DIRECTORY_SEPARATOR . $this->build_path . '/templates' );
+        return apply_filters( 'ntdst_template_path', $this->dir() . $this->build_path . '/templates' );
     }
 
     /**

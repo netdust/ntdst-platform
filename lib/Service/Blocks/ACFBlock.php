@@ -32,31 +32,17 @@ class ACFBlock {
     use Setters;
 
 
-    /**
-     * The blocks att values.
-     *
-     * @since 1.0.0
-     *
-     * @var array
-     */
-    protected $block = [];
+    protected array $block = [];
 
-    /**
-     * The fields att values.
-     *
-     * @since 1.0.0
-     *
-     * @var array
-     */
-    protected $fields = [];
+    protected array $fields = [];
 
-    public $title = 'block item';
+    public string $title = 'block item';
 
-    public $category = 'design';
+    public string $category = 'design';
 
-    public $icon = 'excerpt-view';
+    public ?string $icon = 'excerpt-view';
 
-    public $keywords = array( 'acf' );
+    public ?array $keywords = array( 'acf' );
 
     public $render_callback;
 
@@ -69,7 +55,7 @@ class ACFBlock {
         $this->set_values( $args );
     }
 
-    public function get_field( $name, $default='' ) {
+    public function get_field( string $name, mixed $default='' ): mixed {
         if(  function_exists( 'get_field') && !is_wp_error($value = get_field( $name ))  &&  !empty( $value ) )
             return $value;
 
@@ -79,7 +65,7 @@ class ACFBlock {
         return $default;
     }
 
-    public function add_fields( $fields=[] ) {
+    public function add_fields( array $fields=[] ): void {
         if( ! empty( $fields ))
             acf_add_local_field_group( $fields );
     }
@@ -87,7 +73,7 @@ class ACFBlock {
     /**
      * @inheritDoc
      */
-    public function do_actions() {
+    public function do_actions(): void {
 
         $this->block = [
             'name'				=> !empty($this->name) ? $this->name : 'block_item',
@@ -108,11 +94,11 @@ class ACFBlock {
         );
     }
 
-    public function block_actions( ) {
+    public function block_actions( ): void {
         $this->echo_template( );
     }
 
-    public function as_shortcode( $atts ) {
+    public function as_shortcode( array $atts ): string {
 
         $this->set_values( $atts );
 
@@ -124,7 +110,7 @@ class ACFBlock {
         return $html;
     }
 
-    public function echo_template( ) {
+    public function echo_template( ): void {
         echo $this->get_template( $this->name );
     }
 
@@ -142,7 +128,7 @@ class ACFBlock {
      * @param array $atts The shortcode attributes
      * @return mixed The shortcode action result.
      */
-    public function acf_portfolio_item_block(  ) {
+    public function acf_portfolio_item_block(  ): void {
 
         if( function_exists('acf_register_block') ) {
 
@@ -152,7 +138,7 @@ class ACFBlock {
 
     }
 
-    public function __get( $key ) {
+    public function __get( string $key ): mixed {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
