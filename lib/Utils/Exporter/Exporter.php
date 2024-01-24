@@ -203,14 +203,16 @@ abstract class Exporter {
         $prepared = array();
 
         foreach ( $fields as $field ) {
-            $method = "get_$field";
+            $slug = str_replace(' ', '_', strtolower( $field ) );
+            $method = "get_$slug";
             $prepared[ $field ] = '';
             if ( method_exists( $this, $method ) ) {
                 $prepared[ $field ]  = sanitize_text_field( $this->$method( $row ) );
             }
             else if( is_array($row) && isset($row[ $field ]) ) {
                 $prepared[ $field ] = strip_tags( $row[ $field ] );
-            } else if ( method_exists( $this, 'get_field' ) ) {
+            }
+            else if ( method_exists( $this, 'get_field' ) ) {
                 $prepared[ $field ]  = sanitize_text_field( $this->get_field( $field, $row ) );
             }
         }
