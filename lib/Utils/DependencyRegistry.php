@@ -71,6 +71,8 @@ class DependencyRegistry {
             $this->container->bind($id, $this->instanceClass, $afterBuildMethods);
         }
 
+
+
     }
 
     protected function bindSingleton( string $id, array $args, ?array $afterBuildMethods = null ): void {
