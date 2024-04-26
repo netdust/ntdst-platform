@@ -8,11 +8,9 @@
 
 namespace Netdust\Service\Shortcodes;
 
-use Netdust\Utils\Logger\Logger;
-
-use Netdust\Traits\Templates;
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Traits\Features;
-use Netdust\Utils\Logger\LoggerInterface;
+use Netdust\Traits\Templates;
 
 
 if ( ! defined( 'ABSPATH' ) ) {

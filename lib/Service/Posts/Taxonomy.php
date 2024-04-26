@@ -8,10 +8,9 @@
 
 namespace Netdust\Service\Posts;
 
-use Netdust\Traits\Setters;
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Traits\Features;
-use Netdust\Utils\Logger\Logger;
-use Netdust\Utils\Logger\LoggerInterface;
+use Netdust\Traits\Setters;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;

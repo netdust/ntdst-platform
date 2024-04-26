@@ -6,7 +6,7 @@
  */
 
 namespace Netdust\Traits;
-use Netdust\Utils\Logger\LoggerInterface;
+use Netdust\Service\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

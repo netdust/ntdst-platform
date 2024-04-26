@@ -3,11 +3,10 @@
 namespace Netdust\Service\Scripts;
 
 
+use Netdust\Service\Logger\Logger;
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
-
-use Netdust\Utils\Logger\Logger;
-use Netdust\Utils\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;

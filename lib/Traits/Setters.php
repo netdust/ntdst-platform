@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Exception;
 use Netdust\Factories\Logger;
-use Netdust\Utils\Logger\LoggerInterface;
+use Netdust\Service\Logger\LoggerInterface;
 use ReflectionObject;
 use ReflectionProperty;
 

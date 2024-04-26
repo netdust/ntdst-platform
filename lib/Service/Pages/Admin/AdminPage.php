@@ -9,15 +9,12 @@
 namespace Netdust\Service\Pages\Admin;
 
 use Netdust\App;
-use Netdust\Traits\Templates;
-use Netdust\Traits\Features;
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Traits\Classes;
+use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
-
-use Netdust\Utils\Logger\Logger;
-use Netdust\Utils\Logger\LoggerInterface;
+use Netdust\Traits\Templates;
 use WP_Error;
-
 
 
 if ( ! defined( 'ABSPATH' ) ) {

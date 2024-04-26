@@ -3,9 +3,9 @@
 namespace Netdust\Service\Styles;
 
 
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
-use Netdust\Utils\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;

@@ -3,9 +3,8 @@
 namespace Netdust\Service\Styles;
 
 use lucatume\DI52\Container;
-
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Utils\DependencyRegistry;
-use Netdust\Utils\Logger\LoggerInterface;
 
 
 class StyleRegistry extends DependencyRegistry {

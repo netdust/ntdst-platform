@@ -3,9 +3,8 @@
 namespace Netdust\Service\Scripts;
 
 use lucatume\DI52\Container;
-use Netdust\Utils\Logger\Logger;
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Utils\DependencyRegistry;
-use Netdust\Utils\Logger\LoggerInterface;
 
 
 class ScriptRegistry extends DependencyRegistry {

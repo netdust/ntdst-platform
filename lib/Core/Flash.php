@@ -10,10 +10,9 @@
 namespace Netdust\Core;
 
 use ArrayAccess;
-
-use Netdust\Utils\Logger\LoggerInterface;
-use Netdust\Utils\MixedType;
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Utils\Arr;
+use Netdust\Utils\MixedType;
 
 /**
  * Provide a way to flash data into the session for the next request.

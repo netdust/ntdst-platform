@@ -4,8 +4,7 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
-use Netdust\Utils\Logger\LoggerInterface;
-
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Traits\Setters;
 
 interface APIInterface {}

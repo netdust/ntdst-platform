@@ -3,10 +3,8 @@
 namespace Netdust\Core;
 
 use lucatume\DI52\Container;
-
+use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Traits\Features;
-use Netdust\Traits\Setters;
-use Netdust\Utils\Logger\LoggerInterface;
 use Netdust\Vormingen\Services\Learndash\VAD_Learndash_API;
 
 /**

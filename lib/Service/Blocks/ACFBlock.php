@@ -9,10 +9,10 @@
 
 namespace Netdust\Service\Blocks;
 
-use Netdust\Utils\Logger\Logger;
-use Netdust\Traits\Templates;
+use Netdust\Service\Logger\Logger;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
+use Netdust\Traits\Templates;
 
 
 if ( ! defined( 'ABSPATH' ) ) {
