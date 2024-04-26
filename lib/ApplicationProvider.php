@@ -157,7 +157,20 @@ class ApplicationProvider extends ServiceProvider {
         return $this->container->get( $id );
     }
 
-    public function make( string $id ): mixed {
+    public function make( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null ): mixed {
+        if(!empty($args) )
+            $this->container->when( $id )->needs('$args' )->give( $args );
+
+        if(!empty($implementation) ) {
+            if( !empty($args) && key_exists('middlewares', $args ) ) {
+                $args['middlewares'][] = $implementation;
+                $this->container->bindDecorators($id, $args['middlewares'], $afterBuildMethods );
+            }
+            else {
+                $this->container->bind( $id, $implementation, $afterBuildMethods );
+            }
+        }
+
         return $this->container->get( $id );
     }
 
@@ -235,6 +248,10 @@ class ApplicationProvider extends ServiceProvider {
         // If this method exists, bail and just get the method.
         if ( method_exists( $this, $method ) ) {
             return $this->$method( ...$arguments );
+        }
+
+        if ( is_callable($this->container->get( $method )) ) {
+            return $this->container->get( $method )( ...$arguments );
         }
 
         if ( method_exists( app( APIInterface::class ), $method ) ) {

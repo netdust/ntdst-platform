@@ -71,7 +71,8 @@ class App
      * @return mixed The entry for an id.
      *
      */
-    public static function get( $id ) {
-        return static::$app->container()->get( $id );
+    public static function get( string $id = '' ) {
+        if( empty( $id ) ) return static::$app;
+        else return static::$app->container()->get( $id );
     }
 }
