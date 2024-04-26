@@ -110,6 +110,7 @@ class Style implements StyleInterface {
 
         $registered = wp_register_style( $this->handle, $this->src, $this->deps, $this->ver, $this->in_footer );
 
+
         if ( false === $registered ) {
             app()->make( LoggerInterface::class )->error(
                 'The style ' . $this->handle . ' failed to register. That is all I know, unfortunately.',

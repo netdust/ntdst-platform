@@ -6,6 +6,7 @@ use lucatume\DI52\Container;
 
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
+use Netdust\Utils\Logger\Logger;
 use Netdust\Vormingen\Services\Learndash\VAD_Learndash_API;
 
 /**
@@ -33,52 +34,55 @@ class DependencyRegistry {
         return $this->container->get( $id );
     }
 
-    public function add( string $id, array $args = [] ): void {
+    public function add( string $id, array $args = [] ): mixed {
+
+	    $afterBuildMethods = null;
+	    if( in_array(Features::class, class_uses($this->instanceClass)) ) {
+		    //$afterBuildMethods = ['do_actions'];
+	    }
 
         // make sure the constructor gets the arguments when needed
         $this->container->when( $id )->needs( '$args' )->give( $args );
 
         if( !key_exists('singleton', $args ) || !$args['singleton'] ) {
-            $this->bind($id, $args);
+            $this->bind($id, $args, $afterBuildMethods);
         }
         else {
-            $this->bindSingleton( $id, $args );
+            $this->bindSingleton( $id, $args, $afterBuildMethods );
         }
 
         unset( $args['singleton'] );
         unset( $args['middlewares'] );
 
-        /*
-        if( in_array(Setters::class, class_uses($this->instanceClass) ) && count($args)>0 ) {
-            $this->container->get($id)->set( $args );
-        }*/
-
-        if( in_array(Features::class, class_uses($this->instanceClass)) ) {
-            $this->container->get($id)->do_actions();
-        }
+	    if( in_array(Features::class, class_uses($this->instanceClass)) ) {
+		    $this->container->make($id)->do_actions();
+	    }
+		return $this->container->make($id);
 
     }
 
-    protected function bind( string $id, array $args ): void {
+    protected function bind( string $id, array $args, ?array $afterBuildMethods = null ): void {
 
         if( !empty($args) && key_exists('middlewares', $args ) ) {
             $args['middlewares'][] = $this->instanceClass;
-            $this->container->bindDecorators($id, $args['middlewares'] );
+            $this->container->bindDecorators($id, $args['middlewares'], $afterBuildMethods );
         }
         else {
-            $this->container->bind($id, $this->instanceClass);
+            $this->container->bind($id, $this->instanceClass, $afterBuildMethods);
         }
+
+
 
     }
 
-    protected function bindSingleton( string $id, array $args ): void {
+    protected function bindSingleton( string $id, array $args, ?array $afterBuildMethods = null ): void {
 
         if( !empty($args) && key_exists('middlewares', $args ) ) {
             $args['middlewares'][] = $this->instanceClass;
-            $this->container->singletonDecorators($id, $args['middlewares'] );
+            $this->container->singletonDecorators($id, $args['middlewares'], $afterBuildMethods );
         }
         else {
-            $this->container->singleton($id, $this->instanceClass);
+            $this->container->singleton($id, $this->instanceClass, $afterBuildMethods );
         }
 
     }
