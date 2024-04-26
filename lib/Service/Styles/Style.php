@@ -90,6 +90,17 @@ class Style implements StyleInterface {
     }
 
     /**
+     * Returns true if the style has been registered. Bypasses doing it wrong check.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public function is_registered(): bool {
+        return (bool) wp_styles()->query( $this->handle, 'registered' );
+    }
+
+    /**
      * Registers this style.
      * In-general, this should automatically run based on the contexts provided in the class.
      *

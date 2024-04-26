@@ -69,6 +69,7 @@ trait Templates {
 	 */
 	public function get_template( string $template_name, array $params = [] ): string {
 
+
         if ( $this->template_file_exists( $template_name ) ) {
             $template = $this->include_template( $template_name, $params );
         } else {
@@ -138,13 +139,13 @@ trait Templates {
     /**
      * Retrieves the template group's path. This determines where templates will be searched for within this plugin.
      *
-     * @todo figure out how to set this dynamicly without dependencies
+     * @todo figure out how to set this dynamically without dependencies
      * @since 1.0.0
      *
      * @return string The full path to the template root directory.
      */
     protected function get_template_root_directory(): string {
-        return $this->template_root ?? dirname( APP_PLUGIN_FILE ) . '/app/templates';
+        return apply_filters( "template:root", ($this->template_root ?? dirname( APP_PLUGIN_FILE ) . '/app/templates') );
     }
 
 	/**

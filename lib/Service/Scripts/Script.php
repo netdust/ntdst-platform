@@ -113,6 +113,19 @@ class Script implements ScriptInterface {
     }
 
     /**
+     * Returns true if the script has been registered. Bypasses doing it wrong check.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public function is_registered() {
+        return (bool) wp_scripts()->query( $this->handle, 'registered' );
+    }
+
+
+
+    /**
      * Registers this script.
      * In-general, this should automatically run based on the contexts provided in the class.
      *
@@ -125,7 +138,7 @@ class Script implements ScriptInterface {
         $registered = wp_register_script( $this->handle, $this->src, $this->deps, $this->ver, $this->in_footer );
 
         if ( false === $registered ) {
-            Logger::error(
+            Logger::warning(
                 'The script ' . $this->handle . ' failed to register. That is all I know, unfortunately.',
                 'script_was_not_registered',
                 [ 'ref' => $this->handle ]
