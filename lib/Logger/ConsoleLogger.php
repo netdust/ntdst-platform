@@ -1,10 +1,9 @@
 <?php
 
-namespace Netdust\Service\Logger;
+namespace Netdust\Logger;
 
 
 use Netdust\Traits\Decorator;
-
 
 
 class ConsoleLogger implements LoggerInterface

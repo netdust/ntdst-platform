@@ -1,39 +1,38 @@
 <?php
 /**
- * Settings Checkbox Field.
+ * Settings Radio Field
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
 
-namespace Netdust\Service\UI\SettingsFields;
+namespace Netdust\View\UI\SettingsFields;
 
-use Netdust\Service\UI\SettingsField;
+use Netdust\View\UI\SettingsField;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Class Checkbox
+ * Class Radio
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
-class Checkbox extends SettingsField {
+class Radio extends SettingsField {
 
 	/**
 	 * @inheritDoc
 	 */
 	function get_field_type() {
-		return 'checkbox';
+		return 'radio';
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	function sanitize( $value ) {
-		return (boolean) $value;
+		return (string) $value;
 	}
-
 }

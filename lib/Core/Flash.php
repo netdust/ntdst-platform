@@ -10,7 +10,7 @@
 namespace Netdust\Core;
 
 use ArrayAccess;
-use Netdust\Service\Logger\LoggerInterface;
+use Netdust\Logger\LoggerInterface;
 use Netdust\Utils\Arr;
 use Netdust\Utils\MixedType;
 

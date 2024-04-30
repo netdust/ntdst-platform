@@ -4,7 +4,6 @@ namespace Netdust\View;
 
 
 use lucatume\DI52\ServiceProvider;
-use Netdust\Service\Logger\LoggerInterface;
 
 
 class TemplateServiceProvider extends ServiceProvider {

@@ -9,7 +9,7 @@
 namespace Netdust\Service\Pages\Admin;
 
 use Netdust\App;
-use Netdust\Service\Logger\LoggerInterface;
+use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Classes;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;

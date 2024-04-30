@@ -1,6 +1,6 @@
 <?php
 
-namespace Netdust\Service\Logger;
+namespace Netdust\Logger;
 
 
 

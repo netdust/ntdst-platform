@@ -1,38 +1,39 @@
 <?php
 /**
- * Settings Text Field
+ * Settings Checkbox Field.
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
 
+namespace Netdust\View\UI\SettingsFields;
 
-namespace Netdust\Service\UI\SettingsFields;
-use Netdust\Service\UI\SettingsField;
+use Netdust\View\UI\SettingsField;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Class Text
+ * Class Checkbox
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
-class Text extends SettingsField {
+class Checkbox extends SettingsField {
 
 	/**
 	 * @inheritDoc
 	 */
 	function get_field_type() {
-		return 'text';
+		return 'checkbox';
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	function sanitize( $value ) {
-		return (string) $value;
+		return (boolean) $value;
 	}
+
 }

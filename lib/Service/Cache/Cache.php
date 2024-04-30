@@ -1,9 +1,13 @@
 <?php
 /**
-
+ * Registers a shortcode
+ *
+ * @since   1.0.0
+ * @package Underpin\Abstracts
  */
 
-namespace Netdust\Traits;
+
+namespace Netdust\Service\Cache;
 
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -11,19 +15,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Feature Extension Trait.
+ * Class Cache
  *
- * @since   1.3.0
  */
-trait Cache
-{
-
+class Cache {
 
     /**
      * @param $key
      * @param $data
      */
-    public static function create_cache($key, $data, $expiration=3600)
+    public function create(string $key, mixed $data, int $expiration=3600): void
     {
         set_transient($key, $data, $expiration);
     }
@@ -33,7 +34,7 @@ trait Cache
      *
      * @return array|false|mixed
      */
-    public static function get_cache($key)
+    public function get( string $key ): mixed
     {
         if (true === apply_filters('netdust_enable_cache', false)) {
             return get_transient($key);
@@ -44,8 +45,9 @@ trait Cache
     /**
      * @param $key
      */
-    public static function delete_transient($key)
+    public function delete_transient(string $key): void
     {
         delete_transient($key);
     }
+
 }

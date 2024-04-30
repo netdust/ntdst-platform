@@ -1,10 +1,9 @@
 <?php
 
-namespace Netdust\Service;
+namespace Netdust;
 
 
 use lucatume\DI52\ServiceProvider;
-use Netdust\Service\Logger\LoggerInterface;
 use Netdust\Service\Scripts\Script;
 use Netdust\Service\Styles\Style;
 
@@ -25,6 +24,7 @@ class WordpressServiceProvider extends ServiceProvider {
 
             return false;
         }));
+
 
         $container->singleton('add_style', $container->protect(function( string $id, array $args, ?array $afterBuildMethods = null  ) use ( $container )
         {

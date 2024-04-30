@@ -9,9 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Exception;
 use Netdust\Factories\Logger;
-use Netdust\Service\Logger\LoggerInterface;
-use ReflectionObject;
-use ReflectionProperty;
+use Netdust\Logger\LoggerInterface;
 
 trait Setters {
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Netdust\Service\UI;
+namespace Netdust\View\UI;
 
 interface UIInterface {
 

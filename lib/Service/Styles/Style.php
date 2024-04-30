@@ -3,7 +3,7 @@
 namespace Netdust\Service\Styles;
 
 
-use Netdust\Service\Logger\LoggerInterface;
+use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
 

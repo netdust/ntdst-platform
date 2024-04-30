@@ -1,33 +1,33 @@
 <?php
 /**
- * Settings Password Field
+ * Settings Select Field
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
 
 
-namespace Netdust\Service\UI\SettingsFields;
+namespace Netdust\View\UI\SettingsFields;
 
-use Netdust\Service\UI\SettingsField;
+use Netdust\View\UI\SettingsField;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Class Password
+ * Class Select
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
-class Password extends SettingsField {
+class Select extends SettingsField {
 
 	/**
 	 * @inheritDoc
 	 */
 	function get_field_type() {
-		return 'password';
+		return 'select';
 	}
 
 	/**

@@ -3,8 +3,8 @@
 namespace Netdust\Service\Scripts;
 
 
-use Netdust\Service\Logger\Logger;
-use Netdust\Service\Logger\LoggerInterface;
+use Netdust\Logger\Logger;
+use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
 

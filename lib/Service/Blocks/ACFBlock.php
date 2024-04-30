@@ -9,7 +9,7 @@
 
 namespace Netdust\Service\Blocks;
 
-use Netdust\Service\Logger\Logger;
+use Netdust\Logger\Logger;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
 use Netdust\Traits\Templates;
@@ -22,8 +22,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Block
  *
- * @since   1.0.0
- * @package Underpin\Abstracts
  */
 class ACFBlock {
 

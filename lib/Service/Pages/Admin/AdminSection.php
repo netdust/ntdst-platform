@@ -10,11 +10,11 @@
 namespace Netdust\Service\Pages\Admin;
 
 use Netdust\App;
-use Netdust\Service\Logger\LoggerInterface;
-use Netdust\Service\UI\SettingsField;
-use Netdust\Service\UI\UIInterface;
+use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Setters;
 use Netdust\Traits\Templates;
+use Netdust\View\UI\SettingsField;
+use Netdust\View\UI\UIInterface;
 use WP_Error;
 
 

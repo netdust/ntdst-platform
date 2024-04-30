@@ -7,9 +7,9 @@
  */
 
 
-namespace Netdust\Service\UI\SettingsFields;
+namespace Netdust\View\UI\SettingsFields;
 
-use Netdust\Service\UI\SettingsField;
+use Netdust\View\UI\SettingsField;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;

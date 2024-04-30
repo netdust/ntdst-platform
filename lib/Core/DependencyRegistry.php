@@ -1,10 +1,9 @@
 <?php
 
-namespace Netdust\Utils;
+namespace Netdust\Core;
 
 use lucatume\DI52\Container;
 use Netdust\Traits\Features;
-use Netdust\Vormingen\Services\Learndash\VAD_Learndash_API;
 
 /**
  * Class DependencyRegistry

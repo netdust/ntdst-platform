@@ -1,32 +1,32 @@
 <?php
 /**
- * Settings Radio Field
+ * Settings Text Field
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
 
-namespace Netdust\Service\UI\SettingsFields;
 
-use Netdust\Service\UI\SettingsField;
+namespace Netdust\View\UI\SettingsFields;
+use Netdust\View\UI\SettingsField;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Class Radio
+ * Class Text
  *
  * @since 1.0.0
  * @package Underpin\Factories\Settings_Fields
  */
-class Radio extends SettingsField {
+class Text extends SettingsField {
 
 	/**
 	 * @inheritDoc
 	 */
 	function get_field_type() {
-		return 'radio';
+		return 'text';
 	}
 
 	/**

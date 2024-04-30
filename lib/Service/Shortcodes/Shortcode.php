@@ -8,7 +8,7 @@
 
 namespace Netdust\Service\Shortcodes;
 
-use Netdust\Service\Logger\LoggerInterface;
+use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Features;
 use Netdust\Traits\Templates;
 

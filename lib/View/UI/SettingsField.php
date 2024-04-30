@@ -6,12 +6,11 @@
  */
 
 
-namespace Netdust\Service\UI;
+namespace Netdust\View\UI;
 
-use Netdust\Service\Logger\Logger;
+use Netdust\Logger\Logger;
 use Netdust\Traits\Templates;
 use WP_Error;
-
 
 
 if ( ! defined( 'ABSPATH' ) ) {

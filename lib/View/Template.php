@@ -3,7 +3,7 @@
 
 namespace Netdust\View;
 
-use Netdust\Service\Logger\LoggerInterface;
+use Netdust\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;

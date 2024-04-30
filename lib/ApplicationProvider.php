@@ -4,7 +4,7 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
-use Netdust\Service\Logger\LoggerInterface;
+use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Setters;
 
 interface APIInterface {}
@@ -250,7 +250,8 @@ class ApplicationProvider extends ServiceProvider {
             return $this->$method( ...$arguments );
         }
 
-        if ( is_callable($this->container->get( $method )) ) {
+
+        if ( $this->container->has( $method ) && is_callable($this->container->get( $method )) ) {
             return $this->container->get( $method )( ...$arguments );
         }
 
