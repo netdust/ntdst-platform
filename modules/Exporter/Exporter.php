@@ -7,11 +7,10 @@
  */
 
 
-namespace modules\Exporter;
+namespace Netdust\Exporter;
 
 
 
-use function Netdust\Service\Exporter\wpinv_sanitize_key;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;

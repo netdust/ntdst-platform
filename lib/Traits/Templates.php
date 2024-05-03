@@ -172,7 +172,7 @@ trait Templates {
 	 * @return string The complete template path.
 	 */
 	protected function get_template_path( $template_name ): string {
-		return apply_filters( "template:path",  trailingslashit( $this->get_template_directory() ) . '/' .$template_name . '.php' );
+		return apply_filters( "template:path",  trailingslashit( $this->get_template_directory() . '/' )  . $template_name . '.php' );
 	}
 
 	/**

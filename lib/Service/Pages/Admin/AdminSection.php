@@ -177,7 +177,7 @@ class AdminSection {
         return null;
     }
 
-    public function view( string $id = '' ): string|WP_Error {
+    public function view( string $id = '' ): mixed {
 
         if ( '' === $id ) {
             $id = $this->get_current_view_key();

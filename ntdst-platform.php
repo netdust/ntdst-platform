@@ -11,7 +11,7 @@
  * Plugin Name:       NTDST Wordpress Library
  * Plugin URI:        https://netdust.be
  * Description:       A framework for Online Wordpress Applications.
- * Version:           3.0.0
+ * Version:           3.5.0
  * Author:            Stefan Vandermeulen
  * Author URI:        https://netdust.be
  * Text Domain:       ntdst_platform
