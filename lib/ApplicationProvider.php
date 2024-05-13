@@ -161,7 +161,9 @@ class ApplicationProvider extends ServiceProvider {
         if(!empty($args) )
             $this->container->when( $id )->needs('$args' )->give( $args );
 
+
         if(!empty($implementation) ) {
+
             if( !empty($args) && key_exists('middlewares', $args ) ) {
                 $args['middlewares'][] = $implementation;
                 $this->container->singletonDecorators($id, $args['middlewares'], $afterBuildMethods, true );

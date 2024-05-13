@@ -71,8 +71,20 @@ class App
      * @return mixed The entry for an id.
      *
      */
-    public static function get( string $id = '' ) {
+    public static function get( string $id = '' ): mixed {
         if( empty( $id ) ) return static::$app;
         else return static::$app->container()->get( $id );
     }
+
+    /**
+     * creates a singleton instance and returns it.
+     *
+     * @return mixed The instance for an id.
+     *
+     */
+    public static function make( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null ): mixed
+    {
+        return static::$app->make( $id, $implementation, $args, $afterBuildMethods );
+    }
+
 }

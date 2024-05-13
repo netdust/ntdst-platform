@@ -2,6 +2,7 @@
 
 namespace Netdust\Service\Scripts;
 
+use Netdust\Logger\Logger;
 use Netdust\Traits\Decorator;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
