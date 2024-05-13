@@ -97,7 +97,6 @@ class Script implements ScriptInterface {
      * @inheritDoc
      */
     public function do_actions(): void {
-        Logger::debug( 'The script ' . $this->handle . ' hooked to be registered' );
         add_action( 'init', [ $this, 'register' ] );
     }
 
@@ -133,7 +132,6 @@ class Script implements ScriptInterface {
      */
     public function register() {
 
-        Logger::debug( 'The script ' . $this->handle . ' will be to registered' );
         $this->get_dependencies();
 
         $registered = wp_register_script( $this->handle, $this->src, $this->deps, $this->ver, $this->in_footer );
