@@ -12,6 +12,8 @@ namespace Netdust\Exporter;
 
 
 
+use Netdust\Logger\Logger;
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -41,18 +43,25 @@ abstract class Exporter {
         $data  = $this->get_data( $this->get_query_args( $args ) );
         $stream    = $this->prepare_output();
         $headers   = $this->get_export_fields( );
-        $file_type = $this->prepare_file_type( strtolower( $args['action'] ) );
+        $file_type = $this->prepare_file_type( $args );
 
         if ( 'csv' == $file_type ) {
             $this->download_csv( $data, $stream, $headers );
+            fclose( $stream );
+            exit;
         } else if( 'xml' == $file_type ) {
             $this->download_xml( $data, $stream, $headers );
-        } else {
+            fclose( $stream );
+            exit;
+        } else if( 'json' == $file_type ) {
             $this->download_json( $data, $stream, $headers );
+            fclose( $stream );
+            exit;
+        } else {
+            do_action( 'ntdst:export_data', $data, $stream, $headers );
         }
 
-        fclose( $stream );
-        exit;
+
     }
 
     /**
@@ -80,10 +89,10 @@ abstract class Exporter {
      *
      * @return string
      */
-    public function prepare_file_type( $graph ) {
+    public function prepare_file_type( $args ) {
 
-        $file_type = empty( $_REQUEST['file_type'] ) ? 'csv' : sanitize_text_field( $_REQUEST['file_type'] );
-        $file_name = $this->get_file_name( $graph );
+        $file_type = empty( $args['file_type'] ) ? 'csv' : sanitize_text_field( $args['file_type'] );
+        $file_name = $this->get_file_name( strtolower( $args['action'] ) );
 
         header( "Content-Type:application/$file_type" );
         header( "Content-Disposition:attachment;filename=$file_name.$file_type" );
