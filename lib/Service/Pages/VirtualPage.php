@@ -35,6 +35,7 @@ class VirtualPage
     {
         $this->title = $title;
         $this->template = $template;
+        $this->setUri( sanitize_title( $title ) );
         $this->setTemplateRootPath($templateDirectory);
     }
 
