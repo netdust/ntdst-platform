@@ -271,7 +271,7 @@ abstract class SettingsField {
         return apply_filters( "template:path", $template_path );
     }
 
-    protected function get_template_group() {
+    protected function get_template_group(): string {
         return $this->get_field_type();
     }
 

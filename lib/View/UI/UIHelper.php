@@ -33,7 +33,7 @@ class UIHelper implements UIInterface {
     public function make( string $type, $value, array $params = [],  $echo = false ) {
 
         $output= null;
-        $capitalizedClassName = 'Netdust\Utils\UI\SettingsFields\\' .ucfirst($type);
+        $capitalizedClassName = 'Netdust\View\UI\SettingsFields\\' .ucfirst($type);
         if (class_exists( $capitalizedClassName)) {
             $output = ( new $capitalizedClassName($value, $params) );
         }
