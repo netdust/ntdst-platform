@@ -7,9 +7,11 @@
  * @license   GPLV3 Or Greater
  */
 
-namespace Varunsridharan\WordPress;
 
-if ( ! class_exists( '\Varunsridharan\WordPress\Endpoint' ) ) {
+namespace Netdust\Service\Endpoint;
+
+
+if ( ! class_exists( '\Netdust\Service\Endpoint\Endpoint' ) ) {
     /**
      * Class Endpoint
      *
@@ -69,7 +71,7 @@ if ( ! class_exists( '\Varunsridharan\WordPress\Endpoint' ) ) {
         /**
          * Endpoint constructor.
          *
-         * @param string $prefix Used to set prefeix for query args.
+         * @param string $prefix Used to set prfeix for query args.
          */
         public function __construct( $prefix = '' ) {
             $this->prefix( $prefix );

@@ -37,6 +37,9 @@ class VirtualPage
         $this->template = $template;
         $this->setUri( sanitize_title( $title ) );
         $this->setTemplateRootPath($templateDirectory);
+
+        add_action( 'init', array( $this, 'rewrite' ) );
+
     }
 
     public function onRoute(): void
@@ -60,6 +63,15 @@ class VirtualPage
 
     public function title(): string {
         return $this->title;
+    }
+
+    function rewrite() {
+        add_rewrite_endpoint( $this->template, EP_PERMALINK | EP_PAGES );
+
+        if(get_transient( 'ntdst_vp_flush' )) {
+            delete_transient( 'ntdst_vp_flush' );
+            flush_rewrite_rules();
+        }
     }
 
     public function page_template( string $templateDir ): string {
@@ -168,7 +180,8 @@ class VirtualPage
         wp_cache_add(0, $this->wpPost, 'posts');
 
         //set 200 header
-        @status_header(200);
+        @status_header( 200 );
+        nocache_headers();
     }
 
 }

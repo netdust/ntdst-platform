@@ -41,14 +41,14 @@ class DependencyRegistry {
         $this->container->when( $id )->needs( '$args' )->give( $args );
 
         if( !key_exists('singleton', $args ) || !$args['singleton'] ) {
+            if(key_exists('singleton', $args) )
+                unset( $args['singleton'] );
             $this->bind($id, $args, $afterBuildMethods);
         }
         else {
+            unset( $args['singleton'] );
             $this->bindSingleton( $id, $args, $afterBuildMethods );
         }
-
-        unset( $args['singleton'] );
-        unset( $args['middlewares'] );
 
 	    if( in_array(Features::class, class_uses($this->instanceClass)) ) {
 		    $this->container->make($id)->do_actions();
@@ -60,8 +60,9 @@ class DependencyRegistry {
     protected function bind( string $id, array $args, ?array $afterBuildMethods = null ): void {
 
         if( !empty($args) && key_exists('middlewares', $args ) ) {
-            $args['middlewares'][] = $this->instanceClass;
-            $this->container->bindDecorators($id, $args['middlewares'], $afterBuildMethods );
+            $decorators = array_merge($args['middlewares'], $this->instanceClass);
+            unset( $args['middlewares'] );
+            $this->container->bindDecorators($id, $decorators, $afterBuildMethods );
         }
         else {
             $this->container->bind($id, $this->instanceClass, $afterBuildMethods);

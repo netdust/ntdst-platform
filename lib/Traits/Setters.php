@@ -13,8 +13,7 @@ use Netdust\Logger\LoggerInterface;
 
 trait Setters {
 
-	protected array $values = [];
-
+	protected array $properties = [];
 
 	/**
 	 * Loop through each argument, set the value, and remove the value if it was already set.
@@ -24,13 +23,33 @@ trait Setters {
 	 * @param array $args Arguments to set, and manipulate.
 	 */
 	protected function set_values( array &$args ): void {
-		// Override default params.
-		foreach ( $args as $arg => $value ) {
-            try { $this->{$arg} = $value; } catch (Exception $e){};
-            unset( $args[ $arg ] );
-		}
+		$this->setProperties( $args );
 	}
 
+    protected function setProperties( array &$args ): void {
+        // Override default params.
+        foreach ( $args as $name  => $value ) {
+            if( $this->hasProperty($name) ) {
+                $this->{$name} = $value;
+            }
+            else {
+                $this->properties[$name] = $value;
+            }
+            unset( $args[ $name ] );
+        }
+    }
+
+    public function hasProperty($name) {
+        return property_exists($this, $name) || array_key_exists($name, $this->properties);
+    }
+
+    public function getProperty($name) {
+        if( $this->hasProperty($name) )
+            return $this->{$name};
+        if( key_exists( $name, $this->properties ) )
+            return $this->properties[$name];
+        return null;
+    }
 
     /**
 	 * Set a custom callback from the provided argument, and set or arguments.

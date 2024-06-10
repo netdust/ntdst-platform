@@ -98,18 +98,18 @@ class Engine
 
     /**
      * Create a new template.
-     * @param  string   $name
+     * @param  string   $path
      * @param  array    $data
      * @return Template
      */
-    public function make(string $name='', array $data = array()): Template
+    public function make(string $path='', array $data = array()): Template
     {
-        if( !empty( $name )) {
-            $template_data = $this->getData($name);
-            return $this->templates[$name] = new Template($name, array_merge($template_data, $data));
+        if( !empty( $path )) {
+            $template_data = $this->getData($path);
+            return $this->templates[$path] = new Template($path, array_merge($template_data, $data));
         }
 
-        return new Template($name, $data);
+        return new Template($path, $data);
     }
 
     /**

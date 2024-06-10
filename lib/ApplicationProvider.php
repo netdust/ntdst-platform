@@ -4,6 +4,7 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Setters;
 
@@ -161,7 +162,6 @@ class ApplicationProvider extends ServiceProvider {
         if(!empty($args) )
             $this->container->when( $id )->needs('$args' )->give( $args );
 
-
         if(!empty($implementation) ) {
 
             if( !empty($args) && key_exists('middlewares', $args ) ) {
@@ -179,6 +179,10 @@ class ApplicationProvider extends ServiceProvider {
 	public function alias( string $id, mixed $implementation = null, array $afterBuildMethods = null ): void {
 		$this->container->bind( $id, $implementation, $afterBuildMethods );
 	}
+
+    public function load_config( string $key, string $path ){
+        $this->_load_config_if_exists( $key, $path );
+    }
 
     /**
      * get a config value.
@@ -218,8 +222,8 @@ class ApplicationProvider extends ServiceProvider {
 	    } );
     }
 
-    protected function _register_if_exists(): void {
-        $path = $this->dir() . '/register/';
+    protected function _register_if_exists( ?string $path = null ): void {
+        $path = $path ?? $this->dir() . '/register/';
 
         if (is_dir($path)) {
             foreach (glob($path . '*.php') as $file) {
@@ -230,18 +234,19 @@ class ApplicationProvider extends ServiceProvider {
         }
     }
 
-    protected function _load_config_if_exists(): void {
+    protected function _load_config_if_exists( string $key='', ?string $path = null ): void {
 
         $data = [];
-        $path = $this->dir() . $this->build_path . '/config/';
+        $path = $path ?? $this->dir() . $this->build_path . '/config/';
 
         if (is_dir($path)) {
             foreach (glob($path . '*.php') as $file) {
-                $data[basename($file, '.php')] = require_once($file);
+                $kkey = (!empty($key)?$key:basename($file, '.php'));
+                $data[$kkey] = array_merge( $data[$kkey]??[], require_once($file) );
             }
         }
 
-        $this->config = $data;
+        $this->config = array_merge( $this->config??[], $data );
 
     }
 

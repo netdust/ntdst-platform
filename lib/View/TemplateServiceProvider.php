@@ -3,10 +3,12 @@
 namespace Netdust\View;
 
 
+
 use lucatume\DI52\ServiceProvider;
 
 
 class TemplateServiceProvider extends ServiceProvider {
+
 
     public function register( ) {
 
@@ -14,9 +16,14 @@ class TemplateServiceProvider extends ServiceProvider {
 
         $container->singleton( Engine::class );
 
-        $container->singleton('render', $container->protect(function() use ( $container ) {
-            return call_user_func_array( [$container->make(Engine::class), 'render'], func_get_args() );
-        }));
+        $container->singleton('template', new class {
+           public function render(string $layout, array $data = array() ): string {
+               return app()->container()->make(Engine::class)->render( $layout, $data );
+           }
+
+       });
+
+       //app()->view_environment( dirname(__FILE__, [] ) )->get_template( 'email/default', [] );
 
     }
 }

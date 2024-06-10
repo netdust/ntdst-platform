@@ -4,6 +4,7 @@ namespace Netdust\Http\Router;
 
 use Netdust\Http\Request;
 use Netdust\Http\Response;
+use Netdust\Logger\Logger;
 
 
 class Router
@@ -52,6 +53,7 @@ class Router
      */
     public static function match(Request $request = null): Response
     {
+        Logger::debug( $request );
         return static::$router->match($request->getPath(), $request->getMethod());
     }
 
