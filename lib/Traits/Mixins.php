@@ -30,7 +30,7 @@ trait Mixins {
 
         foreach ($methods as $method) {
             if ($replace || ! $this->hasMixin($method->name)) {
-                $this->mixin($method->name, $method->invoke($mixin));
+                $this->mixin($method->name, $method);
             }
         }
     }
