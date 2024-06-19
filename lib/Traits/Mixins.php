@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use ReflectionClass;
 use ReflectionMethod;
@@ -30,7 +31,9 @@ trait Mixins {
 
         foreach ($methods as $method) {
             if ($replace || ! $this->hasMixin($method->name)) {
-                $this->mixin($method->name, $method);
+                $this->mixin($method->name, function( $args ) use ( $mixin, $method ) {
+                    return $method->invoke($mixin, ...$args );
+                });
             }
         }
     }
@@ -59,7 +62,7 @@ trait Mixins {
         }
 
         $mixin = $this->mixins[$method];
-        return $mixin(...$parameters);
+        return $mixin($parameters);
     }
 
 }
