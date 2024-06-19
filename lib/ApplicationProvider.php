@@ -6,12 +6,14 @@ use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
 use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
+use Netdust\Traits\Mixins;
 use Netdust\Traits\Setters;
 
 interface APIInterface {}
 
 class ApplicationProvider extends ServiceProvider {
     use Setters;
+    use Mixins;
 
     public string $name = 'Netdust';
     public string $text_domain = 'netdust';
@@ -150,10 +152,6 @@ class ApplicationProvider extends ServiceProvider {
     }
 
 
-    public function load_config( string $key, string $path ){
-        $this->_load_config_if_exists( $key, $path );
-    }
-
     /**
      * get a config value.
      *
@@ -222,6 +220,7 @@ class ApplicationProvider extends ServiceProvider {
     }
 
 
+    /*
     public function __call( $method, $arguments ): mixed {
         // If this method exists, bail and just get the method.
         if ( method_exists( $this, $method ) ) {
@@ -246,7 +245,7 @@ class ApplicationProvider extends ServiceProvider {
                 'backtrace' => debug_backtrace(),
             ]
         );
-    }
+    }*/
 
 
 }
