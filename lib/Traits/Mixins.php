@@ -40,7 +40,7 @@ trait Mixins {
      *
      * @return void
      */
-    public function flushMacros()
+    public function flushMixins()
     {
         $this->mixins = [];
     }
