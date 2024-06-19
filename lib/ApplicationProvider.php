@@ -19,66 +19,48 @@ class ApplicationProvider extends ServiceProvider {
     public string $version = '1.2.0';
     public string $minimum_php_version = '7.6';
     public string $minimum_wp_version = '6.0';
-    public string $build_path = "/app";
+    public string $build_path = "app";
 
     protected ?array $config = null;
 
     protected string $file;
 
-    /**
-     * URL Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return string
-     */
-    public function url(): string {
-        return untrailingslashit( plugins_url( '/', $this->file ) );
+    public function url( string $path='' ): string {
+        return untrailingslashit( plugins_url( '/', $this->file ) ) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
-    /**
-     * CSS URL Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return string
-     */
-    public function css_url(): string {
-        return apply_filters( 'ntdst_css_url', $this->url() . $this->build_path .'/assets/css' );
+    public function css_url() {
+        return apply_filters( 'ntdst_css_url', $this->url(  $this->build_path .'/assets/css' ) );
     }
 
-    /**
-     * JS URL Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return string
-     */
-    public function js_url(): string {
-        return apply_filters( 'ntdst_js_url', $this->url() . $this->build_path .'/assets/js' );
+    public function js_url() {
+        return apply_filters( 'ntdst_js_url', $this->url( $this->build_path .'/assets/js' ) );
     }
 
-    /**
-     * Directory Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return string
-     */
-    public function dir(): string {
-        return untrailingslashit( plugin_dir_path( $this->file ) );
+    public function dir( string $path='' ): string {
+        return untrailingslashit( plugin_dir_path( $this->file ) ) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
-    /**
-     * Template Directory Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return string
-     */
-    public function tpl_dir(): string {
-        return apply_filters( 'ntdst_template_path', $this->dir() . $this->build_path . '/templates' );
+    public function app_dir( string $path='' ): string {
+        return $this->dir( $this->build_path ) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
+
+    public function template_dir( string $path = ''): string {
+        return $this->app_dir( 'templates' ) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    public function content_dir( string $path = ''): string {
+        return WP_CONTENT_DIR . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    public function plugins_dir( string $path = ''): string {
+        return $this->content_dir('plugins') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    public function themes_dir( string $path = ''): string {
+        return $this->content_dir('themes') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
 
     /**
      * __FILE__ Getter.
@@ -113,15 +95,6 @@ class ApplicationProvider extends ServiceProvider {
         return $this->container;
     }
 
-    /**
-     * Internationalization
-     *
-     * @since 2.1
-     */
-    public function i18n( string $text ): string {
-        return __( $text, $this->text_domain );
-    }
-
     public function __construct(Container $container, array $args = [] ) {
         $this->set_values( $args );
         parent::__construct( $container );
@@ -140,12 +113,12 @@ class ApplicationProvider extends ServiceProvider {
 
             $this->_register_if_exists();
 
-	        $this->container->boot();
+            $this->container->boot();
 
-			$this->make( LoggerInterface::class )->info(
-		        'The application ' . $this->name . ' has been loaded.',
-		        'application_load'
-	        );
+            $this->make( LoggerInterface::class )->info(
+                'The application ' . $this->name . ' has been loaded.',
+                'application_load'
+            );
 
         } else {
             // Run unsupported actions if requirements are not met.
@@ -176,9 +149,6 @@ class ApplicationProvider extends ServiceProvider {
         return $this->container->get( $id );
     }
 
-	public function alias( string $id, mixed $implementation = null, array $afterBuildMethods = null ): void {
-		$this->container->bind( $id, $implementation, $afterBuildMethods );
-	}
 
     public function load_config( string $key, string $path ){
         $this->_load_config_if_exists( $key, $path );
@@ -210,16 +180,17 @@ class ApplicationProvider extends ServiceProvider {
 
     protected function _unsupported_actions(): void {
 
-	    add_action( 'admin_notices', function() {
-		    $class = 'notice notice-error';
-		    $message = __( sprintf(
-			    "The plugin requires at least WordPress %s, and PHP %s.",
-			    $this->minimum_wp_version,
-			    $this->minimum_php_version
-		    ), $this->text_domain );
+        add_action( 'admin_notices', function() {
+            $class = 'notice notice-error';
+            $message = __( sprintf(
+                "The plugin requires at least WordPress %s, and PHP %s.",
+                $this->minimum_wp_version,
+                $this->minimum_php_version
+            ), $this->text_domain );
 
-		    printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
-	    } );
+            printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+        } );
+
     }
 
     protected function _register_if_exists( ?string $path = null ): void {
@@ -262,8 +233,8 @@ class ApplicationProvider extends ServiceProvider {
             return $this->container->get( $method )( ...$arguments );
         }
 
-        if ( method_exists( app( APIInterface::class ), $method ) ) {
-            return app( APIInterface::class )->$method( ...$arguments );
+        if ( $this->container->has( APIInterface::class ) && method_exists( $this->container->get( APIInterface::class ), $method ) ) {
+            return $this->container->get( APIInterface::class )->$method( ...$arguments );
         }
 
         return new \WP_Error(

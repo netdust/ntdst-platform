@@ -10,6 +10,7 @@
 namespace Netdust\Service\Pages\Admin;
 
 use Netdust\App;
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Setters;
 use Netdust\Traits\Templates;
@@ -125,10 +126,7 @@ class AdminSection {
 	public function __construct(  array $args = [] ) {
         $this->set_values( $args );
         if( !empty($this->views) ) foreach ($this->views as &$view ) {
-            App::get(AdminSection::class)->add(
-                $view['id'],
-                array_merge( $view, ['singleton'=>true, 'parent_id'=>$this->id, 'template_root'=>$this->template_root??''] )
-            );
+            App::make( $view['id'] , AdminSection::class, array_merge( $view, ['parent_id'=>$this->id, 'template_root'=>$this->template_root??''] ) );
             $view = App::get( $view['id'] );
         }
         if( !empty($this->fields) ) foreach ($this->fields as &$field ) {

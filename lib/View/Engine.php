@@ -66,7 +66,7 @@ class Engine
      */
     public function getData(string $name = null): array
     {
-        $data = $this->data['global'];
+        $data = $this->data['global']??[];
         return array_key_exists($name, $this->data) ? array_merge($data,$this->data[$name]):$data;
     }
 
@@ -80,7 +80,6 @@ class Engine
     public function path(string $name, string $layout): string
     {
         $template = $this->templates[$name];
-
         return !empty($template) && $template->get_path( $layout );
     }
 
@@ -92,7 +91,6 @@ class Engine
     public function exists(string $name): bool
     {
         $template = $this->templates[$name];
-
         return !empty($template) && $template->exists();
     }
 
