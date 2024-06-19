@@ -7,6 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Netdust\Logger\LoggerInterface;
+use ReflectionClass;
+use ReflectionMethod;
 
 trait Mixins {
 
@@ -19,6 +21,18 @@ trait Mixins {
     public function hasMixin($name)
     {
         return !empty($this->mixins[$name]);
+    }
+
+    public function extend( $mixin, $replace = true ) {
+        $methods = (new ReflectionClass($mixin))->getMethods(
+            ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED
+        );
+
+        foreach ($methods as $method) {
+            if ($replace || ! $this->hasMixin($method->name)) {
+                $this->mixin($method->name, $method->invoke($mixin));
+            }
+        }
     }
 
     /**
