@@ -59,6 +59,7 @@ class App
     public static function boot( string $id, array $args ): void {
         $container = new \lucatume\DI52\Container();
         $container->singleton($id, new ApplicationProvider( $container,  $args));
+        $container->singleton(ApplicationProvider::class, $container->get( $id ) );
 
         static::setApplication( $container->get( $id ) );
         static::container()->register( $id );
