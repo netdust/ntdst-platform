@@ -6,6 +6,7 @@ namespace Netdust\Service\Scripts;
 use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Features;
+use Netdust\Traits\Registry;
 use Netdust\Traits\Setters;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,6 +17,7 @@ class Script implements ScriptInterface {
 
     use Setters;
     use Features;
+    use Registry;
 
     /**
      * The handle for this script.
