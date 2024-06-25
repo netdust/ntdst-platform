@@ -144,6 +144,25 @@ class Template  {
         return $result;
     }
 
+    public function get_param( string $param, mixed $default = false ): mixed {
+        return $this->data[ $this->depth ][ $param ] ?? $default;
+    }
+
+    /**
+     * Retrieves all the params for the current template.
+     *
+     * @since 1.0.0
+     *
+     * @return array List of params for the current template
+     */
+    public function get_params(): array {
+        if ( isset( $this->data[ $this->depth ] ) ) {
+            return $this->data[ $this->depth ];
+        }
+
+        return [];
+    }
+
     private function include_file_with_scope( string $file, array $scope ): bool {
         if ( file_exists( $file ) ) {
             extract( $scope );

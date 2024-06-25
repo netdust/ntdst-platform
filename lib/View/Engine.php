@@ -2,6 +2,8 @@
 
 namespace Netdust\View;
 
+use Netdust\Logger\Logger;
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -90,7 +92,7 @@ class Engine
      */
     public function exists(string $name): bool
     {
-        $template = $this->templates[$name];
+        $template = $this->templates[$name]??null;
         return !empty($template) && $template->exists();
     }
 
@@ -103,8 +105,13 @@ class Engine
     public function make(string $path='', array $data = array()): Template
     {
         if( !empty( $path )) {
-            $template_data = $this->getData($path);
-            return $this->templates[$path] = new Template($path, array_merge($template_data, $data));
+            if( !$this->exists( $path ) ) {
+                $template_data = $this->getData($path);
+                return $this->templates[$path] = new Template($path, array_merge($template_data, $data));
+            }
+            else {
+                return $this->templates[$path];
+            }
         }
 
         return new Template($path, $data);

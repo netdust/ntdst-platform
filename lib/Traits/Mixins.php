@@ -55,8 +55,7 @@ trait Mixins {
                 'The provided method is invalid',
                 'invalid_method',
                 [
-                    'callback' => $method,
-                    'stack'    => debug_backtrace(),
+                    'callback' => $method
                 ]
             );
         }

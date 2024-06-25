@@ -6,6 +6,7 @@
  */
 
 namespace Netdust\Traits;
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -68,7 +69,6 @@ trait Templates {
 	 * @return string The template contents.
 	 */
 	public function get_template( string $template_name, array $params = [] ): string {
-
 
         if ( $this->template_file_exists( $template_name ) ) {
             $template = $this->include_template( $template_name, $params );
