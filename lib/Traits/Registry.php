@@ -24,7 +24,7 @@ trait Registry {
             $this->do_actions();
         }
 
-        foreach ((array)$this->afterBuildMethods as $afterBuildMethod) {
+        foreach ($afterBuildMethods as $afterBuildMethod) {
             $this->{$afterBuildMethod}();
         }
     }

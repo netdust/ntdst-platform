@@ -45,7 +45,7 @@ trait Templates {
      *
      * @var string The root path to the templates
      */
-    protected string $template_root;
+    public string $template_root;
 
 	/**
 	 * Fetches the template group name. This determines the sub-directory for the templates.
