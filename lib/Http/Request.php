@@ -34,9 +34,9 @@ final class Request
      *
      * @param array $server
      */
-    public function __construct(array $server = [])
+    public function __construct()
     {
-        $this->server = $server ? : $_SERVER;
+        $this->server = $_SERVER;
         parse_str($this->getQuery(), $this->vars);
     }
 
@@ -89,23 +89,6 @@ final class Request
         return $this->storage['http_referer'];
     }
 
-    public function scheme(): string
-    {
-        return $this->getScheme();
-    }
-
-    public function host(): string
-    {
-        return $this->getHost();
-    }
-
-    public function chunks()
-    {
-        $path = $this->path();
-
-        return $path === '/' ? [] : explode('/', $path);
-    }
-
     public function path()
     {
         /*
@@ -122,22 +105,36 @@ final class Request
         return $path ? : '/';
     }
 
+    public function chunks()
+    {
+        $path = $this->path();
+
+        return $path === '/' ? [] : explode('/', $path);
+    }
+
+    public function endpoint()
+    {
+        $chunks = $this->chunks();
+
+        return end( $chunks );
+    }
+
     public function vars()
     {
         return $this->vars;
     }
 
-    public function set_var( string $key, $value ) {
-        $this->vars[$key]=$value;
-    }
     public function get_var( string $key ) {
         return $this->vars[$key];
+    }
+
+    public function set_var( string $key, $value ) {
+        $this->vars[$key]=$value;
     }
 
     public function has_var( string $key ) {
         return ! empty( $this->vars[$key] );
     }
-
 
     /**
      * Parse server array to find url components.

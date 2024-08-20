@@ -4,7 +4,6 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
-use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Mixins;
 use Netdust\Traits\Setters;
@@ -21,14 +20,18 @@ class ApplicationProvider extends ServiceProvider {
     public string $version = '1.2.0';
     public string $minimum_php_version = '7.6';
     public string $minimum_wp_version = '6.0';
+    public string $config_path = "";
     public string $build_path = "app";
 
     protected ?array $config = null;
 
     protected string $file;
 
+    protected function trim_path( string $path='' ): string {
+        return $path ? DIRECTORY_SEPARATOR . trim($path,'/') . DIRECTORY_SEPARATOR : $path;
+    }
     public function url( string $path='' ): string {
-        return untrailingslashit( plugins_url( '/', $this->file ) ) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return untrailingslashit( plugins_url( '/', $this->file ) ) . $this->trim_path($path);
     }
 
     public function css_url() {
@@ -40,27 +43,27 @@ class ApplicationProvider extends ServiceProvider {
     }
 
     public function dir( string $path='' ): string {
-        return untrailingslashit( plugin_dir_path( $this->file ) ) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return untrailingslashit( plugin_dir_path( $this->file ) ) .  $this->trim_path($path);
     }
 
     public function app_dir( string $path='' ): string {
-        return $this->dir( $this->build_path ) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $this->dir( $this->build_path ) .  $this->trim_path($path);
     }
 
     public function template_dir( string $path = ''): string {
-        return $this->app_dir( 'templates' ) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $this->app_dir( 'templates' ) .  $this->trim_path($path);
     }
 
     public function content_dir( string $path = ''): string {
-        return WP_CONTENT_DIR . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return get_home_path() .  $this->trim_path($path);
     }
 
     public function plugins_dir( string $path = ''): string {
-        return $this->content_dir('plugins') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $this->content_dir('plugins') . $this->trim_path($path);
     }
 
     public function themes_dir( string $path = ''): string {
-        return $this->content_dir('themes') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $this->content_dir('themes') .  $this->trim_path($path);
     }
 
 
@@ -113,14 +116,16 @@ class ApplicationProvider extends ServiceProvider {
 
             $this->_load_config_if_exists();
 
-            $this->_register_if_exists();
+            add_action('wp_loaded', function(){
+                $this->_register_if_exists();
 
-            $this->container->boot();
+                $this->container->boot();
 
-            $this->make( LoggerInterface::class )->info(
-                'The application ' . $this->name . ' has been loaded.',
-                'application_load'
-            );
+                $this->make( LoggerInterface::class )->info(
+                    'The application ' . $this->name . ' has been loaded.',
+                    'application_load'
+                );
+            });
 
         } else {
             // Run unsupported actions if requirements are not met.
@@ -155,12 +160,18 @@ class ApplicationProvider extends ServiceProvider {
     /**
      * get a config value.
      *
-     * @param string      $mod module where to search in.
+     * @param string $mod module where to search in.
      * @param string $key key to search for.
      */
     public function config( string $mod, string $key=''): mixed {
-        if( empty( $mod ) || !isset( $this->config[$mod] ) )
-            return null;
+        if( empty( $mod ) ) return null;
+
+        if( !isset( $this->config[$mod] ) ) {
+            $this->_load_config_if_exists( $mod );
+            if( !isset( $this->config[$mod] ) ) {
+                return null;
+            }
+        }
 
         if( $key=='' )
             return $this->config[$mod];
@@ -206,7 +217,7 @@ class ApplicationProvider extends ServiceProvider {
     protected function _load_config_if_exists( string $key='', ?string $path = null ): void {
 
         $data = [];
-        $path = $path ?? $this->dir() . $this->build_path . '/config/';
+        $path = $path ?? $this->dir( $this->config_path );
 
         if (is_dir($path)) {
             foreach (glob($path . '*.php') as $file) {
@@ -219,33 +230,6 @@ class ApplicationProvider extends ServiceProvider {
 
     }
 
-
-    /*
-    public function __call( $method, $arguments ): mixed {
-        // If this method exists, bail and just get the method.
-        if ( method_exists( $this, $method ) ) {
-            return $this->$method( ...$arguments );
-        }
-
-
-        if ( $this->container->has( $method ) && is_callable($this->container->get( $method )) ) {
-            return $this->container->get( $method )( ...$arguments );
-        }
-
-        if ( $this->container->has( APIInterface::class ) && method_exists( $this->container->get( APIInterface::class ), $method ) ) {
-            return $this->container->get( APIInterface::class )->$method( ...$arguments );
-        }
-
-        return new \WP_Error(
-            'method_not_found',
-            "The method could not be called. Either register this item as dependency, install an extension, or create a method for this call.",
-            [
-                'method'    => $method,
-                'args'      => $arguments,
-                'backtrace' => debug_backtrace(),
-            ]
-        );
-    }*/
 
 
 }
