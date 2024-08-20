@@ -6,6 +6,7 @@
  */
 
 namespace Netdust\Traits;
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -45,7 +46,7 @@ trait Templates {
      *
      * @var string The root path to the templates
      */
-    protected string $template_root;
+    public string $template_root;
 
 	/**
 	 * Fetches the template group name. This determines the sub-directory for the templates.
@@ -68,7 +69,6 @@ trait Templates {
 	 * @return string The template contents.
 	 */
 	public function get_template( string $template_name, array $params = [] ): string {
-
 
         if ( $this->template_file_exists( $template_name ) ) {
             $template = $this->include_template( $template_name, $params );

@@ -179,6 +179,10 @@ class ApplicationProvider extends ServiceProvider {
         return isset( $this->config[$mod][$key] ) ?? null;
     }
 
+    public function load_config( string $key, string $path ){
+        $this->_load_config_if_exists( $key, $path );
+    }
+
 
     protected function _plugin_is_supported(): bool {
         global $wp_version;

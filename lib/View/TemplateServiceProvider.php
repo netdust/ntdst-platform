@@ -16,14 +16,10 @@ class TemplateServiceProvider extends ServiceProvider {
 
         $container->singleton( Engine::class );
 
-        $container->singleton('template', new class {
-           public function render(string $layout, array $data = array() ): string {
-               return app()->container()->make(Engine::class)->render( $layout, $data );
-           }
-
-       });
-
-       //app()->view_environment( dirname(__FILE__, [] ) )->get_template( 'email/default', [] );
+        app()->mixin('get_template', function(string $layout, array $data = array() ): string {
+            $template = app()->container()->make(Engine::class)->make( app()->template_dir( ) );
+            return $template->render( $layout, $data );
+        });
 
     }
 }
