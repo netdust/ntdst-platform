@@ -116,7 +116,7 @@ class ApplicationProvider extends ServiceProvider {
 
             $this->_load_config_if_exists();
 
-            add_action('wp_loaded', function(){
+            //add_action('wp_loaded', function(){
                 $this->_register_if_exists();
 
                 $this->container->boot();
@@ -125,7 +125,7 @@ class ApplicationProvider extends ServiceProvider {
                     'The application ' . $this->name . ' has been loaded.',
                     'application_load'
                 );
-            });
+           //});
 
         } else {
             // Run unsupported actions if requirements are not met.
