@@ -93,7 +93,7 @@ class Engine
     public function exists(string $name): bool
     {
         $template = $this->templates[$name]??null;
-        return !empty($template) && $template->exists();
+        return !empty($template) && $template->exists( $name );
     }
 
     /**
