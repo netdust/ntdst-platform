@@ -10,10 +10,6 @@
 namespace Netdust\Exporter;
 
 
-
-
-use Netdust\Logger\Logger;
-
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -74,7 +70,7 @@ abstract class Exporter {
         $output  = fopen( 'php://output', 'w' );
 
         if ( false === $output ) {
-            wp_die( __( 'Unsupported server', 'ntdst-lib' ), 500 );
+            wp_die( __( 'Unsupported server', NTDST_APPLICATION ) );
         }
 
         return $output;

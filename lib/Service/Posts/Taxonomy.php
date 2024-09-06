@@ -261,35 +261,37 @@ class Taxonomy {
 
     protected function create_labels( ): array {
 
+        $d = NTDST_APPLICATION;
+        
         $tax = $this->args['labels']['name'] ?? $this->args['label'];
         $tax_single = $this->args['labels']['singular_name'] ?? $this->args['label'];
 
         return array_merge( array(
-            'name'                  => _x( $tax, 'Post type general name', app()->text_domain ),
-            'singular_name'         => _x( $tax_single, 'Post type singular name', app()->text_domain ),
-            'search_items'          => __( 'Search '.$tax, app()->text_domain ),
-            'all_items'             => __( 'All '.$tax, app()->text_domain ),
+            'name'                  => _x( $tax, 'Post type general name', $d ),
+            'singular_name'         => _x( $tax_single, 'Post type singular name', $d ),
+            'search_items'          => __( 'Search '.$tax, $d ),
+            'all_items'             => __( 'All '.$tax, $d ),
 
-            'edit_item'             => __( 'Edit '.$tax_single, app()->text_domain ),
-            'view_item'             => __( 'View '.$tax_single, app()->text_domain ),
-            'update_item'           => __( 'Update '.$tax_single, app()->text_domain ),
-            'add_new_item'          => __( 'Add New '.$tax_single, app()->text_domain ),
-            'new_item_name'         => __( 'New '.$tax_single.' Name', app()->text_domain ),
+            'edit_item'             => __( 'Edit '.$tax_single, $d ),
+            'view_item'             => __( 'View '.$tax_single, $d ),
+            'update_item'           => __( 'Update '.$tax_single, $d ),
+            'add_new_item'          => __( 'Add New '.$tax_single, $d ),
+            'new_item_name'         => __( 'New '.$tax_single.' Name', $d ),
 
             // non-hierarchical
-            'all_items'             => __( 'All '.$tax, app()->text_domain ),
+            'all_items'             => __( 'All '.$tax, $d ),
 
             // hierarchical
-            'parent_item'           => __( 'Parent '.$tax, app()->text_domain ),
-            'parent_item_colon'     => __( 'Parent '.$tax.':', app()->text_domain ),
+            'parent_item'           => __( 'Parent '.$tax, $d ),
+            'parent_item_colon'     => __( 'Parent '.$tax.':', $d ),
 
 
-            'not_found'             => __( 'No '.$tax.' found.', app()->text_domain ),
-            'not_found_in_trash'    => __( 'No '.$tax.' found in Trash.', app()->text_domain ),
-            'no_terms '             => __( 'No '.$tax, app()->text_domain ),
+            'not_found'             => __( 'No '.$tax.' found.', $d ),
+            'not_found_in_trash'    => __( 'No '.$tax.' found in Trash.', $d ),
+            'no_terms '             => __( 'No '.$tax, $d ),
 
-            'items_list_navigation' => _x( $tax_single.' list navigation', 'Screen reader text for the pagination heading on the post type listing screen. Default “Posts list navigation”/”Pages list navigation”. Added in 4.4', app()->text_domain ),
-            'items_list'            => _x( $tax_single.' list', 'Screen reader text for the items list heading on the post type listing screen. Default “Posts list”/”Pages list”. Added in 4.4', app()->text_domain ),
+            'items_list_navigation' => _x( $tax_single.' list navigation', 'Screen reader text for the pagination heading on the post type listing screen. Default “Posts list navigation”/”Pages list navigation”. Added in 4.4', $d ),
+            'items_list'            => _x( $tax_single.' list', 'Screen reader text for the items list heading on the post type listing screen. Default “Posts list”/”Pages list”. Added in 4.4', $d ),
         ),
             $this->args['labels']??[]
         );

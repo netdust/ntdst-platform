@@ -13,6 +13,7 @@ use ArrayAccess;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Utils\Arr;
 use Netdust\Utils\MixedType;
+use WP_Error;
 
 /**
  * Provide a way to flash data into the session for the next request.
@@ -74,7 +75,8 @@ class Flash {
 	 */
 	protected function validateStore() : void {
 		if ( ! $this->isValidStore( $this->store ) ) {
-			app()->make( LoggerInterface::class )->warning(
+
+            app()->make( LoggerInterface::class )->warning(
 				'The provided store is invalid',
 				'invalid_store',
 				[

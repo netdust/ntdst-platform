@@ -42,6 +42,11 @@ require_once 'lib/Core/AutoLoader.php';
 ] );
 
 /**
+@todo access through app is misleading, find a better way, we can not know if the application is called NTDST_APPLICATION
+ *
+ */
+
+/**
  * easy access throughout application
  */
 if ( ! function_exists( 'app' ) ) {

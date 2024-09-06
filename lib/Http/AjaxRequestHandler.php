@@ -16,148 +16,38 @@ namespace Netdust\Http;
  * @since 4.8.0
  */
 abstract class AjaxRequestHandler {
+
     /**
-     * AJAX action.
-     *
-     * @since 4.8.0
+     * Action hook used by the AJAX class.
      *
      * @var string
      */
-    public static $action;
+    const ACTION = 'my_plugin';
 
     /**
-     * Request.
+     * Action argument used by the nonce validating the AJAX request.
      *
-     * @since 4.8.0
-     *
-     * @var Request
+     * @var string
      */
-    public $request;
+    const NONCE = 'my-plugin-ajax';
 
-    /**
-     * Request results.
-     *
-     * @since 4.8.0
-     *
-     * @var mixed
-     */
-    protected $results;
 
-    /**
-     * Response.
-     *
-     * @since 4.8.0
-     *
-     * @var Response
-     */
-    protected $response;
-
-    /**
-     * Handle AJAX request.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     */
-    public function handle_request(): void {
-        $this->check_user_capability();
-
-        $this->verify_nonce();
-
-        $this->set_up_request();
-
-        $this->process();
-
-        $this->prepare_response();
-
-        $this->send_response();
+    public function do_actions(): void
+    {
+        add_action('wp_ajax_' . self::ACTION, [$this, 'handle']);
+        add_action('wp_ajax_nopriv_' . self::ACTION, [$this, 'handle']);
+        add_action('wp_loaded', [$this, 'register']);
     }
 
-    /**
-     * Check user capability.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     */
-    protected function check_user_capability(): void {
-        if ( ! current_user_can( LEARNDASH_ADMIN_CAPABILITY_CHECK ) ) {
-            wp_send_json_error( [ 'message' => 'Unauthorized' ], 401 );
-        }
+    public function handle()
+    {
+        // Make sure we are getting a valid AJAX request
+        check_ajax_referer(self::NONCE);
+
+        // Stand back! I'm about to try... SCIENCE!
+
+        die();
     }
 
-    /**
-     * Verify request nonce.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     */
-    protected function verify_nonce(): void {
-        $nonce = isset( $_REQUEST['nonce'] )
-            ? sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) )
-            : null;
 
-        $action = isset( $_REQUEST['action'] )
-            ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) )
-            : null;
-
-        if (
-            ! isset( $nonce )
-            || ! isset( $action )
-            || ! wp_verify_nonce( $nonce, $action )
-        ) {
-            wp_send_json_error( [ 'message' => 'Unauthorized' ], 401 );
-        }
-    }
-
-    /**
-     * Set up and build `request` property.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     */
-    abstract protected function set_up_request(): void;
-
-    /**
-     * Process request and build `results` property.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     */
-    abstract protected function process(): void;
-
-    /**
-     * Prepare response and build `response` property.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     */
-    abstract protected function prepare_response(): void;
-
-    /**
-     * Send response.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     */
-    protected function send_response(): void {
-        /**
-         * Filters AJAX handler response.
-         *
-         * @since 4.8.0
-         *
-         * @param array<string, mixed> $response Response to be sent.
-         * @param static               $handler  Request handler object.
-         *
-         * @return array<string, mixed>
-         */
-        $response = apply_filters( 'ntdst_ajax_send_response', $this->response->to_array(), $this );
-
-        wp_send_json_success( $response );
-    }
 }

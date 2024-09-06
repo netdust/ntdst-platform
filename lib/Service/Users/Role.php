@@ -10,6 +10,7 @@ namespace Netdust\Service\Users;
 
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
+use WP_Role;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -17,39 +18,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 class Role {
+
     use Features;
     use Setters;
 
     /**
      * id
-     * String that identifies this role.
-     *
-     * @var string Role
+     * @var string
      */
     protected string $id = '';
 
     /**
      * capabilities
-     * List of capabilities keyed by the capability name, e.g. array( 'edit_posts' => true, 'delete_posts' => false ).
-     *
      * @var array
      */
     protected array $capabilities = array();
 
     /**
      * Role constructor
-     *
      * @param array $args Overrides to default args in the object
      */
     public function __construct( array $args = [] ) {
         $this->set_values( $args );
     }
 
-    /**
-     * @inheritDoc
-     */
     public function do_actions(): void {
-        // Add the role.
-        add_role( $this->id, $this->name, $this->capabilities );
+        add_action( 'init', [ $this, 'register' ] );
     }
+
+    public function register(): ?\WP_Role {
+        return add_role($this->id, $this->name, $this->capabilities);
+    }
+
+    public function update(): ?\WP_Role
+    {
+        remove_role($this->id);
+        return $this->register();
+    }
+
 }

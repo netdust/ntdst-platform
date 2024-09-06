@@ -8,6 +8,7 @@ use YOOtheme\HttpClientInterface;
 
 class HttpClient
 {
+
     /**
      * Execute a GET HTTP request.
      *

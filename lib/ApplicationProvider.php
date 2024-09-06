@@ -4,9 +4,13 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
+
+use Netdust\Core\Config;
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Mixins;
 use Netdust\Traits\Setters;
+use ReflectionClass;
 
 interface APIInterface {}
 
@@ -23,7 +27,7 @@ class ApplicationProvider extends ServiceProvider {
     public string $config_path = "";
     public string $build_path = "app";
 
-    protected ?array $config = null;
+    protected ?Config $config = null;
 
     protected string $file;
 
@@ -111,21 +115,24 @@ class ApplicationProvider extends ServiceProvider {
 
     public function register( ): void {
 
+        // Make application accessible using its container
+        $this->container->singleton('application', function( Container $container ) {
+            return $this;
+        });
+
         // First, check to make sure the minimum requirements are met.
         if ( $this->_plugin_is_supported() ) {
 
             $this->_load_config_if_exists();
 
-            //add_action('wp_loaded', function(){
-                $this->_register_if_exists();
+            $this->_register_if_exists();
 
-                $this->container->boot();
+            $this->container->boot();
 
-                $this->make( LoggerInterface::class )->info(
-                    'The application ' . $this->name . ' has been loaded.',
-                    'application_load'
-                );
-           //});
+            $this->make( LoggerInterface::class )->info(
+                'The application ' . $this->name . ' has been loaded.',
+                'application_load'
+            );
 
         } else {
             // Run unsupported actions if requirements are not met.
@@ -138,9 +145,28 @@ class ApplicationProvider extends ServiceProvider {
         return $this->container->get( $id );
     }
 
+
     public function make( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null ): mixed {
-        if(!empty($args) )
-            $this->container->when( $id )->needs('$args' )->give( $args );
+
+        if(!empty($args) )  {
+
+            $className = !empty($implementation) ? $implementation:$id;
+
+            if( class_exists($className) ) {
+                $constructor = ( new ReflectionClass($className) )->getConstructor();
+                $parameters = $constructor ? $constructor->getParameters() : [];
+
+                foreach ($parameters as $parameter) {
+                    if( $parameter->getName() == 'args' ) {
+                        $this->container->when( $id )->needs('$args' )->give( $args );
+                    }
+                    else if( key_exists($parameter->getName(),$args) ) {
+                        $this->container->when( $id )->needs('$'.$parameter->getName() )->give( $args[$parameter->getName()] );
+                    }
+                }
+            }
+
+        }
 
         if(!empty($implementation) ) {
 
@@ -164,23 +190,29 @@ class ApplicationProvider extends ServiceProvider {
      * @param string $key key to search for.
      */
     public function config( string $mod, string $key=''): mixed {
-        if( empty( $mod ) ) return null;
-
-        if( !isset( $this->config[$mod] ) ) {
-            $this->_load_config_if_exists( $mod );
-            if( !isset( $this->config[$mod] ) ) {
-                return null;
-            }
-        }
 
         if( $key=='' )
             return $this->config[$mod];
 
         return isset( $this->config[$mod][$key] ) ?? null;
+
     }
 
-    public function load_config( string $key, string $path ){
-        $this->_load_config_if_exists( $key, $path );
+    /**
+     * get a config value.
+     *
+     * @param string $mod module where to search in.
+     * @param string $key key to search for.
+     */
+    public function add_config( string $mod, string|array $configuration ): void {
+
+        if( !is_array( $configuration ) ) {
+            $this->config->add( $mod, $this->config->load($configuration) );
+        }
+        else {
+            $this->config->add( $mod, $configuration );
+        }
+
     }
 
 
@@ -220,17 +252,8 @@ class ApplicationProvider extends ServiceProvider {
 
     protected function _load_config_if_exists( string $key='', ?string $path = null ): void {
 
-        $data = [];
         $path = $path ?? $this->dir( $this->config_path );
-
-        if (is_dir($path)) {
-            foreach (glob($path . '*.php') as $file) {
-                $kkey = (!empty($key)?$key:basename($file, '.php'));
-                $data[$kkey] = array_merge( $data[$kkey]??[], require_once($file) );
-            }
-        }
-
-        $this->config = array_merge( $this->config??[], $data );
+        $this->config = $this->make(Config::class, Config::class, [ 'configuration'=>$path ] );
 
     }
 

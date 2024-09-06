@@ -5,8 +5,6 @@ namespace Netdust\Http;
 class Response
 {
 
-
-
     /**
      * @var array
      */
@@ -18,7 +16,7 @@ class Response
     function __construct(  int $status = 200, array $headers = [], $body = null ) {
 
         $this->statusCode = $status;
-        //$this->setHeaders($headers);
+        $this->setHeaders($headers);
     }
 
     public function getStatusCode(): int

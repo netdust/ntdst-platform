@@ -29,27 +29,24 @@ abstract class Shortcode {
 
     /**
      * The shortcode attributes, parsed by shortcode atts.
-     *
-     * @since 1.0.0
-     *
      * @var array
      */
     protected array $atts = [];
 
     /**
+     * The shortcode attributes, parsed by shortcode atts.
+     * @var callable
+     */
+    protected $callback;
+
+    /**
      * The default shortcode att values.
-     *
-     * @since 1.0.0
-     *
      * @var array
      */
     protected array $defaults = [];
 
     /**
      * The name of this shortcode.
-     *
-     * @since 1.0.0
-     *
      * @var string
      */
     protected string $shortcode;
@@ -78,12 +75,11 @@ abstract class Shortcode {
      * @inheritDoc
      */
     public function do_actions(): void {
-        add_shortcode( $this->shortcode, [ $this, 'shortcode' ] );
+        add_action( 'init', [ $this, 'register' ] );
+    }
 
-	    app()->make( LoggerInterface::class )->info(
-            'A shortcode has been added',
-            'shortcode'
-        );
+    public function register(): void {
+        add_shortcode( $this->shortcode, [ $this, 'shortcode' ] );
     }
 
     /**

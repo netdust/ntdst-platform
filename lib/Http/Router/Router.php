@@ -53,7 +53,6 @@ class Router
      */
     public static function match(Request $request = null): Response
     {
-        Logger::debug( $request );
         return static::$router->match($request->getPath(), $request->getMethod());
     }
 

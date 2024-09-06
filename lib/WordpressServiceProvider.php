@@ -5,70 +5,70 @@ namespace Netdust;
 
 use lucatume\DI52\ServiceProvider;
 use Netdust\Logger\Logger;
+use Netdust\Logger\LoggerInterface;
 use Netdust\Service\Blocks\ACFBlock;
 use Netdust\Service\Posts\Post;
 use Netdust\Service\Posts\Taxonomy;
 use Netdust\Service\Scripts\Script;
 use Netdust\Service\Styles\Style;
+use Netdust\Service\Users\Role;
+use Netdust\Traits\Features;
 
 
 class WordpressServiceProvider extends ServiceProvider {
 
     public function register( ) {
 
-        $container = $this->container;
 
+        $app = $this->container->get('application');
 
-        $container->singleton('wp_register', new class {
+        /**
+         * add wp_register mixin to have unified api for WordPress objects
+         * use : app()->wp_register( 'videos', Post::class, [] );
+         */
+        $app->mixin('wp_register',  function( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null ) use ( $app ): mixed {
 
-            protected array $allowed = [
-                'style'=>Style::class,
-                'script'=>Script::class,
-                'post'=>Post::class,
-                'taxonomy'=>Taxonomy::class,
-                'block'=>ACFBlock::class,
+            $isAllowed = false;
+
+            $allowedBaseClasses = [
+                Style::class,
+                Script::class,
+                Post::class,
+                Taxonomy::class,
+                ACFBlock::class,
+                Role::class,
             ];
 
-            public function __call( $method, $arguments ): mixed {
-                if ( array_key_exists( $method, $this->allowed ) ) {
-                    $build_methods = array_merge( ( did_action('init')>0 ? ['register'] : ['do_actions'] ) , $arguments[2]??[] );
-                    return App()->make( $arguments[0], $this->allowed[$method],  $arguments[1], $build_methods );
+            $className = $implementation;
+            if (is_object($implementation)) {
+                $className = get_class($implementation);
+            }
+
+            foreach ($allowedBaseClasses as $allowedClass) {
+                if (is_subclass_of($className, $allowedClass) || $className === $allowedClass) {
+                    $isAllowed = true;
+                    break;
+                }
+            }
+
+            if ( $isAllowed ) {
+                if( method_exists( $implementation, 'do_actions' )  ) {
+                    $afterBuildMethods = array_merge($afterBuildMethods??[], ['do_actions']);
+                }
+                if( did_action('init')>0 && method_exists( $implementation, 'register') ) {
+                    $afterBuildMethods = array_merge($afterBuildMethods??[], ['register']);
                 }
 
-                return false;
+                return $app->make( $id, $implementation, $args, $afterBuildMethods );
             }
 
-        });
-
-
-        $container->singleton('enqueue', $container->protect(function( string $handle  ) use ( $container )
-        {
-            $instance = $container->get($handle);
-            if ( method_exists( $instance, 'enqueue' ) ) {
-                return $instance->enqueue();
-            }
+            $app->make( LoggerInterface::class )->warning(
+                'The ' . $className . ' failed to register.',
+                self::class
+            );
 
             return false;
-        }));
-
-
-        $container->singleton('add_style', $container->protect(function( string $id, array $args, ?array $afterBuildMethods = null  ) use ( $container )
-        {
-            return App()->make( $id, Style::class,  $args, array_merge( ['do_actions'] , $afterBuildMethods??[] ) );
-        }));
-
-        $container->singleton('add_script', $container->protect(function( string $id, array $args, ?array $afterBuildMethods = null  ) use ( $container )
-        {
-            return App()->make( $id, Script::class, $args, array_merge( ['do_actions'] , $afterBuildMethods??[] )  );
-        }));
-
-        $container->singleton('setup_shortcode', $container->protect(function( string $id, mixed $implementation = null, ?array $args = null, ?array $afterBuildMethods = null  ) use ( $container )
-        {
-            $container->when( $id )->needs('$args' )->give( $args );
-            $container->when( $id )->needs('$shortcode' )->give( $id );
-            $container->bind( $id, $implementation, array_merge( ['do_actions'] , $afterBuildMethods??[] ) );
-            return $container->get( $id );
-        }));
+        });
 
     }
 
