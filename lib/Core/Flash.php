@@ -51,7 +51,7 @@ class Flash {
 	 *
 	 * @codeCoverageIgnore
 	 * @param array|ArrayAccess $store
-	 * @param string             $store_key
+	 * @param string            $store_key
 	 */
 	public function __construct( array|ArrayAccess &$store, string $store_key = '__ntdstFlash' ) {
 		$this->store_key = $store_key;
@@ -76,14 +76,8 @@ class Flash {
 	protected function validateStore() : void {
 		if ( ! $this->isValidStore( $this->store ) ) {
 
-            app()->make( LoggerInterface::class )->warning(
-				'The provided store is invalid',
-				'invalid_store',
-				[
-					'store' =>  $this->store,
-					'stack'    => debug_backtrace(),
-				]
-			);
+            throw new \Exception( 'The provided store is invalid', 'invalid_store' );
+
 		}
 	}
 
@@ -261,7 +255,6 @@ class Flash {
 	 */
 	public function save(): void {
 		$this->validateStore();
-
 		$this->store[ $this->store_key ] = $this->flashed;
 	}
 }
