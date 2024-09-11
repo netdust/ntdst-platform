@@ -2,7 +2,7 @@
 
 namespace Netdust\View;
 
-use Netdust\Logger\Logger;
+use Netdust\Traits\Collection;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -14,12 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Engine
 {
+    use Collection;
 
     /**
      * Collection of preassigned template data.
      * @var array
      */
-    protected array $data;
+    protected array $data = array();
 
     /**
      * Collection of templates.
@@ -33,9 +34,8 @@ class Engine
      * @param string $directory
      * @param string $fileExtension
      */
-    public function __construct()
-    {
-        $this->data = [];
+    public function __construct() {
+
     }
 
     /**

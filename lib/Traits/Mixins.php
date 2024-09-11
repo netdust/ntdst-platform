@@ -24,6 +24,22 @@ trait Mixins {
         return !empty($this->mixins[$name]);
     }
 
+    public function callMixin($name, ...$arguments): mixed
+    {
+        if (!$this->hasMixin($name)) {
+            return app()->make( LoggerInterface::class )->warning(
+                'The provided method is invalid',
+                'invalid_method',
+                [
+                    'callback' => $name
+                ]
+            );
+        }
+
+        $mixin = $this->mixins[$name];
+        return $mixin(...$arguments);
+    }
+
     public function extend( $mixin, $replace = true ) {
         $methods = (new ReflectionClass($mixin))->getMethods(
             ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED
@@ -50,18 +66,12 @@ trait Mixins {
 
     public function __call($method, $parameters)
     {
-        if (! $this->hasMixin($method)) {
-            return app()->make( LoggerInterface::class )->warning(
-                'The provided method is invalid',
-                'invalid_method',
-                [
-                    'callback' => $method
-                ]
-            );
+
+        if (is_callable(['parent', '__call'])){
+            parent::__call($method, $parameters);
         }
 
-        $mixin = $this->mixins[$method];
-        return $mixin(...$parameters);
+        $this->callMixin( $method, ...$parameters );
     }
 
 }
