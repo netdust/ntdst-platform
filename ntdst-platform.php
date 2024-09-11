@@ -50,7 +50,7 @@ require_once 'lib/Core/AutoLoader.php';
  * easy access throughout application
  */
 if ( ! function_exists( 'app' ) ) {
-    function app( $id = NTDST_APPLICATION ) {
+    function app( $id = \Netdust\ApplicationInterface::class ) {
         return \Netdust\App::container()->get( $id );
     }
 }

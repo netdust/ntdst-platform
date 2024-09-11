@@ -20,7 +20,7 @@ class WordpressServiceProvider extends ServiceProvider {
     public function register( ) {
 
 
-        $app = $this->container->get('application');
+        $app = $this->container->get(ApplicationInterface::class);
 
         /**
          * add wp_register mixin to have unified api for WordPress objects

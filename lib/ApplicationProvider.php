@@ -14,7 +14,7 @@ use ReflectionClass;
 
 interface APIInterface {}
 
-class ApplicationProvider extends ServiceProvider {
+class ApplicationProvider extends ServiceProvider implements ApplicationInterface {
     use Setters;
     use Mixins;
 
@@ -107,6 +107,11 @@ class ApplicationProvider extends ServiceProvider {
     public function __construct(Container $container, array $args = [] ) {
         $this->set_values( $args );
         parent::__construct( $container );
+
+        // Make application accessible using its container
+        $this->container->singleton(ApplicationInterface::class, function( Container $container ) {
+            return $this;
+        });
     }
 
     public function boot( ): void {
@@ -114,11 +119,6 @@ class ApplicationProvider extends ServiceProvider {
     }
 
     public function register( ): void {
-
-        // Make application accessible using its container
-        $this->container->singleton('application', function( Container $container ) {
-            return $this;
-        });
 
         // First, check to make sure the minimum requirements are met.
         if ( $this->_plugin_is_supported() ) {

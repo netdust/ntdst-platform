@@ -9,6 +9,7 @@ namespace Netdust;
 
 
 use lucatume\DI52\Container;
+use Netdust\Logger\Logger;
 
 /**
  * Class App
@@ -17,10 +18,12 @@ use lucatume\DI52\Container;
 class App
 {
     /** A reference to the singleton instance of the application.
-     *
-     * @var ApplicationProvider|null
      */
-    protected static $app;
+    protected static ApplicationProvider|null $app;
+
+    /** The name/id of the application.
+     */
+    public static string $name;
 
     /**
      * Returns the singleton instance of the application
@@ -40,6 +43,7 @@ class App
      */
     public static function setApplication(ApplicationProvider $app): void {
         static::$app = $app;
+        static::container()->register( $app->name );
     }
 
     /**
@@ -57,12 +61,13 @@ class App
      * binding the Application as a Singleton and starting the initialisation
      */
     public static function boot( string $id, array $args ): void {
-        $container = new \lucatume\DI52\Container();
-        $container->singleton($id, new ApplicationProvider( $container,  $args));
-        $container->singleton(ApplicationProvider::class, $container->get( $id ) );
 
+        $args = array_merge(['name'=>$id], $args);
+        $container = new \lucatume\DI52\Container();
+
+        $container->singleton($id, new ApplicationProvider($container, $args) );
         static::setApplication( $container->get( $id ) );
-        static::container()->register( $id );
+
     }
 
     /**

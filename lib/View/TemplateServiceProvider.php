@@ -5,6 +5,7 @@ namespace Netdust\View;
 
 
 use lucatume\DI52\ServiceProvider;
+use Netdust\ApplicationInterface;
 use Netdust\Logger\Logger;
 
 
@@ -13,7 +14,7 @@ class TemplateServiceProvider extends ServiceProvider {
 
     public function register( ) {
 
-        $app = $this->container->get('application');
+        $app = $this->container->get(ApplicationInterface::class);
 
         $this->container->singleton( Engine::class );
 

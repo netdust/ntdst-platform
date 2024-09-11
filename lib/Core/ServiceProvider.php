@@ -5,6 +5,7 @@ namespace Netdust\Core;
 use Netdust\App;
 
 
+use Netdust\ApplicationInterface;
 use Netdust\Service\Posts\Post;
 use Netdust\Service\Scripts\Script;
 use Netdust\Service\Styles\Style;
@@ -24,7 +25,7 @@ abstract class ServiceProvider extends \lucatume\DI52\ServiceProvider {
      *
      * @return mixed
      */
-    public function app( string $id = NTDST_APPLICATION): mixed {
+    public function app( string $id = ApplicationInterface::class): mixed {
         return $this->container->get( $id );
     }
     public function scripts() {
