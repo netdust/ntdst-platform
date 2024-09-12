@@ -2,8 +2,11 @@
 
 namespace Netdust\Http;
 
+use Netdust\Traits\Collection;
+
 final class Request
 {
+    use Collection;
 
     /**
      * @var array
@@ -16,8 +19,6 @@ final class Request
         'query_method' => '',
         'http_referer' => '',
     ];
-
-    private array $vars = [];
 
     /**
      * @var array
@@ -37,7 +38,14 @@ final class Request
     public function __construct( ?array $server = null )
     {
         $this->server = $server ?? $_SERVER;
-        parse_str($this->getQuery(), $this->vars);
+        $this->marshallFromServer();
+    }
+
+    public function getUri(): string
+    {
+        $this->parsed or $this->marshallFromServer();
+
+        return $this->storage['uri'];
     }
 
     public function getScheme(): string
@@ -89,21 +97,13 @@ final class Request
         return $this->storage['http_referer'];
     }
 
-    public function path()
+    public function hasQuery(): bool
     {
-        /*
-         * If WordPress is installed in a subfolder and home url is something like
-         * `example.com/subfolder` we need to strip down `/subfolder` from path and build a path
-         * for route matching that is relative to home url.
-         */
-        $homePath = trim(parse_url(home_url(), PHP_URL_PATH), '/');
-        $path = trim($this->getPath(), '/');
-        if ($homePath && strpos($path, $homePath) === 0) {
-            $path = trim(substr($path, strlen($homePath)), '/');
-        }
+        $query_string = $this->getQuery();
 
-        return $path ? : '/';
+        return !empty($query_string);
     }
+
 
     public function chunks()
     {
@@ -119,28 +119,14 @@ final class Request
         return end( $chunks );
     }
 
-    public function vars()
-    {
-        return $this->vars;
-    }
-
-    public function get_var( string $key ) {
-        return $this->vars[$key];
-    }
-
-    public function set_var( string $key, $value ) {
-        $this->vars[$key]=$value;
-    }
-
-    public function has_var( string $key ) {
-        return ! empty( $this->vars[$key] );
-    }
 
     /**
      * Parse server array to find url components.
      */
     private function marshallFromServer()
     {
+        $uri = $this->server['REQUEST_URI'];
+
         $scheme = is_ssl() ? 'https' : 'http';
 
         $host = $this->marshallHostFromServer() ? : parse_url(home_url(), PHP_URL_HOST);
@@ -166,7 +152,9 @@ final class Request
             $http_referer = strtoupper($this->server['HTTP_REFERER']);
         }
 
-        $this->storage = compact('scheme', 'host', 'path', 'query_string', 'request_method', 'http_referer');
+        parse_str($this->getQuery(), $this->collection);
+
+        $this->storage = compact('uri', 'scheme', 'host', 'path', 'query_string', 'request_method', 'http_referer');
         $this->parsed = true;
     }
 
