@@ -34,9 +34,9 @@ final class Request
      *
      * @param array $server
      */
-    public function __construct()
+    public function __construct( ?array $server = null )
     {
-        $this->server = $_SERVER;
+        $this->server = $server ?? $_SERVER;
         parse_str($this->getQuery(), $this->vars);
     }
 
