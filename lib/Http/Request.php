@@ -12,6 +12,7 @@ final class Request
      * @var array
      */
     private array $storage = [
+        'uri'          => '',
         'scheme'       => 'http',
         'host'         => '',
         'path'         => '/',
