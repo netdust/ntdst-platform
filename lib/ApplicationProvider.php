@@ -24,7 +24,7 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
     public string $version = '1.2.0';
     public string $minimum_php_version = '7.6';
     public string $minimum_wp_version = '6.0';
-    public string $config_path = "";
+    public string $config_path = "app/config";
     public string $build_path = "app";
 
     protected ?Config $config = null;
