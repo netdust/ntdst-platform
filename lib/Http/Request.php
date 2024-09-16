@@ -2,6 +2,7 @@
 
 namespace Netdust\Http;
 
+use Netdust\Logger\Logger;
 use Netdust\Traits\Collection;
 
 final class Request
@@ -39,7 +40,6 @@ final class Request
     public function __construct( ?array $server = null )
     {
         $this->server = $server ?? $_SERVER;
-        $this->marshallFromServer();
     }
 
     public function getUri(): string
@@ -126,7 +126,6 @@ final class Request
      */
     private function marshallFromServer()
     {
-        $uri = $this->server['REQUEST_URI'];
 
         $scheme = is_ssl() ? 'https' : 'http';
 
@@ -134,13 +133,17 @@ final class Request
         $host = trim($host, '/');
 
         $pathArray = explode('?', $this->marshallPathFromServer(), 2);
-        $path = trim($pathArray[0], '/');
+        $path = trim($pathArray[0], '/')??'/';
 
-        empty($path) and $path = '/';
+        $uri = '';
+        if (isset($this->server['REQUEST_URI'])) {
+            $uri = $this->server['REQUEST_URI'];
+        }
 
         $query_string = '';
         if (isset($this->server['QUERY_STRING'])) {
             $query_string = ltrim($this->server['QUERY_STRING'], '?');
+            parse_str($query_string, $this->collection);
         }
 
         $request_method = '';
@@ -152,8 +155,6 @@ final class Request
         if (isset($this->server['HTTP_REFERER'])) {
             $http_referer = strtoupper($this->server['HTTP_REFERER']);
         }
-
-        parse_str($this->getQuery(), $this->collection);
 
         $this->storage = compact('uri', 'scheme', 'host', 'path', 'query_string', 'request_method', 'http_referer');
         $this->parsed = true;

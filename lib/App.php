@@ -62,10 +62,12 @@ class App
      */
     public static function boot( string $id, array $args ): void {
 
-        $args = array_merge(['name'=>$id], $args);
         $container = new \lucatume\DI52\Container();
 
-        $container->singleton($id, new ApplicationProvider($container, $args) );
+        $container->singleton(
+            $id,
+            new ApplicationProvider($container, array_merge(['name'=>$id], $args))
+        );
         static::setApplication( $container->get( $id ) );
 
     }

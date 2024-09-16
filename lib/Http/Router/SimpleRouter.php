@@ -5,6 +5,7 @@ namespace Netdust\Http\Router;
 use AltoRouter;
 use Netdust\Http\Request;
 use Netdust\Http\URL;
+use Netdust\Logger\Logger;
 
 class SimpleRouter implements RouterInterface {
 
@@ -28,6 +29,7 @@ class SimpleRouter implements RouterInterface {
     public function __construct(  ) {
         $siteUrlParts = explode('/', URL::removeTrailingSlash( get_bloginfo('url') ));
         $basePath = implode('/', array_slice($siteUrlParts, 3));
+
         $this->setBasePath( URL::addLeadingTrailingSlash( $basePath ) );
 
         add_action('wp_loaded', [$this, 'processRequest']);
@@ -46,9 +48,11 @@ class SimpleRouter implements RouterInterface {
      */
     public function processRequest()
     {
+
         $response = $this->match(
             \Netdust\App::get( Request::class )->getPath(),
-            \Netdust\App::get( Request::class )->getMethod() );
+            \Netdust\App::get( Request::class )->getMethod()
+        );
 
         if ( $response ) {
             echo $response;
@@ -77,7 +81,7 @@ class SimpleRouter implements RouterInterface {
 
         if( $route !== FALSE ) {
             foreach ( $route['params'] as $param => $value ) {
-                \Netdust\App::get( Request::class )->set_var( $param, $value );
+                \Netdust\App::get( Request::class )->add( $param, $value );
             }
             return call_user_func_array( $route['target'], $route['params'] );
         }

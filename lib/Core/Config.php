@@ -8,6 +8,7 @@
 namespace Netdust\Core;
 
 use ArrayAccess;
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use WP_Error as WP_Error;
 
@@ -40,7 +41,6 @@ class Config implements ArrayAccess {
         } else {
             $this->configurations = $configuration;
         }
-
     }
 
     /**
@@ -101,6 +101,7 @@ class Config implements ArrayAccess {
 
         // Check's if we have a valid file and loads the configurations.
         else if( file_exists( $configuration ) ) {
+
 
             $data = require_once(  $configuration  );
             return $data ?? [];

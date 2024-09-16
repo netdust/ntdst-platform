@@ -8,6 +8,7 @@ use lucatume\DI52\ServiceProvider;
 use Netdust\Core\Config;
 use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
+use Netdust\Traits\Collection;
 use Netdust\Traits\Mixins;
 use Netdust\Traits\Setters;
 use ReflectionClass;
@@ -15,6 +16,7 @@ use ReflectionClass;
 interface APIInterface {}
 
 class ApplicationProvider extends ServiceProvider implements ApplicationInterface {
+
     use Setters;
     use Mixins;
 
@@ -109,9 +111,11 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         parent::__construct( $container );
 
         // Make application accessible using its container
-        $this->container->singleton(ApplicationInterface::class, function( Container $container ) {
-            return $this;
-        });
+        if( !$container->has( ApplicationInterface::class ) ){
+            $this->container->singleton(ApplicationInterface::class, function( Container $container ) {
+                return $this;
+            });
+        }
     }
 
     public function boot( ): void {
@@ -128,6 +132,7 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
             $this->_register_if_exists();
 
             $this->container->boot();
+
 
             $this->make( LoggerInterface::class )->info(
                 'The application ' . $this->name . ' has been loaded.',
@@ -172,10 +177,10 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
             if( !empty($args) && key_exists('middlewares', $args ) ) {
                 $args['middlewares'][] = $implementation;
-                $this->container->singletonDecorators($id, $args['middlewares'], $afterBuildMethods, true );
+                $this->container->bindDecorators($id, $args['middlewares'], $afterBuildMethods, true );
             }
             else {
-                $this->container->singleton( $id, $implementation, $afterBuildMethods );
+                $this->container->bind( $id, $implementation, $afterBuildMethods );
             }
         }
 
@@ -248,6 +253,7 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
                 }, require_once($file));
             }
         }
+
     }
 
     protected function _load_config_if_exists( string $key='', ?string $path = null ): void {
