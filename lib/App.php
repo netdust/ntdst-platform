@@ -31,7 +31,7 @@ class App
      * @return ApplicationProvider
      */
     public static function application(): ?ApplicationProvider {
-        return static::$app;
+        return static::$app ?? null;
     }
 
     /**

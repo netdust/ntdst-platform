@@ -263,6 +263,25 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
     }
 
+    public function __call( $method, $parameters ): mixed {
 
+        if ( method_exists( app( APIInterface::class ), $method ) ) {
+            return app( APIInterface::class )->$method( ...$parameters );
+        }
+
+        // we need to check this, otherwise the trait Mixins will be skipped
+        if( $this->hasMixin( $method ) ){
+            return $this->callMixin($method, ...$parameters);
+        }
+
+        return new \WP_Error(
+            'method_not_found',
+            "The method could not be called. Either register this method as api, or create a method for this call.",
+            [
+                'method'    => $method,
+                'args'      => $parameters
+            ]
+        );
+    }
 
 }

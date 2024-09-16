@@ -134,9 +134,9 @@ class Script implements ScriptInterface {
 
         $this->get_dependencies();
 
-        $registered = wp_register_script( $this->handle, $this->src, $this->deps, $this->ver, $this->in_footer );
+        wp_register_script( $this->handle, $this->src, $this->deps, $this->ver, $this->in_footer );
 
-        if ( false === $registered ) {
+        if ( !$this->is_registered() ) {
             Logger::warning(
                 'The script ' . $this->handle . ' failed to register. That is all I know, unfortunately.',
                 'script_was_not_registered',

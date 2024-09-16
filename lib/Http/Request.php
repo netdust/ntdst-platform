@@ -108,7 +108,7 @@ final class Request
 
     public function chunks()
     {
-        $path = $this->path();
+        $path = $this->getPath();
 
         return $path === '/' ? [] : explode('/', $path);
     }
