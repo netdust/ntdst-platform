@@ -77,6 +77,7 @@ final class Request
         return $this->storage['path'];
     }
 
+
     public function getMethod(): string
     {
         $this->parsed or $this->marshallFromServer();

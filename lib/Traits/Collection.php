@@ -61,11 +61,7 @@ trait Collection
      */
     public function get(string $name): mixed
     {
-        if (!$this->exists($name)) {
-            throw new LogicException('The collection item "' . $name . '" was not found.');
-        }
-
-        return $this->collection[$name];
+        return $this->exists($name) ? $this->collection[$name] : null;
     }
 
     /**
@@ -73,7 +69,7 @@ trait Collection
      * @param  string  $name
      * @return bool
      */
-    public function exists($name): bool
+    public function exists(string $name): bool
     {
         return isset($this->collection[$name]);
     }
