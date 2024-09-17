@@ -25,9 +25,9 @@ trait Collection
      * Add item to collection.
      * @param  string  $name
      * @param  mixed  $value
-     * @return Collection
+     * @return mixed
      */
-    public function add(string $name, mixed $value): Collection
+    public function add(string $name, mixed $value): mixed
     {
         if ($this->exists($name)) {
             throw new LogicException('The collection item "' . $name . '" is already being used.');
@@ -41,9 +41,9 @@ trait Collection
     /**
      * Remove an item.
      * @param  string  $name
-     * @return Collection
+     * @return mixed
      */
-    public function remove(string $name): Collection
+    public function remove(string $name): mixed
     {
         if (!$this->exists($name)) {
             throw new LogicException('The collection item "' . $name . '" was not found.');
