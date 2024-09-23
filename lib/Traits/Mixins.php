@@ -31,7 +31,8 @@ trait Mixins {
                 'The provided method is invalid',
                 'invalid_method',
                 [
-                    'callback' => $name
+                    'callback' => $name,
+                    'class'=>get_class($this)
                 ]
             );
         }
