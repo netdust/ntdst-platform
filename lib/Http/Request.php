@@ -40,6 +40,7 @@ final class Request
     public function __construct( ?array $server = null )
     {
         $this->server = $server ?? $_SERVER;
+        $this->parsed or $this->marshallFromServer();
     }
 
     public function getUri(): string
