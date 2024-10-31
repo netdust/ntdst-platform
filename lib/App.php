@@ -9,6 +9,8 @@ namespace Netdust;
 
 
 use lucatume\DI52\Container;
+use Netdust\Core\Config;
+use Netdust\Core\File;
 use Netdust\Logger\Logger;
 
 /**
@@ -26,38 +28,6 @@ class App
     public static string $name;
 
     /**
-     * Returns the singleton instance of the application
-     *
-     * @return ApplicationProvider
-     */
-    public static function application(): ?ApplicationProvider {
-        return static::$app ?? null;
-    }
-
-    /**
-     * Sets the application instance.
-     *
-     * @param ApplicationProvider $app
-     *
-     * @return void The method does not return any value.
-     */
-    public static function setApplication(ApplicationProvider $app): void {
-        static::$app = $app;
-        static::container()->register( $app->name );
-    }
-
-    /**
-     * container Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return Container
-     */
-    public static function container(): Container {
-        return static::$app->container();
-    }
-
-    /**
      * binding the Application as a Singleton and starting the initialisation
      */
     public static function boot( string $id, array $args ): void {
@@ -69,8 +39,69 @@ class App
             new ApplicationProvider($container, array_merge(['name'=>$id], $args))
         );
         static::setApplication( $container->get( $id ) );
+        static::container()->register( $id, ApplicationInterface::class );
 
     }
+
+    /**
+     * Returns the singleton instance of the application
+     *
+     * @return ApplicationProvider
+     */
+    public static function application(): ?ApplicationProvider
+    {
+        return static::$app ?? null;
+    }
+
+    /**
+     * Sets the application instance.
+     *
+     * @param ApplicationProvider $app
+     *
+     * @return void The method does not return any value.
+     */
+    public static function setApplication(ApplicationProvider $app): void
+    {
+        static::$app = $app;
+    }
+
+    /**
+     * container Getter.
+     *
+     * @since 1.0.0
+     *
+     * @return Container
+     */
+    public static function container(): Container
+    {
+        return static::$app->container();
+    }
+
+    /**
+     * file Getter.
+     *
+     * @since 1.0.0
+     *
+     * @return File
+     */
+    public static function file(): File
+    {
+        return static::$app->file();
+    }
+
+    /**
+     * config Getter.
+     *
+     * @since 1.0.0
+     *
+     * @return Config
+     */
+    public static function config(): Config
+    {
+        return static::$app->config();
+    }
+
+
 
     /**
      * Finds an entry of the container by its identifier and returns it.
@@ -80,9 +111,9 @@ class App
      * @return mixed The entry for an id.
      *
      */
-    public static function get( string $id = '' ): mixed {
-        if( empty( $id ) ) return static::$app;
-        else return static::$app->container()->get( $id );
+    public static function get( string $id = '' ): mixed
+    {
+        return static::$app->get( $id );
     }
 
     /**

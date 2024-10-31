@@ -50,7 +50,7 @@ class SimpleRouter implements RouterInterface {
     {
 
         $response = $this->match(
-            \Netdust\App::get( Request::class )->getPath(),
+            \Netdust\App::get( Request::class )->getUri(),
             \Netdust\App::get( Request::class )->getMethod()
         );
 

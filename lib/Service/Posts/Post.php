@@ -3,6 +3,7 @@
 namespace Netdust\Service\Posts;
 
 
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;

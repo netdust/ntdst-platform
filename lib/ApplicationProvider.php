@@ -5,7 +5,9 @@ namespace Netdust;
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
 
+use Netdust\Core\File;
 use Netdust\Core\Config;
+use Netdust\Core\Requirements;
 use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Collection;
@@ -22,16 +24,24 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
     public string $name = 'Netdust';
     public string $text_domain = 'netdust';
-
     public string $version = '1.2.0';
-    public string $minimum_php_version = '7.6';
-    public string $minimum_wp_version = '6.0';
-    public string $config_path = "app/config";
-    public string $build_path = "app";
+
+    /**
+     * requirements for this plugin
+     */
+    protected string $minimum_php_version = '7.6';
+    protected string $minimum_wp_version = '6.0';
+    protected array $required_plugins = [];
+    protected string $required_theme = '';
+
+    /**
+     * paths
+     */
+    protected string $config_path = "app/config";
+    protected string $build_path = "app";
+    protected string $file;
 
     protected ?Config $config = null;
-
-    protected string $file;
 
     protected function trim_path( string $path='' ): string {
         return $path ? DIRECTORY_SEPARATOR . trim($path,'/') . DIRECTORY_SEPARATOR : $path;
@@ -72,17 +82,40 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         return $this->content_dir('themes') .  $this->trim_path($path);
     }
 
+    /**
+     * File Getter.
+     *
+     * @since 3.0.0
+     *
+     * @return File
+     */
+    public function file():File {
+        return $this->container->get( File::class );
+    }
+
 
     /**
-     * __FILE__ Getter.
+     * name Getter.
      *
-     * @since 1.0.0
+     * @since 3.0.0
      *
      * @return string
      */
-    public function file(): string {
-        return $this->file;
+    public function name(): string {
+        return $this->name;
     }
+
+    /**
+     * text_domain Getter.
+     *
+     * @since 3.0.0
+     *
+     * @return string
+     */
+    public function textdomain(): string {
+        return $this->text_domain;
+    }
+
 
     /**
      * version Getter.
@@ -106,48 +139,68 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         return $this->container;
     }
 
+
     public function __construct(Container $container, array $args = [] ) {
         $this->set_values( $args );
         parent::__construct( $container );
-
-        // Make application accessible using its container
-        if( !$container->has( ApplicationInterface::class ) ){
-            $this->container->singleton(ApplicationInterface::class, function( Container $container ) {
-                return $this;
-            });
-        }
-    }
-
-    public function boot( ): void {
-
     }
 
     public function register( ): void {
 
-        // First, check to make sure the minimum requirements are met.
-        if ( $this->_plugin_is_supported() ) {
+        // Make application accessible using its container
+        if( !$this->container->has( ApplicationInterface::class ) ){
+            $this->container->singleton(ApplicationInterface::class, function( Container $container ) {
+                return $this;
+            });
+        }
 
-            $this->_load_config_if_exists();
+        // Check if environment meets requirements
+        $this->container->singleton( Requirements::class, new Requirements( $this, array(
+            'php'         => $this->minimum_php_version,
+            'wp'          => $this->minimum_wp_version,
+            'plugins'     => $this->required_plugins,
+            'theme'       => $this->required_theme,
+        ) ) );
+        $requirements = $this->container->get( Requirements::class );
+
+        // add path builder to application
+        $this->container->singleton( File::class, new File( $this->file ) );
+        $file = $this->container->get( File::class );
+
+        // First, check to make sure the minimum requirements are met.
+        if ( $requirements->satisfied( ) ) {
+
+            $this->container->singleton( Config::class, new Config(
+                $file->dir_path( $this->config_path )
+            ) );
+            $this->config = $this->container->get( Config::class );
 
             $this->_register_if_exists();
 
             $this->container->boot();
-
 
             $this->make( LoggerInterface::class )->info(
                 'The application ' . $this->name . ' has been loaded.',
                 'application_load'
             );
 
+            do_action('application/init');
+
         } else {
             // Run unsupported actions if requirements are not met.
-            $this->_unsupported_actions();
+            $requirements->print_notice();
         }
+
 
     }
 
-    public function get( string $id ): mixed {
-        return $this->container->get( $id );
+    public function boot( ): void {
+
+    }
+
+    public function get( string $id = '' ): mixed {
+        if( empty( $id ) ) return $this;
+        else return $this->container->get( $id );
     }
 
 
@@ -194,7 +247,10 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
      * @param string $mod module where to search in.
      * @param string $key key to search for.
      */
-    public function config( string $mod, string $key=''): mixed {
+    public function config( string $mod='', string $key=''): mixed {
+
+        if( $mod=='' )
+            return $this->config;
 
         if( $key=='' )
             return $this->config[$mod];
@@ -204,7 +260,7 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
     }
 
     /**
-     * get a config value.
+     * add a config value.
      *
      * @param string $mod module where to search in.
      * @param string $key key to search for.
@@ -220,29 +276,6 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
     }
 
-
-    protected function _plugin_is_supported(): bool {
-        global $wp_version;
-        $supports_php_version = version_compare( phpversion(), $this->minimum_php_version, '>=' );
-        $supports_wp_version = version_compare( $wp_version, $this->minimum_wp_version, '>=' );
-        return $supports_php_version && $supports_wp_version;
-    }
-
-    protected function _unsupported_actions(): void {
-
-        add_action( 'admin_notices', function() {
-            $class = 'notice notice-error';
-            $message = __( sprintf(
-                "The plugin requires at least WordPress %s, and PHP %s.",
-                $this->minimum_wp_version,
-                $this->minimum_php_version
-            ), $this->text_domain );
-
-            printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
-        } );
-
-    }
-
     protected function _register_if_exists( ?string $path = null ): void {
         $path = $path ?? $this->dir() . '/register/';
 
@@ -253,13 +286,6 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
                 }, require_once($file));
             }
         }
-
-    }
-
-    protected function _load_config_if_exists( string $key='', ?string $path = null ): void {
-
-        $path = $path ?? $this->dir( $this->config_path );
-        $this->config = $this->make(Config::class, Config::class, [ 'configuration'=>$path ] );
 
     }
 
