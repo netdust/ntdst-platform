@@ -21,6 +21,7 @@ trait Collection
      */
     protected array $collection = array();
 
+
     /**
      * Add item to collection.
      * @param  string  $name
@@ -63,6 +64,66 @@ trait Collection
     {
         return $this->exists($name) ? $this->collection[$name] : null;
     }
+
+    /**
+     * Get all of the items in the collection.
+     *
+     * @return array
+     */
+    public function all(): array {
+        return $this->collection;
+    }
+
+    /**
+     * Get all of the keys in the collection.
+     *
+     * @return array
+     */
+    public function keys(): array {
+        return array_keys( $this->collection );
+    }
+
+    /**
+     * Get all of the values in the collection.
+     *
+     * @return array
+     */
+    public function values(): array {
+        return array_values( $this->collection );
+    }
+
+
+    /**
+     * Get the items in the collection whose keys are not present in the given items.
+     *
+     * @return array
+     */
+    public function diff_keys( array $items ): array {
+        return array_diff_key( $this->collection,  $items );
+    }
+
+    /**
+     * Run a map over the collection.
+     *
+     * @return array
+     */
+    public function map( callable $callback ): array {
+        $keys = array_keys( $this->collection );
+
+        $items = array_map( $callback, $this->collection, $keys );
+
+        return array_combine( $keys, $items );
+    }
+
+    /**
+     * Check if a collection is empty.
+     * @return bool
+     */
+    public function empty(): bool
+    {
+        return empty($this->collection);
+    }
+
 
     /**
      * Check if a collection item exists.

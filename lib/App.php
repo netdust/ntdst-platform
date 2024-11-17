@@ -11,7 +11,9 @@ namespace Netdust;
 use lucatume\DI52\Container;
 use Netdust\Core\Config;
 use Netdust\Core\File;
+use Netdust\Http\Router\RouterInterface;
 use Netdust\Logger\Logger;
+use Netdust\View\TemplateInterface;
 
 /**
  * Class App
@@ -65,42 +67,21 @@ class App
         static::$app = $app;
     }
 
-    /**
-     * container Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return Container
-     */
-    public static function container(): Container
+    public static function __callStatic(string $name, array $arguments): mixed
     {
-        return static::$app->container();
-    }
+        if( count( $arguments ) == 0 && method_exists( static::$app, $name ) ) {
+            return static::$app->$name();
+        }
 
-    /**
-     * file Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return File
-     */
-    public static function file(): File
-    {
-        return static::$app->file();
+        return new \WP_Error(
+            'method_not_found',
+            "The method could not be called. Either register this method as api, or create a method for this call.",
+            [
+                'method'    => $name,
+                'args'      => $arguments
+            ]
+        );
     }
-
-    /**
-     * config Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return Config
-     */
-    public static function config(): Config
-    {
-        return static::$app->config();
-    }
-
 
 
     /**

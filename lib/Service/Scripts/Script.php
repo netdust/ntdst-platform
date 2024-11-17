@@ -240,6 +240,8 @@ class Script implements ScriptInterface {
      */
     public function set_param( string $key, mixed $value ): bool|\WP_Error {
 
+
+
         // If the script is already enqueued, return an error.
         if ( $this->is_enqueued() ) {
 	        return app()->make( LoggerInterface::class )->error(
@@ -248,6 +250,7 @@ class Script implements ScriptInterface {
 	        );
         }
 
+        Logger::debug($key);
         $this->localized_params[ $key ] = $value;
 
 	    return true;
@@ -299,8 +302,11 @@ class Script implements ScriptInterface {
     public function localize(): void {
         $localized_params = $this->get_localized_params();
 
+
         // If we actually have localized params, localize and enqueue.
         if ( ! empty( $localized_params ) ) {
+
+
             $localized = wp_localize_script( $this->handle, $this->localized_var, $localized_params );
 
             if ( false === $localized ) {

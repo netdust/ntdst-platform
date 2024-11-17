@@ -9,6 +9,7 @@
 
 namespace Netdust\Service\Pages;
 
+use Netdust\Logger\Logger;
 use Netdust\Traits\Templates;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -21,49 +22,48 @@ use WP_Post;
 
 class VirtualPage
 {
-    use Templates;
-
     protected $wpPost;
 
     protected string $uri;
-
     protected string $title;
-    protected string $template;
+    protected ?string $template;
 
 
-    public function __construct(string $title, string $template, string $templateDirectory = null)
-    {
-        $this->title = $title;
-        $this->template = $template;
-        $this->setUri( sanitize_title( $title ) );
-        $this->setTemplateRootPath($templateDirectory);
-
-        add_action( 'init', array( $this, 'rewrite' ) );
-
-    }
-
-    public function onRoute(): void
-    {
-        add_filter('page_template', [$this, 'page_template']);
-        add_action('template_redirect', [$this, 'createPage']);
-
-        global $wp_query;
-        $wp_query->set_404();
-        status_header( 404 );
-        nocache_headers();
-    }
-
-    public function get_template_group(): string {
-        return 'virtual';
-    }
-
-    public function template(): string {
+    public function template(): ?string {
         return $this->template;
     }
 
     public function title(): string {
         return $this->title;
     }
+
+    public function uri(): string {
+        return $this->uri;
+    }
+
+    public function __construct(string $uri, string $title, string $template = null )
+    {
+        $this->uri = $uri;
+        $this->title = $title;
+        $this->template = $template;
+    }
+
+    public function onRoute(): void
+    {
+
+        if( !empty($this->template) ) {
+            add_filter('page_template', [&$this, 'loadTemplate'] );
+        }
+
+        $this->rewrite();
+        $this->createPage();
+
+        //set 200 header
+        @status_header( 200 );
+        nocache_headers();
+
+    }
+
 
     function rewrite() {
         add_rewrite_endpoint( $this->template, EP_PERMALINK | EP_PAGES );
@@ -74,28 +74,15 @@ class VirtualPage
         }
     }
 
-    public function page_template( string $templateDir ): string {
-        remove_filter( 'page_template', [$this, 'page_template']);
-        return $this->get_template_path( $this->template );
+    public function loadTemplate( string $template ): string {
+        remove_filter( 'page_template', [$this, 'loadTemplate']);
+        return $this->template;
     }
 
-    public function getUri(): string {
-        return $this->uri;
-    }
+    private function createPostInstance( ): WP_Post {
 
-    public function setUri( string $uri): void
-    {
-        $this->uri = $uri;
-    }
-
-    public function setTemplateRootPath( string $templateDirectory): void {
-        if (!empty($templateDirectory)) {
-            $this->template_root = $templateDirectory;
-        }
-    }
-
-    private function createPostInstance(): WP_Post {
-        if (!isset($this->wpPost)) {
+        if (!isset($this->wpPost) )
+        {
             $post = new stdClass();
             $post->ID = 0;
             $post->ancestors = array(); // 3.6
@@ -108,7 +95,7 @@ class VirtualPage
             $post->pinged = '';
             $post->ping_status = 'closed';
             $post->post_title = $this->title;
-            $post->post_name = sanitize_title($this->template); // append random number to avoid clash
+            $post->post_name = $this->uri;
             $post->post_excerpt = '';
             $post->post_parent = 0;
             $post->post_type = 'page';
@@ -123,15 +110,18 @@ class VirtualPage
             $post->post_content = '';
             $post->post_mime_type = '';
             $post->to_ping = '';
-            $this->wpPost = new WP_Post($post);
+
+            $this->wpPost = new \WP_Post($post);
         }
 
-        return $this->wpPost;
+        return ( $this->wpPost );
     }
 
     public function createPage(): void {
-        remove_action('template_redirect', [$this, 'createPage']);
+
+        remove_action('wp_loaded', [$this, 'createPage']);
         $this->createPostInstance();
+
         global $wp, $wp_query;
 
         // Update the main query
@@ -178,10 +168,6 @@ class VirtualPage
         $wp->query = array();
         $wp->register_globals();
         wp_cache_add(0, $this->wpPost, 'posts');
-
-        //set 200 header
-        @status_header( 200 );
-        nocache_headers();
     }
 
 }

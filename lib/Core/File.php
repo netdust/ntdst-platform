@@ -6,7 +6,10 @@
 namespace Netdust\Core;
 
 
+use Netdust\Traits\Singleton;
+
 class File {
+
 
     /**
      * Plugin file absolute path
@@ -18,16 +21,16 @@ class File {
      * Assets directory name with a slash at the end
      * @var string
      */
-    protected $assets_dir_name;
+    public string $root;
 
     /**
      * Class constructor
      * @param string $file       full path to main plugin file
-     * @param array  $assets_dist_parts dist dir parts
+     * @param array  $root       dir where to go and look
      */
-    public function __construct( $file = '', $assets_dist_parts = 'assets' ) {
-        $this->file     = $file;
-        $this->assets_dir_name =  $assets_dist_parts;
+    public function __construct( $file = __FILE__, $root_path = '' ) {
+        $this->file = $file;
+        $this->root = $root_path;
     }
 
     /**
@@ -125,8 +128,7 @@ class File {
      * @return string       asset file url
      */
     public function asset_url( $type = '', $file = '' ) {
-        $assets_dirs   = $this->assets_dir_name;
-        return $this->file_url( $assets_dirs+[$type,$file] );
+        return $this->file_url( $this->root+['assets',$type,$file] );
     }
 
     /**
@@ -136,8 +138,25 @@ class File {
      * @return string       asset file path
      */
     public function asset_path( $type = '', $file = '' ) {
-        $assets_dirs   = $this->assets_dir_name;
-        return $this->file_path( $assets_dirs+[$type,$file] );
+        return $this->file_path( $this->root+['assets',$type,$file] );
+    }
+
+    /**
+     * Gets url to a template file
+     * @param  string $file file name
+     * @return string       template file url
+     */
+    public function template_url( $type = '', $file = '' ) {
+        return $this->file_url( $this->root+['templates',$type,$file] );
+    }
+
+    /**
+     * Gets path to a template file
+     * @param  string $file file name
+     * @return string       template file path
+     */
+    public function template_path( $type = '', $file = '' ) {
+        return $this->file_path( $this->root+['templates',$type,$file] );
     }
 
 }

@@ -8,11 +8,13 @@ use lucatume\DI52\ServiceProvider;
 use Netdust\Core\File;
 use Netdust\Core\Config;
 use Netdust\Core\Requirements;
+use Netdust\Http\Router\RouterInterface;
 use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Collection;
 use Netdust\Traits\Mixins;
 use Netdust\Traits\Setters;
+use Netdust\View\TemplateInterface;
 use ReflectionClass;
 
 interface APIInterface {}
@@ -43,63 +45,44 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
     protected ?Config $config = null;
 
-    protected function trim_path( string $path='' ): string {
-        return $path ? DIRECTORY_SEPARATOR . trim($path,'/') . DIRECTORY_SEPARATOR : $path;
-    }
-    public function url( string $path='' ): string {
-        return untrailingslashit( plugins_url( '/', $this->file ) ) . $this->trim_path($path);
+
+    /**
+     * Template Getter.
+     */
+    public function template():TemplateInterface {
+        return $this->container->get( TemplateInterface::class );
     }
 
-    public function css_url() {
-        return apply_filters( 'ntdst_css_url', $this->url(  $this->build_path .'/assets/css' ) );
+    /**
+     * Router Getter.
+     */
+    public function router():RouterInterface {
+        return $this->container->get( RouterInterface::class );
     }
 
-    public function js_url() {
-        return apply_filters( 'ntdst_js_url', $this->url( $this->build_path .'/assets/js' ) );
-    }
-
-    public function dir( string $path='' ): string {
-        return untrailingslashit( plugin_dir_path( $this->file ) ) .  $this->trim_path($path);
-    }
-
-    public function app_dir( string $path='' ): string {
-        return $this->dir( $this->build_path ) .  $this->trim_path($path);
-    }
-
-    public function template_dir( string $path = ''): string {
-        return $this->app_dir( 'templates' ) .  $this->trim_path($path);
-    }
-
-    public function content_dir( string $path = ''): string {
-        return get_home_path() .  $this->trim_path($path);
-    }
-
-    public function plugins_dir( string $path = ''): string {
-        return $this->content_dir('plugins') . $this->trim_path($path);
-    }
-
-    public function themes_dir( string $path = ''): string {
-        return $this->content_dir('themes') .  $this->trim_path($path);
+    /**
+     * Config Getter.
+     */
+    public function config(): Config {
+        return $this->container->get( Config::class );
     }
 
     /**
      * File Getter.
-     *
-     * @since 3.0.0
-     *
-     * @return File
      */
     public function file():File {
         return $this->container->get( File::class );
     }
 
+    /**
+     * container Getter.
+     */
+    public function container(): Container {
+        return $this->container;
+    }
 
     /**
-     * name Getter.
-     *
-     * @since 3.0.0
-     *
-     * @return string
+     * name Getter
      */
     public function name(): string {
         return $this->name;
@@ -107,10 +90,6 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
     /**
      * text_domain Getter.
-     *
-     * @since 3.0.0
-     *
-     * @return string
      */
     public function textdomain(): string {
         return $this->text_domain;
@@ -119,24 +98,9 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
     /**
      * version Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return string
      */
     public function version(): string {
         return $this->version;
-    }
-
-    /**
-     * container Getter.
-     *
-     * @since 1.0.0
-     *
-     * @return Container
-     */
-    public function container(): Container {
-        return $this->container;
     }
 
 
@@ -147,44 +111,34 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
     public function register( ): void {
 
+        // add path builder to application
+        $this->container->singleton( File::class, new File( $this->file ) );
+
         // Make application accessible using its container
         if( !$this->container->has( ApplicationInterface::class ) ){
-            $this->container->singleton(ApplicationInterface::class, function( Container $container ) {
-                return $this;
-            });
+            $this->container->singleton(ApplicationInterface::class, $this );
         }
 
         // Check if environment meets requirements
-        $this->container->singleton( Requirements::class, new Requirements( $this, array(
+        $requirements = new Requirements( $this, array(
             'php'         => $this->minimum_php_version,
             'wp'          => $this->minimum_wp_version,
             'plugins'     => $this->required_plugins,
             'theme'       => $this->required_theme,
-        ) ) );
-        $requirements = $this->container->get( Requirements::class );
-
-        // add path builder to application
-        $this->container->singleton( File::class, new File( $this->file ) );
-        $file = $this->container->get( File::class );
+        ) );
 
         // First, check to make sure the minimum requirements are met.
         if ( $requirements->satisfied( ) ) {
 
             $this->container->singleton( Config::class, new Config(
-                $file->dir_path( $this->config_path )
+                $this->file()->dir_path( $this->config_path )
             ) );
-            $this->config = $this->container->get( Config::class );
 
             $this->_register_if_exists();
 
             $this->container->boot();
 
-            $this->make( LoggerInterface::class )->info(
-                'The application ' . $this->name . ' has been loaded.',
-                'application_load'
-            );
-
-            do_action('application/init');
+            do_action('application/init', $this );
 
         } else {
             // Run unsupported actions if requirements are not met.
@@ -241,43 +195,8 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
     }
 
 
-    /**
-     * get a config value.
-     *
-     * @param string $mod module where to search in.
-     * @param string $key key to search for.
-     */
-    public function config( string $mod='', string $key=''): mixed {
-
-        if( $mod=='' )
-            return $this->config;
-
-        if( $key=='' )
-            return $this->config[$mod];
-
-        return isset( $this->config[$mod][$key] ) ?? null;
-
-    }
-
-    /**
-     * add a config value.
-     *
-     * @param string $mod module where to search in.
-     * @param string $key key to search for.
-     */
-    public function add_config( string $mod, string|array $configuration ): void {
-
-        if( !is_array( $configuration ) ) {
-            $this->config->add( $mod, $this->config->load($configuration) );
-        }
-        else {
-            $this->config->add( $mod, $configuration );
-        }
-
-    }
-
     protected function _register_if_exists( ?string $path = null ): void {
-        $path = $path ?? $this->dir() . '/register/';
+        $path = $path ?? $this->file()->plugin_path() . '/register/';
 
         if (is_dir($path)) {
             foreach (glob($path . '*.php') as $file) {
@@ -290,6 +209,11 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
     }
 
     public function __call( $method, $parameters ): mixed {
+
+        // Check if the container has an instance binded with this name
+        if( $this->container->has( $method ) && count($parameters)==0 ){
+            return $this->container->get( $method );
+        }
 
         if ( method_exists( app( APIInterface::class ), $method ) ) {
             return app( APIInterface::class )->$method( ...$parameters );

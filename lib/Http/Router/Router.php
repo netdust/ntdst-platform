@@ -25,7 +25,7 @@ class Router
     public static function router( )
     {
         if (!isset(static::$router)) {
-            static::setRouter( new SimpleRouter() );
+            static::setRouter(  new WPRouterService( ) );
         }
 
         return static::$router;
@@ -57,20 +57,23 @@ class Router
     }
 
 
-
     /**
      * Map a route
      *
      * @param array $verbs
      * @param string $uri
      * @param callable|string $callback
-     * @param string $name
      */
-    public static function map(array $verbs, string $uri, $callback, string $name = null)
+    public static function map(array $verbs, string $uri, $callback)
     {
-        return static::$router->map($verbs, $uri, $callback, $name);
+        return static::$router->map($verbs, $uri, $callback);
     }
 
+
+    public static function group(string $prefix, $callback): RouterInterface
+    {
+        return static::$router->group($prefix, $callback);
+    }
 
     /**
      * Get the URL for a named route
@@ -86,8 +89,7 @@ class Router
 
     public static function virtual(string $uri, $virtualPage, $callback=null)
     {
-        $virtualPage->setUri($uri);
-        static::map(['GET', 'POST'], $uri, [$virtualPage, $callback??'onRoute'], $virtualPage->template() );
+        static::$router->virtual($uri, $virtualPage , $callback);
     }
 
     /**

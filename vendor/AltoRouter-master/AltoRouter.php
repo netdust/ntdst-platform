@@ -49,7 +49,7 @@ class AltoRouter
      * @param array $matchTypes
      * @throws Exception
      */
-    public function __construct(array $routes = [], $basePath = '', array $matchTypes = [])
+    public function __construct(array $routes = [], string $basePath = '', array $matchTypes = [])
     {
         $this->addRoutes($routes);
         $this->setBasePath($basePath);
@@ -61,7 +61,7 @@ class AltoRouter
      * Useful if you want to process or display routes.
      * @return array All routes.
      */
-    public function getRoutes()
+    public function getRoutes(): array
     {
         return $this->routes;
     }
@@ -93,7 +93,7 @@ class AltoRouter
      * Useful if you are running your application from a subdirectory.
      * @param string $basePath
      */
-    public function setBasePath($basePath)
+    public function setBasePath(string $basePath)
     {
         $this->basePath = $basePath;
     }
@@ -117,8 +117,9 @@ class AltoRouter
      * @param string $name Optional name of this route. Supply if you want to reverse route this url in your application.
      * @throws Exception
      */
-    public function map($method, $route, $target, $name = null)
+    public function map(string $method, string $route, $target, string $name = null)
     {
+
         $this->routes[] = [$method, $route, $target, $name];
 
         if ($name) {
@@ -127,8 +128,6 @@ class AltoRouter
             }
             $this->namedRoutes[$name] = $route;
         }
-
-        return;
     }
 
     /**
@@ -137,11 +136,11 @@ class AltoRouter
      * Generate the URL for a named route. Replace regexes with supplied parameters
      *
      * @param string $routeName The name of the route.
-     * @param array @params Associative array of parameters to replace placeholders with.
+     * @param array $params Associative array of parameters to replace placeholders with.
      * @return string The URL of the route with named parameters in place.
      * @throws Exception
      */
-    public function generate($routeName, array $params = [])
+    public function generate(string $routeName, array $params = []): string
     {
 
         // Check if named route exists
@@ -185,7 +184,7 @@ class AltoRouter
      * @param string $requestMethod
      * @return array|boolean Array with route information on success, false on failure (no match).
      */
-    public function match($requestUrl = null, $requestMethod = null)
+    public function match(string $requestUrl = null, string $requestMethod = null)
     {
 
         $params = [];
@@ -210,6 +209,7 @@ class AltoRouter
             $requestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         }
 
+
         foreach ($this->routes as $handler) {
             list($methods, $route, $target, $name) = $handler;
 
@@ -232,7 +232,7 @@ class AltoRouter
                 $match = strcmp($requestUrl, $route) === 0;
             } else {
                 // Compare longest non-param string with url before moving on to regex
-				// Check if last character before param is a slash, because it could be optional if param is optional too (see https://github.com/dannyvankooten/AltoRouter/issues/241)
+                // Check if last character before param is a slash, because it could be optional if param is optional too (see https://github.com/dannyvankooten/AltoRouter/issues/241)
                 if (strncmp($requestUrl, $route, $position) !== 0 && ($lastRequestUrlChar === '/' || $route[$position-1] !== '/')) {
                     continue;
                 }
@@ -263,10 +263,10 @@ class AltoRouter
 
     /**
      * Compile the regex for a given route (EXPENSIVE)
-     * @param $route
+     * @param string $route
      * @return string
      */
-    protected function compileRoute($route)
+    protected function compileRoute(string $route): string
     {
         if (preg_match_all('`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`', $route, $matches, PREG_SET_ORDER)) {
             $matchTypes = $this->matchTypes;
@@ -284,14 +284,14 @@ class AltoRouter
 
                 //Older versions of PCRE require the 'P' in (?P<named>)
                 $pattern = '(?:'
-                        . ($pre !== '' ? $pre : null)
-                        . '('
-                        . ($param !== '' ? "?P<$param>" : null)
-                        . $type
-                        . ')'
-                        . $optional
-                        . ')'
-                        . $optional;
+                    . ($pre !== '' ? $pre : null)
+                    . '('
+                    . ($param !== '' ? "?P<$param>" : null)
+                    . $type
+                    . ')'
+                    . $optional
+                    . ')'
+                    . $optional;
 
                 $route = str_replace($block, $pattern, $route);
             }

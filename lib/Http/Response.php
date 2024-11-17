@@ -5,78 +5,59 @@ namespace Netdust\Http;
 class Response
 {
 
-    /**
-     * @var array
-     */
-    protected $cookies = [];
+    protected array $cookies = [];
+    private int $statusCode = 200;
+    private array $headers = [];
+    private string $body = '';
 
-    /** @var int */
-    private $statusCode;
-
-    function __construct(  int $status = 200, array $headers = [], $body = null ) {
+    function __construct( int $status = 200, array $headers = [] ) {
 
         $this->statusCode = $status;
         $this->setHeaders($headers);
     }
 
-    public function getStatusCode(): int
+    public function setHeaders( array $headers ): Response
     {
-        return $this->statusCode;
-    }
-
-    /**
-     * Writes data to the body.
-     *
-     * @param string $data
-     *
-     * @return static
-     */
-    public function write($data)
-    {
-        $body = $this->getBody();
-        $body->write($data);
-
+        foreach ($headers as $name => $value) {
+            $this->withHeader($name, $value);
+        }
         return $this;
     }
 
-    /**
-     * Writes JSON to the body.
-     *
-     * @param mixed $data
-     * @param int   $status
-     * @param int   $options
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return static
-     */
-    public function withJson(
-        $data,
-        $status = null,
-        $options = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-    ) {
+    public function withBody( string $data ): Response
+    {
+        $this->body = $data;
+        return $this;
+    }
+
+    public function write( string $data ): Response
+    {
+        $this->body .= $data;
+        return $this;
+    }
+
+    public function withJson( $data, $status = null, $options = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ): Response {
         if (!is_string($json = @json_encode($data, $options))) {
             throw new \InvalidArgumentException(json_last_error_msg(), json_last_error());
         }
 
-        $body = Stream::create($json);
-        $response = $this->withBody($body)
-            // Disable Content-Length header (Essentials YOOtheme Pro 1.7.3 echos white-space, causing the response to be cut)
-            // ->withHeader('Content-Length', $body->getSize())
-            ->withHeader('Content-Type', 'application/json; charset=utf-8');
+        $response = $this->withBody($json)->withHeader('Content-Type', 'application/json; charset=utf-8');
 
         return is_null($status) ? $response : $response->withStatus($status);
     }
 
-    /**
-     * Redirect response.
-     *
-     * @param string $url
-     * @param int    $status
-     *
-     * @return static
-     */
-    public function withRedirect($url, $status = 302)
+    public function withstatus($status = 302): Response
+    {
+        $this->statusCode = $status;
+        return $this;
+    }
+    public function withHeader(string $name, string $value): Response
+    {
+        $this->headers[strtolower($name)] = $value;
+        return $this;
+    }
+
+    public function withRedirect($url, $status = 302): Response
     {
         return $this->withStatus($status)->withHeader('Location', (string) $url);
     }
@@ -84,13 +65,8 @@ class Response
     /**
      * Sets a response cookie.
      *
-     * @param string $name
-     * @param string $value
-     * @param array  $options
-     *
-     * @return static
      */
-    public function withCookie($name, $value = '', array $options = [])
+    public function withCookie($name, $value = '', array $options = []): Response
     {
         $defaults = [
             'expire' => 0,
@@ -114,39 +90,23 @@ class Response
 
     /**
      * Sends the response.
-     *
-     * @return static
      */
-    public function send()
+    public function send(): Response
     {
         if (!headers_sent()) {
             $this->sendHeaders();
         }
 
-        echo $this->getBody();
+        echo $this->body;
 
         flush();
 
         return $this;
     }
 
-    /**
-     * Sends the response headers.
-     *
-     * @return static
-     */
     public function sendHeaders()
     {
-        header(
-            sprintf(
-                'HTTP/%s %s %s',
-                $this->getProtocolVersion(),
-                $this->getStatusCode(),
-                $this->getReasonPhrase()
-            )
-        );
-
-        foreach ($this->getHeaders() as $name => $values) {
+        foreach ($this->headers as $name => $values) {
             header(sprintf('%s: %s', $name, implode(',', $values)));
         }
 
@@ -169,102 +129,82 @@ class Response
 
     /**
      * Is this response informational?
-     *
-     * @return bool
      */
-    public function isInformational()
+    public function isInformational(): bool
     {
-        return $this->getStatusCode() >= 100 && $this->getStatusCode() < 200;
+        return $this->statusCode >= 100 && $this->statusCode < 200;
     }
 
     /**
      * Is this response OK?
-     *
-     * @return bool
      */
-    public function isOk()
+    public function isOk(): bool
     {
-        return $this->getStatusCode() == 200;
+        return $this->statusCode == 200;
     }
 
     /**
      * Is this response empty?
-     *
-     * @return bool
      */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
-        return in_array($this->getStatusCode(), [204, 205, 304]);
+        return in_array($this->statusCode, [204, 205, 304]);
     }
 
     /**
      * Is this response successful?
-     *
-     * @return bool
      */
-    public function isSuccessful()
+    public function isSuccessful(): bool
     {
-        return $this->getStatusCode() >= 200 && $this->getStatusCode() < 300;
+        return $this->statusCode >= 200 && $this->statusCode < 300;
     }
 
     /**
      * Is this response a redirect?
-     *
-     * @return bool
      */
-    public function isRedirect()
+    public function isRedirect(): bool
     {
-        return in_array($this->getStatusCode(), [301, 302, 303, 307]);
+        return in_array($this->statusCode, [301, 302, 303, 307]);
     }
 
     /**
      * Is this response a redirection?
-     *
-     * @return bool
      */
-    public function isRedirection()
+    public function isRedirection(): bool
     {
-        return $this->getStatusCode() >= 300 && $this->getStatusCode() < 400;
+        return $this->statusCode >= 300 && $this->statusCode < 400;
     }
 
     /**
      * Is this response forbidden?
-     *
-     * @return bool
      */
-    public function isForbidden()
+    public function isForbidden(): bool
     {
-        return $this->getStatusCode() == 403;
+        return $this->statusCode == 403;
     }
 
     /**
      * Is this response not Found?
-     *
-     * @return bool
      */
-    public function isNotFound()
+    public function isNotFound(): bool
     {
-        return $this->getStatusCode() == 404;
+        return $this->statusCode == 404;
     }
 
     /**
      * Is this response a client error?
-     *
-     * @return bool
      */
-    public function isClientError()
+    public function isClientError(): bool
     {
-        return $this->getStatusCode() >= 400 && $this->getStatusCode() < 500;
+        return $this->statusCode >= 400 && $this->statusCode < 500;
     }
 
     /**
      * Is this response a server error?
-     *
-     * @return bool
      */
-    public function isServerError()
+    public function isServerError(): bool
     {
-        return $this->getStatusCode() >= 500 && $this->getStatusCode() < 600;
+        return $this->statusCode >= 500 && $this->statusCode < 600;
     }
 
     /**
@@ -272,8 +212,8 @@ class Response
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return (string) $this->getBody();
+        return $this->body;
     }
 }

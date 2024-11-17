@@ -3,6 +3,7 @@
 
 namespace Netdust\View;
 
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -13,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Render a view file with php.
  */
-class Template  {
+class Template implements TemplateInterface {
 
 
     /**
@@ -26,9 +27,9 @@ class Template  {
     /**
      * Template root directory.
      *
-     * @var string
+     * @var array
      */
-    protected string $template_root = '';
+    protected array $template_root = [];
 
     /**
      * Collection of group template data.
@@ -55,9 +56,17 @@ class Template  {
      * @param string $filepath
      * @param string $layout
      */
-    public function __construct( string $template_root = '', array $globals = [] ) {
-        $this->template_root = $template_root;
+    public function __construct( string|array $template_root = '', array $globals = [] ) {
+        $this->template_root = array_map( 'untrailingslashit',  (array) $template_root );
         $this->globals = $globals;
+    }
+
+    public function add( string $template_location ): void {
+        $this->template_root[] = $template_location;
+    }
+
+    public function print( string $template_name, array $data = [] ): void {
+        echo $this->render( $template_name, $data );
     }
 
     /**
@@ -108,7 +117,19 @@ class Template  {
      * @return string The complete template path.
      */
     public function get_path( string $template_name ): string {
-        return apply_filters( "template:path", trailingslashit($this->template_root) . $template_name . '.php' );
+
+        $found_template = locate_template($template_name . '.php');
+
+        if (!$found_template) {
+            foreach ($this->template_root as $folder) {
+                $template = $folder . '/' . $template_name . '.php';
+                if (file_exists($template)) {
+                    $found_template = $template;
+                    break;
+                }
+            }
+        }
+        return apply_filters( "template:path", $found_template );
     }
 
     /**
