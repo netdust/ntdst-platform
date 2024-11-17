@@ -8,6 +8,8 @@ use lucatume\DI52\ServiceProvider;
 use Netdust\Core\File;
 use Netdust\Core\Config;
 use Netdust\Core\Requirements;
+use Netdust\Http\Request;
+use Netdust\Http\Response;
 use Netdust\Http\Router\RouterInterface;
 use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
@@ -110,6 +112,10 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
     }
 
     public function register( ): void {
+
+        //make sure we use 1 instance
+        $this->container->singleton( Request::class );
+        $this->container->singleton( Response::class );
 
         // add path builder to application
         $this->container->singleton( File::class, new File( $this->file ) );
