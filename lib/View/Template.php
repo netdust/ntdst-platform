@@ -1,96 +1,88 @@
 <?php
 
-
 namespace Netdust\View;
 
 use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
-
 /**
- * Render a view file with php.
+ * Renders view templates using PHP.
  */
 class Template implements TemplateInterface {
 
-
     /**
-     * Template group.
+     * Group identifier for the template.
      *
      * @var string
      */
     protected string $group = '';
 
     /**
-     * Template root directory.
+     * Root directories for template lookup.
      *
      * @var array
      */
     protected array $template_root = [];
 
     /**
-     * Collection of group template data.
+     * Global data shared across all templates.
+     *
      * @var array
      */
     protected array $globals;
 
     /**
-     * Collection of template data.
+     * Data specific to the current template.
+     *
      * @var array
      */
     protected array $data;
 
     /**
-     * The current depth of this instance
+     * The current depth level of nested template rendering.
+     *
      * @var int
      */
     private int $depth = 0;
 
-
     /**
-     * Constructor.
-     *
-     * @param string $filepath
-     * @param string $layout
+     * Constructor to initialize template root directories and global data.
      */
-    public function __construct( string|array $template_root = '', array $globals = [] ) {
-        $this->template_root = array_map( 'untrailingslashit',  (array) $template_root );
+    public function __construct(string|array $template_root = '', array $globals = []) {
+        $this->template_root = array_map('untrailingslashit', (array) $template_root);
         $this->globals = $globals;
     }
 
-    public function add( string $template_location ): void {
+    /**
+     * Adds a new directory to the list of template roots.
+     */
+    public function add(string $template_location): void {
         $this->template_root[] = $template_location;
     }
 
-    public function print( string $template_name, array $data = [] ): void {
-        echo $this->render( $template_name, $data );
+    /**
+     * Outputs the rendered template directly.
+     */
+    public function print(string $template_name, array $data = []): void {
+        echo $this->render($template_name, $data);
     }
 
     /**
-     * Gets the specified template, if it is valid.
-     *
-     * @since 1.0.0
-     *
-     * @param $data  array of param values that can be used in the template via get_param().
-     *
-     * @return string The template contents.
+     * Renders a template by merging global and specific data.
      */
-    public function render( string $template_name, array $data = [] ): string {
-
-        if ( $this->exists( $template_name ) ) {
-            $template = $this->include_template( $template_name , array_merge( $this->globals, $data ) );
-
+    public function render(string $template_name, array $data = []): string {
+        if ($this->exists($template_name)) {
+            $template = $this->include_template($template_name, array_merge($this->globals, $data));
         } else {
-            $template_path = $this->get_path( $template_name  );
-
-            app()->make( LoggerInterface::class )->error(
-                "Template $template_name  was not loaded because the file located at $template_path does not exist.",
+            $template_path = $this->get_path($template_name);
+            app()->make(LoggerInterface::class)->error(
+                "Template $template_name was not loaded because the file located at $template_path does not exist.",
                 'template_file_does_not_exist'
             );
-
             $template = '';
         }
 
@@ -98,26 +90,16 @@ class Template implements TemplateInterface {
     }
 
     /**
-     * Checks to see if the template file exists.
-     *
-     * @param $template_name string The template name to check.
-     *
-     * @return bool True if the template file exists, false otherwise.
+     * Checks if a template file exists in the defined paths.
      */
-    public function exists( string $template_name ): bool {
-        return file_exists( $this->get_path( $template_name ) );
+    public function exists(string $template_name): bool {
+        return file_exists($this->get_path($template_name));
     }
 
-
     /**
-     * Gets the template path, given the file name.
-     *
-     * @param $template_name string the template name to include.
-     *
-     * @return string The complete template path.
+     * Gets the full path to a template file.
      */
-    public function get_path( string $template_name ): string {
-
+    public function get_path(string $template_name): string {
         $found_template = locate_template($template_name . '.php');
 
         if (!$found_template) {
@@ -129,71 +111,65 @@ class Template implements TemplateInterface {
                 }
             }
         }
-        return apply_filters( "template:path", $found_template );
+
+        return apply_filters("template:path", $found_template);
     }
 
     /**
-     * Updates current depth and params, gets the template contents.
-     *
-     * @since 1.0.0
-     *
-     * @param string $template_name The template name.
-     * @param array  $params        The params to use in the template.
-     *
-     * @return false|string The template contents if the file exists, false otherwise.
+     * Includes a template file while isolating the provided data.
      */
-    private function include_template( string $template_name, array $data ): bool|string {
+    private function include_template(string $template_name, array $data): bool|string {
         $this->depth++;
-
-        $this->data[ $this->depth ] = apply_filters( "template:params", $data );
+        $this->data[$this->depth] = apply_filters("template:params", $data);
 
         ob_start();
 
-        do_action( 'template:before_template', [ 'template_name' => $template_name, 'path' => $this->get_path( $template_name ) ] );
+        do_action('template:before_template', [
+            'template_name' => $template_name,
+            'path' => $this->get_path($template_name),
+        ]);
 
-        $this->include_file_with_scope( $this->get_path( $template_name ), [
+        $this->include_file_with_scope($this->get_path($template_name), [
             'template' => $this,
-        ] );
+        ]);
 
-        do_action( 'template:after_template', [ 'template_name' => $template_name, 'path' => $this->get_path( $template_name ) ] );
+        do_action('template:after_template', [
+            'template_name' => $template_name,
+            'path' => $this->get_path($template_name),
+        ]);
 
         $result = ob_get_clean();
 
-        unset( $this->data[ $this->depth ] );
+        unset($this->data[$this->depth]);
         $this->depth--;
 
         return $result;
     }
 
-    public function get_param( string $param, mixed $default = false ): mixed {
-        return $this->data[ $this->depth ][ $param ] ?? $default;
+    /**
+     * Retrieves a specific parameter from the current template's data.
+     */
+    public function get_param(string $param, mixed $default = false): mixed {
+        return $this->data[$this->depth][$param] ?? $default;
     }
 
     /**
-     * Retrieves all the params for the current template.
-     *
-     * @since 1.0.0
-     *
-     * @return array List of params for the current template
+     * Retrieves all parameters for the current template.
      */
     public function get_params(): array {
-        if ( isset( $this->data[ $this->depth ] ) ) {
-            return $this->data[ $this->depth ];
-        }
-
-        return [];
+        return $this->data[$this->depth] ?? [];
     }
 
-    private function include_file_with_scope( string $file, array $scope ): bool {
-        if ( file_exists( $file ) ) {
-            extract( $scope );
+    /**
+     * Includes a PHP file with a scoped set of variables.
+     */
+    private function include_file_with_scope(string $file, array $scope): bool {
+        if (file_exists($file)) {
+            extract($scope);
             include $file;
-
             return true;
         }
 
         return false;
     }
-
-
 }
