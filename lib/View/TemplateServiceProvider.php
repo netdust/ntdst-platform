@@ -6,6 +6,7 @@ namespace Netdust\View;
 use LogicException;
 use lucatume\DI52\ServiceProvider;
 use Netdust\ApplicationInterface;
+use Netdust\Core\File;
 use Netdust\Traits\Mixins;
 
 
