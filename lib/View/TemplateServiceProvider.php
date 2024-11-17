@@ -8,6 +8,9 @@ use lucatume\DI52\ServiceProvider;
 use Netdust\ApplicationInterface;
 use Netdust\Core\File;
 use Netdust\Traits\Mixins;
+use Netdust\View\UI\UI;
+use Netdust\View\UI\UIHelper;
+use Netdust\View\UI\UIInterface;
 
 
 class TemplateServiceProvider extends ServiceProvider {
@@ -21,6 +24,9 @@ class TemplateServiceProvider extends ServiceProvider {
                 $this->container->get( File::class )->dir_path('services')]
             )
         );
+
+        $this->container->singleton( UIInterface::class, UIHelper::class );
+        UI::setUI( $this->container->get(UIInterface::class) );
 
         $this->template_mixin( $this->container->get( ApplicationInterface::class ) );
 
