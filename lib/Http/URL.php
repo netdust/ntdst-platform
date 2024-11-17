@@ -6,45 +6,6 @@ use Netdust\Utils\Arr;
 
 class URL {
 
-    /**
-     * Is the request secure?
-     *
-     * @return boolean
-     */
-    public static function isSecure()
-    {
-        return (Arr::get($_SERVER, 'HTTPS') == true);
-    }
-
-    /**
-     * Gets the request IP address
-     *
-     * @return string
-     */
-    public static function ip()
-    {
-        return Arr::get($_SERVER, 'REMOTE_ADDR');
-    }
-
-    /**
-     * Gets the request URI
-     *
-     * @return string
-     */
-    public static function uri()
-    {
-        return Arr::get($_SERVER, 'REQUEST_URI', '/');
-    }
-
-    /**
-     * Gets the request Method
-     *
-     * @return string
-     */
-    public static function method()
-    {
-        return Arr::get($_SERVER, 'REQUEST_METHOD', '/');
-    }
 
     /**
      * Get the request's pathname
@@ -53,12 +14,9 @@ class URL {
      */
     public static function pathname()
     {
-        $uri = static::uri();
-
+        $uri = $_SERVER['REQUEST_URI']??'/';
         // Strip the query string from the URI
-        $uri = strstr($uri, '?', true) ?: $uri;
-
-        return $uri;
+        return strstr($uri, '?', true) ?: $uri;
     }
 
 
