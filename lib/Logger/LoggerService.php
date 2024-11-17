@@ -16,13 +16,15 @@ class LoggerService extends ServiceProvider
 
     public function register(): void
     {
-        $this->container->register( AdminNoticesService::class, 'admin_notices' );
+        $this->container->singleton(
+            AdminNoticesService::class, new AdminNoticesService()
+        );
 
         $this->container->singleton(
             LoggerInterface::class, new SimpleLogger()
         );
-        Logger::setLogger( $this->container->(LoggerInterface::class) );
-        
+        Logger::setLogger( $this->container->get(LoggerInterface::class) );
+
     }
 
     public function boot(): void

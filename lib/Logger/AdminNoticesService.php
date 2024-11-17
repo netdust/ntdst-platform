@@ -7,7 +7,6 @@ namespace Netdust\Logger;
  * Class AdminNoticesLogger
  *
  * Class that handles admin notices registration and rendering using transient API.
-
  */
 class AdminNoticesService {
 
@@ -47,6 +46,7 @@ class AdminNoticesService {
             $this->types,
             $this->transient
         );
+
 
         // Render notices using WP action.
         add_action( 'admin_notices', [ $this, 'render' ] );
