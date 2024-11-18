@@ -221,7 +221,7 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
             return $this->container->get( $method );
         }
 
-        if ( method_exists( app( APIInterface::class ), $method ) ) {
+        if ( $this->container->has( APIInterface::class ) && method_exists( app( APIInterface::class ), $method ) ) {
             return app( APIInterface::class )->$method( ...$parameters );
         }
 

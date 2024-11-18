@@ -28,7 +28,6 @@ $name = $template->get_param( 'name' );
     <?php endif; ?>
 
     style="display: block;"
-    value="<?= $template->get_field_value(); ?>"
     class="<?= $template->get_param( 'class', 'regular-text' ) ?>"
     <?= $template->attributes( [
         'rows',
@@ -44,4 +43,4 @@ $name = $template->get_param( 'name' );
         'wrap',
     ] ); ?>
 
-></textarea>
+><?= $template->get_field_value(); ?></textarea>
