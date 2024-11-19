@@ -128,7 +128,7 @@ class File {
      * @return string       asset file url
      */
     public function asset_url( string $type = '', string $file = '' ): string {
-        return $this->file_url( (array)$this->root+['assets',$type,$file] );
+        return $this->file_url( [$this->root, 'assets',$type,$file] );
     }
 
     /**
@@ -138,7 +138,7 @@ class File {
      * @return string       asset file path
      */
     public function asset_path( string $type = '', string $file = '' ): string {
-        return $this->file_path( (array)$this->root+['assets',$type,$file] );
+        return $this->file_path( [$this->root, 'assets',$type,$file] );
     }
 
     /**
@@ -147,7 +147,7 @@ class File {
      * @return string       template file url
      */
     public function template_url( string $type = '', string $file = '' ): string {
-        return $this->file_url( (array)$this->root+['templates',$type,$file] );
+        return $this->file_url( [$this->root, 'templates',$type,$file] );
     }
 
     /**
@@ -156,7 +156,7 @@ class File {
      * @return string       template file path
      */
     public function template_path( string $type = '', string $file = '' ): string {
-        return $this->file_path( (array)$this->root+['templates',$type,$file] );
+        return $this->file_path( [$this->root, 'templates',$type,$file] );
     }
 
 }

@@ -250,7 +250,6 @@ class Script implements ScriptInterface {
 	        );
         }
 
-        Logger::debug($key);
         $this->localized_params[ $key ] = $value;
 
 	    return true;
