@@ -4,11 +4,13 @@ namespace Netdust\Service\Blocks;
 
 use Netdust\Service\Assets\Script;
 
+
 /**
  * Class AbstractBlock
-*/
+ */
 abstract class Block
 {
+
 
     /**
      * @var string
@@ -39,8 +41,10 @@ abstract class Block
      */
     protected ?string $content;
 
-    public function __construct()
+    public function __construct( string $block_name, $args = array() )
     {
+        $this->blockName = $block_name;
+        $this->attributes = $args;
         $this->initialize();
     }
 
@@ -130,15 +134,28 @@ abstract class Block
     protected function registerBlock(): void
     {
         add_action('init', function () {
-            register_block_type($this->getBlockType(), [
-                'render_callback' => $this->getBlockRenderCallback(),
-                'editor_script' => $this->getBlockEditorScript('handle'),
-                'editor_style' => $this->getBlockEditorStyleHandle(),
-                'style' => $this->getBlockFrontendStyleHandle(),
-                'attributes' => $this->getBlockAttributes(),
-                'supports' => $this->getBlockSupports(),
-                'api_version' => $this->apiVersion,
-            ]);
+            $block_type = $this->getBlockType();
+
+            if( file_exists( $block_type ) ) {
+                register_block_type(
+                    $block_type,
+                    array(
+                        'render_callback' => $this->getBlockRenderCallback(),
+                    )
+                );
+            }
+            else {
+                register_block_type($block_type, [
+                    'render_callback' => $this->getBlockRenderCallback(),
+                    'editor_script' => $this->getBlockEditorScript('handle'),
+                    'editor_style' => $this->getBlockEditorStyleHandle(),
+                    'style' => $this->getBlockFrontendStyleHandle(),
+                    'attributes' => $this->getBlockAttributes(),
+                    'supports' => $this->getBlockSupports(),
+                    'api_version' => $this->apiVersion,
+                ] );
+            }
+
         });
     }
 
