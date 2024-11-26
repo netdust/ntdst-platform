@@ -15,7 +15,7 @@ use Netdust\Traits\Singleton;
 class AssetManager {
 
     use Singleton;
-    use Collection;
+
 
     /**
      * Load a external script.
@@ -29,12 +29,12 @@ class AssetManager {
             ->setVersion( $params['ver']??'0.1' )
             ->to( $params['to']??['front'] );
 
-        if( !empty( $local = $params['local'] ) )
-        {
+        if( !empty( $local = $params['local'] ) )  {
             $this->get( $handle )->setLocalization( $local['key']??$params['handle'], $local['vars'] );
         }
 
-        if( $register )  $this->get( $handle )->register();
+        if( $register )
+            $this->get( $handle )->register();
 
 
         return $this->get( $handle );
