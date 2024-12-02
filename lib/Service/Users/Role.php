@@ -19,14 +19,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Role {
 
-    use Features;
-    use Setters;
-
     /**
      * id
      * @var string
      */
     protected string $id = '';
+
+    /**
+     * name
+     * @var string
+     */
+    protected string $name = '';
 
     /**
      * capabilities
@@ -36,10 +39,12 @@ class Role {
 
     /**
      * Role constructor
-     * @param array $args Overrides to default args in the object
+     * @param array $capabilities Overrides to default args in the object
      */
-    public function __construct( array $args = [] ) {
-        $this->set_values( $args );
+    public function __construct( string $role, string $display_name, array $capabilities = [] ) {
+        $this->id = $role;
+        $this->name = $display_name;
+        $this->capabilities = $capabilities;
     }
 
     public function do_actions(): void {
@@ -47,6 +52,10 @@ class Role {
     }
 
     public function register(): ?\WP_Role {
+        global $wp_roles;
+        if (!isset($wp_roles))
+            $wp_roles = new \WP_Roles();
+
         return add_role($this->id, $this->name, $this->capabilities);
     }
 

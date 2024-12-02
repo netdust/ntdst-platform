@@ -56,7 +56,9 @@ class Taxonomy {
      *
      * @param array $args Overrides to default args in the object
      */
-    public function __construct( array $args = [] ) {
+    public function __construct( string $id, string $post_type, array $args = [] ) {
+        $this->id = $id;
+        $this->post_type = $post_type;
         $this->set_values( $args );
     }
 
