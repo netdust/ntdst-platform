@@ -155,8 +155,8 @@ class File {
      * @param  string $file file name
      * @return string       template file path
      */
-    public function template_path( string $type = '', string $file = '' ): string {
-        return $this->file_path( [$this->root, 'tpl',$type,$file] );
+    public function template_path( string $file = '' ): string {
+        return $this->file_path( [$this->root, 'tpl', $file] );
     }
 
 }
