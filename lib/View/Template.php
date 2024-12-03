@@ -100,11 +100,11 @@ class Template implements TemplateInterface {
      * Gets the full path to a template file.
      */
     public function get_path(string $template_name): string {
-        $found_template = locate_template($template_name . '.php');
+        $found_template = locate_template(  preg_replace('/\.php$/', '', $template_name) . '.php');
 
         if (!$found_template) {
             foreach ($this->template_root as $folder) {
-                $template = $folder . '/' . $template_name . '.php';
+                $template = $folder . '/' . preg_replace('/\.php$/', '', $template_name) . '.php';
                 if (file_exists($template)) {
                     $found_template = $template;
                     break;

@@ -8,6 +8,7 @@
 
 namespace Netdust\Service\Posts;
 
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Features;
 use Netdust\Traits\Setters;
@@ -55,7 +56,7 @@ class Taxonomy {
      */
     public function __construct( string $taxonomy, array|string $object_type = [], array $args = [] ) {
         $this->id = $taxonomy;
-        $this->post_type = (array) $object_type;
+        $this->post_type = $object_type;
         $this->args =  $args;
     }
 
@@ -80,11 +81,9 @@ class Taxonomy {
 
         $this->args['labels'] = $this->create_labels( );
 
-        $this->post_type = is_string( $this->post_type ) ? [$this->post_type] : $this->post_type;
-
         $registered = register_taxonomy( $this->id, $this->post_type, $this->args );
 
-        foreach ( $this->post_type as $object_type ) {
+        foreach( (array) $this->post_type as $object_type ) {
             register_taxonomy_for_object_type( $this->id , $object_type);
         }
 
@@ -92,7 +91,7 @@ class Taxonomy {
 	        return app()->make( LoggerInterface::class )->error( $registered->get_error_message(), $registered->get_error_code(), $registered->get_error_data() );
         } else {
 	        app()->make( LoggerInterface::class )->info(
-                'The taxonomy ' . $this->name . ' has been registered to '.  print_r($this->post_type, true ) . '.',
+                'The taxonomy ' . $this->id . ' has been registered to '.  print_r($this->post_type, true ) . '.',
                 'registered_taxonomy'
             );
         }

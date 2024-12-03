@@ -21,6 +21,7 @@ class TemplateServiceProvider extends ServiceProvider {
             TemplateInterface::class,
             new \Netdust\View\Template( [
                 $this->container->get( File::class )->dir_path(),
+                $this->container->get( File::class )->template_path(),
                 $this->container->get( File::class )->dir_path('services')]
             )
         );

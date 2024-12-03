@@ -175,11 +175,11 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
                 $parameters = $constructor ? $constructor->getParameters() : [];
 
                 foreach ($parameters as $parameter) {
-                    if( $parameter->getName() == 'args' ) {
-                        $this->container->when( $id )->needs('$args' )->give( $args );
-                    }
-                    else if( key_exists($parameter->getName(),$args) ) {
+                    if( key_exists($parameter->getName(),$args) ) {
                         $this->container->when( $id )->needs('$'.$parameter->getName() )->give( $args[$parameter->getName()] );
+                    }
+                    else if( $parameter->getName() == 'args' ) {
+                        $this->container->when( $id )->needs('$args' )->give( $args );
                     }
                 }
             }
