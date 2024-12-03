@@ -105,6 +105,7 @@ class WPRouter implements RouterInterface
 
         $route = $this->router->match('/' . ltrim($requestUri, '/'), $method);
 
+
         if ($route !== false) {
             return call_user_func_array($route['target'], $route['params']);
         }

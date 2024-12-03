@@ -147,7 +147,7 @@ class File {
      * @return string       template file url
      */
     public function template_url( string $type = '', string $file = '' ): string {
-        return $this->file_url( [$this->root, 'templates',$type,$file] );
+        return $this->file_url( [$this->root, 'tpl',$type,$file] );
     }
 
     /**
@@ -156,7 +156,7 @@ class File {
      * @return string       template file path
      */
     public function template_path( string $type = '', string $file = '' ): string {
-        return $this->file_path( [$this->root, 'templates',$type,$file] );
+        return $this->file_path( [$this->root, 'tpl',$type,$file] );
     }
 
 }
