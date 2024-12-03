@@ -18,9 +18,9 @@ abstract class Asset
 
     protected string $file;
 
-    protected string|bool|array $dependencies;
+    protected string|bool|array $dependencies = [];
 
-    protected bool|string|null $version;
+    protected bool|string|null $version = '0.1';
 
     protected array $attributes = [];
 
@@ -32,12 +32,12 @@ abstract class Asset
     /**
      * Asset constructor.
      * @param string $handle
-     * @param $file
+     * @param string $src
      */
-    public function __construct(string $handle, string $file)
+    public function __construct(string $handle, string $src)
     {
         $this->handle = $handle;
-        $this->file = $file;
+        $this->file = $src;
         $this->localisations[] = 'front';
     }
 

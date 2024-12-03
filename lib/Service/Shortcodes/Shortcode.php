@@ -8,9 +8,8 @@
 
 namespace Netdust\Service\Shortcodes;
 
-use Netdust\Logger\LoggerInterface;
-use Netdust\Traits\Features;
-use Netdust\Traits\Templates;
+use Netdust\App;
+
 
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -22,10 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since   1.0.0
  */
-abstract class Shortcode {
-
-    use Templates;
-    use Features;
+class Shortcode {
 
     /**
      * The shortcode attributes, parsed by shortcode atts.
@@ -49,15 +45,15 @@ abstract class Shortcode {
      * The name of this shortcode.
      * @var string
      */
-    protected string $shortcode;
+    protected string $tag;
 
     /**
      * Shortcode constructor
      *
      * @param array $args Overrides to default args in the object
      */
-    public function __construct( string $shortcode, array $args = [] ) {
-        $this->shortcode = $shortcode;
+    public function __construct( string $tag, array $args = [] ) {
+        $this->tag = $tag;
         $this->defaults = array_merge( $this->defaults, $args );
     }
 
@@ -69,7 +65,9 @@ abstract class Shortcode {
      *
      * @return mixed The shortcode action result.
      */
-    protected abstract function shortcode_actions( array $atts ): string;
+    protected function shortcode_actions( array $atts ): string {
+        return APP::template()->render( 'shortcodes/' . $this->tag, $atts );
+    }
 
     /**
      * @inheritDoc
@@ -79,7 +77,7 @@ abstract class Shortcode {
     }
 
     public function register(): void {
-        add_shortcode( $this->shortcode, [ $this, 'shortcode' ] );
+        add_shortcode( $this->tag, [ $this, 'shortcode' ] );
     }
 
     /**
@@ -93,22 +91,6 @@ abstract class Shortcode {
     public function shortcode( string|array $atts = [], string $content='', string $shortcode='' ): string {
         $atts = array_merge( $this->defaults, is_array($atts) ? $atts : [] );
         return $this->shortcode_actions( $atts );
-    }
-
-    protected function get_template_group(): string {
-        return 'shortcodes';
-    }
-
-
-    public function __get( string $key ): mixed {
-        if ( isset( $this->$key ) ) {
-            return $this->$key;
-        } else {
-	        return app()->make( LoggerInterface::class )->error(
-		        'The key ' . $key . ' could not be found.',
-		        'shortcode_param_not_set'
-	        );
-        }
     }
 
 }
