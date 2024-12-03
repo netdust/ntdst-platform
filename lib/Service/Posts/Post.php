@@ -14,9 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Post {
 
-    use Setters;
-    use Features;
-
     /**
      * The post type.
      *
@@ -40,8 +37,9 @@ class Post {
      *
      * @param array $args Overrides to default args in the object
      */
-    public function __construct( array $args = [] ) {
-        $this->set_values( $args );
+    public function __construct( string $type, array $args = [] ) {
+        $this->type = $type;
+        $this->args = $args;
     }
 
     /**

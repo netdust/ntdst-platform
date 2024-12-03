@@ -23,9 +23,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Taxonomy {
 
-    use Features;
-    use Setters;
-
     /**
      * Taxonomy ID (slug).
      *
@@ -56,10 +53,10 @@ class Taxonomy {
      *
      * @param array $args Overrides to default args in the object
      */
-    public function __construct( string $id, string $post_type, array $args = [] ) {
-        $this->id = $id;
-        $this->post_type = $post_type;
-        $this->set_values( $args );
+    public function __construct( string $taxonomy, array|string $object_type = [], array $args = [] ) {
+        $this->id = $taxonomy;
+        $this->post_type = (array) $object_type;
+        $this->args =  $args;
     }
 
     /**
@@ -78,7 +75,7 @@ class Taxonomy {
 
         // Fallback to name.
         if ( ! isset( $this->args['label'] ) ) {
-            $this->args['label'] = $this->name;
+            $this->args['label'] =  $this->args['name'];
         }
 
         $this->args['labels'] = $this->create_labels( );

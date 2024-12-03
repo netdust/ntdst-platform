@@ -46,7 +46,7 @@ class Script extends Asset
         return $this->localized_var;
     }
 
-    public function setLocalization( string $key, array $vars ): Script
+    public function setLocalization( string $key, array $vars = [] ): Script
     {
         $this->localized_var = $key;
         $this->collection = $vars;
