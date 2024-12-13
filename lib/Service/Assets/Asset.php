@@ -2,6 +2,7 @@
 
 namespace Netdust\Service\Assets;
 
+
 /**
  * Class Asset
  */
