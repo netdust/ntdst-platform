@@ -139,7 +139,7 @@ class AdminSection {
 
         if( empty( $this->parent_id ) ){
             $url = add_query_arg( array(
-                'page' => app()->config('admin')['menu_slug'],
+                'page' => app()->config()['admin']['menu_slug'],
                 'section' => $this->id,
             ), get_admin_url( null, 'admin.php' ) );
         }

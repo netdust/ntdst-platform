@@ -155,6 +155,7 @@ class AdminPage {
 	 * @since 1.0.0
 	 */
 	public function render_callback(): void {
+
 		echo $this->get_template( 'admin', [
 			'title'        => $this->page_title,
 			'section'      => $this->get_current_section_key(),
