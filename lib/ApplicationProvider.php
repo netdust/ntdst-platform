@@ -140,6 +140,8 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
                 $this->file()->dir_path( $this->config_path )
             ) );
 
+            do_action('application/register', $this );
+
             $this->_register_if_exists();
 
             $this->container->boot();

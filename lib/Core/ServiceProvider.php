@@ -26,15 +26,5 @@ abstract class ServiceProvider extends \lucatume\DI52\ServiceProvider {
     public function app( string $id = ApplicationInterface::class): mixed {
         return $this->container->get( $id );
     }
-    public function scripts() {
-        return $this->container->get(Script::class);
-    }
-    public function styles() {
-        return $this->container->get(Style::class);
-    }
-
-    public function posts() {
-        return $this->container->get(Post::class);
-    }
 
 }
