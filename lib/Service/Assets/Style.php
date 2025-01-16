@@ -31,10 +31,10 @@ class Style extends Asset
     }
 
     /**
-     * Register asset
+     * enqueue asset
      * https://developer.wordpress.org/reference/functions/wp_enqueue_style/
      */
-    protected function enqueueCallback(): callable
+    public function enqueue(): callable
     {
         return function () {
             wp_enqueue_style(

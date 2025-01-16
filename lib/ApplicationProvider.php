@@ -164,7 +164,7 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
     }
 
 
-    public function make( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null ): mixed {
+    public function make( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null, bool $singleton = false ): mixed {
 
         if(!empty($args) )  {
 
@@ -190,10 +190,22 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
             if( !empty($args) && key_exists('middlewares', $args ) ) {
                 $args['middlewares'][] = $implementation;
-                $this->container->bindDecorators($id, $args['middlewares'], $afterBuildMethods, true );
+
+                if( !$singleton ) {
+                    $this->container->bindDecorators($id, $args['middlewares'], $afterBuildMethods, true );
+                }
+                else {
+                    $this->container->singletonDecorators($id, $args['middlewares'], $afterBuildMethods, true );
+                }
             }
             else {
-                $this->container->bind( $id, $implementation, $afterBuildMethods );
+                if( !$singleton ) {
+                    $this->container->bind( $id, $implementation, $afterBuildMethods );
+                }
+                else {
+                    $this->container->singleton( $id, $implementation, $afterBuildMethods );
+                }
+
             }
         }
 

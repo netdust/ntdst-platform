@@ -100,7 +100,7 @@ abstract class Asset
         foreach ($this->localisations as $localisation) {
             $hook = self::LOCATIONS_BY_HOOK[$localisation] ?? null;
             if($hook) {
-                add_action($hook, $this->enqueueCallback());
+                add_action($hook, $this->enqueue());
             }
         }
 
@@ -130,10 +130,10 @@ abstract class Asset
     }
 
     /**
-     * Register asset with wp_enqueue_script or wp_enqueue_style
+     * enqueue asset with wp_enqueue_script or wp_enqueue_style
      * @return callable
      */
-    protected abstract function enqueueCallback(): callable;
+    public abstract function enqueue(): callable;
 
     /**
      * Returns the filter name

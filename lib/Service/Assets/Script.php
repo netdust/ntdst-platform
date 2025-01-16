@@ -2,6 +2,7 @@
 
 namespace Netdust\Service\Assets;
 
+use Netdust\Logger\Logger;
 use Netdust\Logger\LoggerInterface;
 use Netdust\Traits\Collection;
 
@@ -41,12 +42,12 @@ class Script extends Asset
     /**
      * @return string
      */
-    public function getLocalization(): string
+    public function getLocalizedVar(): string
     {
         return $this->localized_var;
     }
 
-    public function setLocalization( string $key, array $vars = [] ): Script
+    public function setLocalizedVar( string $key, array $vars = [] ): Script
     {
         $this->localized_var = $key;
         $this->collection = $vars;
@@ -76,19 +77,19 @@ class Script extends Asset
     }
 
     /**
-     * Register asset
+     * enqueue asset
      * https://developer.wordpress.org/reference/functions/wp_enqueue_script/
      */
-    protected function enqueueCallback(): callable
+    public function enqueue(): callable
     {
         return function() {
-            $this->localize();
             wp_enqueue_script(
                 $this->getHandle(),
                 $this->getUrl(),
                 $this->getDependencies(),
                 $this->getVersion(),
                 $this->getInFooter());
+            $this->localize();
         };
     }
 
@@ -101,7 +102,7 @@ class Script extends Asset
         // If we actually have localized params, localize and enqueue.
         if ( ! $this->empty() ) {
 
-            $localized = wp_localize_script( $this->getHandle(), $this->getLocalization(), $this->all() );
+            $localized = wp_localize_script( $this->getHandle(), $this->getLocalizedVar(), $this->all() );
 
             if ( false === $localized ) {
                 app()->make( LoggerInterface::class )->error(
