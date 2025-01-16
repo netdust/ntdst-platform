@@ -2,6 +2,7 @@
 
 namespace Netdust\Service\Blocks;
 
+use Netdust\Logger\Logger;
 use Netdust\Service\Assets\Script;
 
 
@@ -71,8 +72,8 @@ abstract class Block
         $scriptEditor = $this->getBlockEditorScript();
         if ($scriptEditor) {
             (new Script($scriptEditor['handle'], $scriptEditor['path']))
-                ->to('admin')
                 ->setDependencies($scriptEditor['dependencies'])
+                ->to('admin')
                 ->register();
         }
     }

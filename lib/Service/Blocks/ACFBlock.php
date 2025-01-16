@@ -55,24 +55,8 @@ class ACFBlock extends Block {
 
     protected function renderBlock(array $attributes = [], ?string $content = null): ?string
     {
-        /*
-        // Block attributes.
-        $attributes = $this->prepare_attributes_for_render( $attributes );
 
-        // General attributes.
-        $general_attributes = $this->get_general_attributes( $attributes );
-
-        $slug = $this->getBlockPath() . '/template';
-
-        $arguments = array(
-            'attributes'         => $attributes,
-            'general_attributes' => $general_attributes,
-            'content'            => $content,
-        );
-
-        return UIKitBlockUIKitBlockUtils::view( $slug, null, $arguments, true ); */
-
-        return App::template()->print( $this->getBlockPath() . '/' . $this->json['acf']['renderTemplate'] );
+        return App::template()->print( $this->getBlockPath() . '/' . $this->json['acf']['renderTemplate']??'block', array_merge($attributes, ['content'=>$content]) );
 
     }
 
