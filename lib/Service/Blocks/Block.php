@@ -23,7 +23,7 @@ abstract class Block
      * @see https://developer.wordpress.org/reference/functions/register_block_type/
      * @var int
      */
-    protected int $apiVersion = 1;
+    protected int $apiVersion = 3;
 
     /**
      * @var string

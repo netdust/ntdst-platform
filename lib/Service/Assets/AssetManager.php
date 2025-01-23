@@ -43,8 +43,8 @@ class AssetManager {
     /**
      * Load an external stylesheet file.
      */
-    public function style( ...$params ): Style {
-        $style = ( new Style( $params['handle'], $params['src'] ) )
+    public function style( string $handle, string $src, array $params = [], $register = true  ): Style {
+        $style = ( new Style($handle, $src ) )
             ->setMedia( $params['media']??'')
             ->to( $params['to']??['front'] );
 

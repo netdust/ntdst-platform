@@ -140,6 +140,11 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
                 $this->file()->dir_path( $this->config_path )
             ) );
 
+            $this->container->register( \Netdust\Logger\LoggerService::class );
+            $this->container->register( \Netdust\View\TemplateServiceProvider::class );
+            $this->container->register( \Netdust\Http\Router\WPRouterService::class );
+            $this->container->register( \Netdust\WordpressServiceProvider::class );
+
             do_action('application/register', $this );
 
             $this->_register_if_exists();

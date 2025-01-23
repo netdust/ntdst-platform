@@ -38,7 +38,7 @@ trait Mixins {
         }
 
         $mixin = $this->mixins[$name];
-        return $mixin(...$arguments);
+        return ( $mixin(...$arguments) );
     }
 
     public function extend( $mixin, $replace = true ) {
@@ -69,10 +69,10 @@ trait Mixins {
     {
 
         if (is_callable(['parent', '__call'])){
-            parent::__call($method, $parameters);
+            return parent::__call($method, $parameters);
         }
 
-        $this->callMixin( $method, ...$parameters );
+        return $this->callMixin( $method, ...$parameters );
     }
 
 }
