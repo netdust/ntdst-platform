@@ -57,5 +57,8 @@ class TemplateServiceProvider extends ServiceProvider {
         $service->mixin( 'print', function(string $layout, array $data = array() ) use ( $path ): void {
             $this->container->get( TemplateInterface::class )->print( $path.$layout, $data );
         });
+        $service->mixin( 'exists', function(string $layout ) use ( $path ): bool {
+            return $this->container->get( TemplateInterface::class )->exists( $path.$layout );
+        });
     }
 }

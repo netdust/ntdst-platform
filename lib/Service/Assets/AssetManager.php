@@ -6,6 +6,7 @@
 
 namespace Netdust\Service\Assets;
 
+use Netdust\Logger\Logger;
 use Netdust\Traits\Collection;
 use Netdust\Traits\Singleton;
 
@@ -45,10 +46,14 @@ class AssetManager {
      */
     public function style( string $handle, string $src, array $params = [], $register = true  ): Style {
         $style = ( new Style($handle, $src ) )
+            ->setVersion( $params['ver']??'0.1' )
             ->setMedia( $params['media']??'')
             ->to( $params['to']??['front'] );
 
-        return $style->register();
+        if( $register )
+             $style->register();
+
+        return $style;
     }
 
 }
