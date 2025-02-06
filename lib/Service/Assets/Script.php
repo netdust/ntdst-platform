@@ -97,7 +97,7 @@ class Script extends Asset
      * Localize asset
      * https://developer.wordpress.org/reference/functions/wp_enqueue_script/
      */
-    protected function localize(): void {
+    public function localize(): void {
 
         // If we actually have localized params, localize and enqueue.
         if ( ! $this->empty() ) {

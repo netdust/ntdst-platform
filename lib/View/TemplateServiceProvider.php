@@ -23,15 +23,20 @@ class TemplateServiceProvider extends ServiceProvider {
             new \Netdust\View\Template( [
                 $this->container->get( File::class )->dir_path(),
                 $this->container->get( File::class )->template_path(),
-                $this->container->get( File::class )->dir_path('services')]
+                $this->container->get( File::class )->dir_path('services')
+                ]
             )
         );
 
-        $this->container->singleton( UIInterface::class, UIHelper::class );
-        UI::setUI( $this->container->get(UIInterface::class) );
+        //$this->container->singleton( UIInterface::class, UIHelper::class );
+        //UI::setUI( $this->container->get(UIInterface::class) );
 
         $this->template_mixin( $this->container->get( ApplicationInterface::class ) );
 
+    }
+
+    public function make( string|array $template_root = '', array $globals = [] ): Template {
+        return new \Netdust\View\Template( $template_root, $globals );
     }
 
     public function add( string $layout, array $data = [] ): void {
@@ -45,20 +50,24 @@ class TemplateServiceProvider extends ServiceProvider {
         $this->container->get( TemplateInterface::class )->print( $layout, $data );
     }
 
-    public function template_mixin( ServiceProvider $service, string $path = '' ): void {
+    public function template_mixin( ServiceProvider $service, ?TemplateInterface $template = null ): void {
 
         if ( !in_array(Mixins::class, class_uses($service), true) ) {
             throw new LogicException('The ServiceProvider is not using the mixins Trait.');
         }
 
-        $service->mixin( 'render', function(string $layout, array $data = array() ) use ( $path ): string {
-            return $this->container->get( TemplateInterface::class )->render( $path.$layout, $data );
+        if( $template == null ) {
+            $template = $this->container->get( TemplateInterface::class );
+        }
+
+        $service->mixin( 'render', function(string $layout, array $data = array() ) use ( $template ): string {
+            return $template->render( $layout, $data );
         });
-        $service->mixin( 'print', function(string $layout, array $data = array() ) use ( $path ): void {
-            $this->container->get( TemplateInterface::class )->print( $path.$layout, $data );
+        $service->mixin( 'print', function(string $layout, array $data = array() ) use ( $template ): void {
+            $template->print( $layout, $data );
         });
-        $service->mixin( 'exists', function(string $layout ) use ( $path ): bool {
-            return $this->container->get( TemplateInterface::class )->exists( $path.$layout );
+        $service->mixin( 'exists', function(string $layout ) use ( $template ): bool {
+            return $template->exists( $layout );
         });
     }
 }

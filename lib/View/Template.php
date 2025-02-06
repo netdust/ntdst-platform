@@ -78,9 +78,8 @@ class Template implements TemplateInterface {
         if ($this->exists($template_name)) {
             $template = $this->include_template($template_name, array_merge($this->globals, $data));
         } else {
-            $template_path = $this->get_path($template_name);
             app()->make(LoggerInterface::class)->error(
-                "Template $template_name was not loaded because the file located at $template_path does not exist.",
+                "Template $template_name was not loaded because the file located.",
                 'template_file_does_not_exist'
             );
             $template = '';

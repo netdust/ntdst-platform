@@ -3,6 +3,8 @@
 namespace Netdust\Service\Assets;
 
 
+use Netdust\Logger\Logger;
+
 /**
  * Class Asset
  */
