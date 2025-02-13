@@ -25,7 +25,7 @@ class Router
     public static function router( )
     {
         if (!isset(static::$router)) {
-            static::setRouter(  new WPRouterService( ) );
+            self::setRouter(  new WPRouter( ) );
         }
 
         return static::$router;
@@ -53,7 +53,7 @@ class Router
      */
     public static function match(Request $request = null): Response
     {
-        return static::$router->match($request->getPath(), $request->getMethod());
+        return self::router()->match($request->getPath(), $request->getMethod());
     }
 
 
@@ -66,13 +66,13 @@ class Router
      */
     public static function map(array $verbs, string $uri, $callback)
     {
-        return static::$router->map($verbs, $uri, $callback);
+        return self::router()->map($verbs, $uri, $callback);
     }
 
 
     public static function group(string $prefix, $callback): RouterInterface
     {
-        return static::$router->group($prefix, $callback);
+        return self::router()->group($prefix, $callback);
     }
 
     /**
@@ -84,12 +84,12 @@ class Router
      */
     public static function generate(string $name, $params = []): string
     {
-        return static::$router->generate($name, $params);
+        return self::router()->generate($name, $params);
     }
 
     public static function virtual(string $uri, $virtualPage, $callback=null)
     {
-        static::$router->virtual($uri, $virtualPage , $callback);
+        self::router()->virtual($uri, $virtualPage , $callback);
     }
 
     /**

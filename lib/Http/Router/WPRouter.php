@@ -25,7 +25,7 @@ class WPRouter implements RouterInterface
     protected array $routes = [];
 
     /**
-     * Constructor for the WPRouterService class.
+     * Constructor for the WPRouter class.
      * Initializes the router service by booting it.
      */
     public function __construct() {
@@ -67,6 +67,7 @@ class WPRouter implements RouterInterface
         }
 
         return true; // Allow WordPress to handle the request.
+
     }
 
     /**
@@ -100,11 +101,10 @@ class WPRouter implements RouterInterface
     /**
      * Matches a request URI and method against defined routes.
      */
-    public function match(string $requestUri, string $method): mixed {
+    public function match(string $requestUri, string $method): ?Response {
         $this->create_router();
 
         $route = $this->router->match('/' . ltrim($requestUri, '/'), $method);
-
 
         if ($route !== false) {
             return call_user_func_array($route['target'], $route['params']);
@@ -123,7 +123,7 @@ class WPRouter implements RouterInterface
     /**
      * Retrieves a named route by its name.
      */
-    public function get(string $name): WPRoute {
+    public function get(string $name): ?WPRoute {
         $route = array_values(array_filter($this->routes, function ($route) use ($name) {
             return $route->getName() === $name;
         }));

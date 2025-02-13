@@ -31,7 +31,7 @@ class AssetManager {
             ->to( $params['to']??['front'] );
 
         if( !empty( $local = $params['local']??'' ) )  {
-            $this->get( $handle )->setLocalization( $local['key']??$params['handle'], $local['vars'] );
+            $this->get( $handle )->setLocalizedVar( $local['key']??$params['handle'], $local['vars'] );
         }
 
         if( $register )
