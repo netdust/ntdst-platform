@@ -81,6 +81,10 @@ class Taxonomy {
 
         $this->args['labels'] = $this->create_labels( );
 
+        if( ! isset( $this->args['rest_base'] ) ) {
+            $this->args['rest_base'] = $this->id . 's';
+        }
+
         $registered = register_taxonomy( $this->id, $this->post_type, $this->args );
 
         foreach( (array) $this->post_type as $object_type ) {
@@ -276,8 +280,6 @@ class Taxonomy {
             'add_new_item'          => __( 'Add New '.$tax_single, $d ),
             'new_item_name'         => __( 'New '.$tax_single.' Name', $d ),
 
-            // non-hierarchical
-            'all_items'             => __( 'All '.$tax, $d ),
 
             // hierarchical
             'parent_item'           => __( 'Parent '.$tax, $d ),
