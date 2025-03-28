@@ -142,10 +142,11 @@ final class Request
             $uri = $this->server['REQUEST_URI'];
         }
 
-        $query_string = '';
-        if (isset($this->server['QUERY_STRING'])) {
+        $request= '';
+        if (isset($_REQUEST) ) {
             $query_string = ltrim($this->server['QUERY_STRING'], '?');
-            parse_str($query_string, $this->collection);
+            $request = http_build_query($_REQUEST).'&'.$query_string;
+            parse_str($request, $this->collection);
         }
 
         $request_method = '';
@@ -158,7 +159,7 @@ final class Request
             $http_referer = strtoupper($this->server['HTTP_REFERER']);
         }
 
-        $this->storage = compact('uri', 'scheme', 'host', 'path', 'query_string', 'request_method', 'http_referer');
+        $this->storage = compact('uri', 'scheme', 'host', 'path', 'request', 'request_method', 'http_referer');
         $this->parsed = true;
     }
 

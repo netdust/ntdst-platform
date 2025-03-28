@@ -36,7 +36,6 @@ class Cron {
             'recurrence' => 'hourly', // Hourly,daily,twicedaily,weekly,monthly
             'name' => 'cronplus',
             'schedule' => 'schedule', // Schedule or single,
-            'cb' => '',
             'multisite' => false,
             'plugin_root_file' => '',
             'run_on_creation' => false,
@@ -45,11 +44,7 @@ class Cron {
 
         $this->args = wp_parse_args( $args, $defaults );
         if ( isset( $this->args[ 'name' ] ) ) {
-            if( isset( $this->args[ 'cb' ] ) )
-                add_action( $this->args[ 'name' ], $this->args[ 'cb' ] );
-            if( method_exists( $this, 'run') ) {
-                add_action( $this->args[ 'name' ], [$this, 'run'] );
-            }
+            add_action( $this->args[ 'name' ], [$this, 'run'] );
         }
         if ( !empty( $this->args[ 'plugin_root_file' ] ) ) {
             register_deactivation_hook( $this->args[ 'plugin_root_file' ], array( $this, 'deactivate' ) );
@@ -68,7 +63,9 @@ class Cron {
             return;
         }
         if ( $this->args[ 'run_on_creation' ] ) {
-            call_user_func( $this->args[ 'cb' ], $this->args[ 'args' ] );
+            add_action('wp_loaded', function(){
+                call_user_func( [$this,'run'], $this->args[ 'args' ] );
+            });
         }
         if ( $this->args[ 'schedule' ] === 'schedule' ) {
             wp_schedule_event( $this->args[ 'time' ], $this->args[ 'recurrence' ], $this->args[ 'name' ], $this->args[ 'args' ] );
@@ -82,6 +79,15 @@ class Cron {
             $sites[] = get_current_blog_id();
             update_site_option( $this->args[ 'name' ] . '_sites', $sites );
         }
+
+    }
+    /**
+     * Run the event
+     *
+     * @since    1.0.0
+     * @return void
+     */
+    public function run($args) {
 
     }
 

@@ -103,9 +103,9 @@ class App
      * @return mixed The instance for an id.
      *
      */
-    public static function make( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null ): mixed
+    public static function make( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null, bool $singleton = false  ): mixed
     {
-        return static::$app->make( $id, $implementation, $args, $afterBuildMethods );
+        return static::$app->make( $id, $implementation, $args, $afterBuildMethods, $singleton );
     }
 
 }
