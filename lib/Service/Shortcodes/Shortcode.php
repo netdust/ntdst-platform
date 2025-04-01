@@ -66,7 +66,7 @@ class Shortcode {
      * @return mixed The shortcode action result.
      */
     protected function shortcode_actions( array $atts ): string {
-        return APP::template()->render( 'shortcodes/' . $this->tag, $atts );
+        return APP::template()->render( 'shortcodes/' . $this->tag, $atts  );
     }
 
     /**
@@ -86,11 +86,10 @@ class Shortcode {
      * @since 1.0.0
      *
      * @param array $atts The shortcode attributes
-     * @return mixed The shortcode action result.
      */
     public function shortcode( string|array $atts = [], string $content='', string $shortcode='' ): string {
         $atts = array_merge( $this->defaults, is_array($atts) ? $atts : [] );
-        return $this->shortcode_actions( $atts );
+        return $this->shortcode_actions( array_merge( array('content' => $content), $atts ) );
     }
 
 }

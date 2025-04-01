@@ -159,7 +159,7 @@ final class Request
             $http_referer = strtoupper($this->server['HTTP_REFERER']);
         }
 
-        $this->storage = compact('uri', 'scheme', 'host', 'path', 'request', 'request_method', 'http_referer');
+        $this->storage = compact('uri', 'scheme', 'host', 'path', 'query_string','request', 'request_method', 'http_referer');
         $this->parsed = true;
     }
 

@@ -263,7 +263,7 @@ class Taxonomy {
 
     protected function create_labels( ): array {
 
-        $d = NTDST_APPLICATION;
+        $d = app()->text_domain;
         
         $tax = $this->args['labels']['name'] ?? $this->args['label'];
         $tax_single = $this->args['labels']['singular_name'] ?? $this->args['label'];

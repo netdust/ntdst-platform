@@ -31,7 +31,7 @@ Final Class Requirements {
             $class = 'notice notice-error';
             $message = sprintf(
                 '<p>' . __( '<strong>%1$s</strong> cannot be activated because it requires:', $this->app->text_domain ) . '</p>',
-                esc_html( $this->name )
+                esc_html( $this->app->name )
             );
 
             $errors = '';
@@ -39,7 +39,7 @@ Final Class Requirements {
                 $errors .= '<li>' . $error . '</li>';
             }
 
-            printf( '<div class="%1$s">%2$s<ul>%3$s</ul></div>', esc_attr( $class ), esc_html( $message ), esc_html( $errors ) );
+            printf( '<div class="%1$s">%2$s<ul>%3$s</ul></div>', esc_attr( $class ), ( $message ), ( $errors ) );
 
         } );
     }
@@ -49,7 +49,7 @@ Final Class Requirements {
         $this->errors[] = $error_message;
     }
 
-    public function check_php( int $version ):void  {
+    public function check_php( $version ):void  {
 
         if ( version_compare( phpversion(), $version, '<' ) ) {
             $this->add_error( sprintf( __( 'Minimum required version of PHP is %s. Your version is %s', $this->app->text_domain ), $version, phpversion() ) );
@@ -57,7 +57,7 @@ Final Class Requirements {
 
     }
 
-    public function check_wp( int $version ):void {
+    public function check_wp( $version ):void {
 
         if ( version_compare( get_bloginfo( 'version' ), $version, '<' ) ) {
             $this->add_error( sprintf( __( 'Minimum required version of WordPress is %s. Your version is %s', $this->app->text_domain ), $version, get_bloginfo( 'version' ) ) );
