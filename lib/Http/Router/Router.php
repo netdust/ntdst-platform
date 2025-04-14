@@ -89,7 +89,7 @@ class Router
 
     public static function virtual(string $uri, $virtualPage, $callback=null)
     {
-        self::router()->virtual($uri, $virtualPage , $callback);
+        return self::router()->virtual($uri, $virtualPage , $callback);
     }
 
     /**

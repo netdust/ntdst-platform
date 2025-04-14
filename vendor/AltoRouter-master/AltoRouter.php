@@ -210,6 +210,8 @@ class AltoRouter
         }
 
 
+
+
         foreach ($this->routes as $handler) {
             list($methods, $route, $target, $name) = $handler;
 

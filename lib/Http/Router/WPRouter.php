@@ -104,7 +104,7 @@ class WPRouter implements RouterInterface
     public function match(string $requestUri, string $method): ?Response {
         $this->create_router();
 
-        $route = $this->router->match('/' . ltrim($requestUri, '/'), $method);
+        $route = $this->router->match('/' . trim($requestUri, '/') .'/', $method);
 
         if ($route !== false) {
             return call_user_func_array($route['target'], $route['params']);

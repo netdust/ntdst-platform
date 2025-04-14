@@ -48,19 +48,22 @@ class Post {
      * @inheritDoc
      */
     public function do_actions(): void {
-        add_action( 'init', [ $this, 'register' ] );
+
+        if ( !post_type_exists( $this->type ) ) {
+            add_action( 'init', [ $this, 'register' ] );
+
+            add_filter( 'post_updated_messages', array( $this, 'messages' ) );
+            add_filter( 'bulk_post_updated_messages', array( $this, 'bulk_messages' ), 10, 2 );
+            add_filter( 'manage_edit-' . $this->type . '_columns', array( $this, 'columns' ) );
+            add_filter( 'manage_edit-' . $this->type . '_sortable_columns', array( $this, 'sortable_columns' ) );
+            // Different column registration for pages/posts
+            $h = isset( $this->args['hierarchical'] ) && $this->args['hierarchical'] ? 'pages' : 'posts';
+            add_action( "manage_{$h}_custom_column", array( $this, 'columns_display' ), 10, 2 );
+            add_filter( 'enter_title_here', array( $this, 'change_title_text' ) );
+        }
 
         add_filter( 'rest_' . $this->type . '_query', [ $this, 'rest_query' ], 10, 2 );
 
-
-        add_filter( 'post_updated_messages', array( $this, 'messages' ) );
-        add_filter( 'bulk_post_updated_messages', array( $this, 'bulk_messages' ), 10, 2 );
-        add_filter( 'manage_edit-' . $this->type . '_columns', array( $this, 'columns' ) );
-        add_filter( 'manage_edit-' . $this->type . '_sortable_columns', array( $this, 'sortable_columns' ) );
-        // Different column registration for pages/posts
-        $h = isset( $this->args['hierarchical'] ) && $this->args['hierarchical'] ? 'pages' : 'posts';
-        add_action( "manage_{$h}_custom_column", array( $this, 'columns_display' ), 10, 2 );
-        add_filter( 'enter_title_here', array( $this, 'change_title_text' ) );
     }
 
     /**
@@ -86,17 +89,18 @@ class Post {
 
         $this->args['labels'] = $this->create_labels( );
 
-        $registered = register_post_type( $this->type, $this->args );
-
-        if ( is_wp_error( $registered ) ) {
-	        return app()->make( LoggerInterface::class )->error( $registered->get_error_message(), $registered->get_error_code(), $registered->get_error_data() );
-        } else {
-
-	        app()->make( LoggerInterface::class )->info(
-                'The custom post type ' . $this->type . ' has been registered.',
-                'custom_post_type_registered'
+        if ( is_wp_error( $registered = register_post_type( $this->type, $this->args ) ) ) {
+	        return app()->make( LoggerInterface::class )->error(
+                $registered->get_error_message(),
+                $registered->get_error_code(),
+                $registered->get_error_data()
             );
         }
+
+        app()->make( LoggerInterface::class )->info(
+            'The custom post type ' . $this->type . ' has been registered.',
+            'custom_post_type_registered'
+        );
 
 		return true;
     }
