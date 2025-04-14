@@ -46,14 +46,18 @@ class VirtualPage
         $this->uri = $uri;
         $this->title = $title;
         $this->template = $template;
+
+        if( !empty($this->template) ) {
+            add_filter('page_template', [&$this, 'loadTemplate'] );
+            add_filter('theme_page_templates', function($templates) {
+                $templates[$this->template] =  $this->title . ' Template';
+                return $templates;
+            });
+        }
     }
 
     public function onRoute(): void
     {
-
-        if( !empty($this->template) ) {
-            add_filter('page_template', [&$this, 'loadTemplate'] );
-        }
 
         $this->rewrite();
         $this->createPage();
@@ -86,6 +90,7 @@ class VirtualPage
             $post = new stdClass();
             $post->ID = 0;
             $post->ancestors = array(); // 3.6
+            $post->page_template = 'default'; // 3.6
             $post->comment_status = 'closed';
             $post->comment_count = 0;
             $post->filter = 'raw';
@@ -113,6 +118,8 @@ class VirtualPage
 
             $this->wpPost = new \WP_Post($post);
         }
+
+
 
         return ( $this->wpPost );
     }
