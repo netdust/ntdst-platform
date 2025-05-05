@@ -41,7 +41,7 @@ class App
             new ApplicationProvider($container, array_merge(['name'=>$id], $args))
         );
         static::setApplication( $container->get( $id ) );
-        static::container()->register( $id, ApplicationInterface::class );
+        $container->register( $id, ApplicationInterface::class );
 
     }
 
@@ -71,6 +71,10 @@ class App
     {
         if( count( $arguments ) == 0 && method_exists( static::$app, $name ) ) {
             return static::$app->$name();
+        }
+
+        if( count( $arguments ) == 0 && static::$app->container()->has( $name ) ) {
+            return static::$app->container()->get( $name );
         }
 
         return new \WP_Error(

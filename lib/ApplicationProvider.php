@@ -70,6 +70,13 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
     }
 
     /**
+     * Request Getter.
+     */
+    public function request(): Request {
+        return $this->container->get( Request::class );
+    }
+
+    /**
      * File Getter.
      */
     public function file():File {
@@ -136,22 +143,26 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         // First, check to make sure the minimum requirements are met.
         if ( $requirements->satisfied( ) ) {
 
-            $this->container->singleton( Config::class, new Config(
-                $this->file()->dir_path( $this->config_path )
-            ) );
+            add_action( 'plugins_loaded', function(){
 
-            $this->container->register( \Netdust\Logger\LoggerService::class );
-            $this->container->register( \Netdust\View\TemplateServiceProvider::class );
-            $this->container->register( \Netdust\Http\Router\WPRouterService::class );
-            $this->container->register( \Netdust\WordpressServiceProvider::class );
+                $this->container->singleton( Config::class, new Config(
+                    $this->file()->dir_path( $this->config_path )
+                ) );
 
-            do_action('application/register', $this );
+                $this->container->register( \Netdust\Logger\LoggerService::class );
+                $this->container->register( \Netdust\View\TemplateServiceProvider::class );
+                $this->container->register( \Netdust\Http\Router\WPRouterService::class );
+                $this->container->register( \Netdust\WordpressServiceProvider::class );
 
-            $this->_register_if_exists();
+                do_action('application/register', $this );
 
-            $this->container->boot();
+                $this->_register_if_exists();
 
-            do_action('application/init', $this );
+                $this->container->boot();
+
+                do_action('application/init', $this );
+
+            });
 
         } else {
             // Run unsupported actions if requirements are not met.
