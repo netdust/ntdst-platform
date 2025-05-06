@@ -69,8 +69,12 @@ class App
 
     public static function __callStatic(string $name, array $arguments): mixed
     {
-        if( count( $arguments ) == 0 && method_exists( static::$app, $name ) ) {
-            return static::$app->$name();
+        if( method_exists( static::$app, $name ) && count( $arguments ) == 0 ) {
+            return static::application()->$name();
+        }
+
+        if( static::application()->container()->has( $name ) && count($arguments)==0 ){
+            return static::application()->container()->get( $name );
         }
 
         if( count( $arguments ) == 0 && static::$app->container()->has( $name ) ) {
