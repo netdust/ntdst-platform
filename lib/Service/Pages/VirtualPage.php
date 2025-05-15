@@ -9,6 +9,8 @@
 
 namespace Netdust\Service\Pages;
 
+use Netdust\App;
+use Netdust\Http\Request;
 use Netdust\Logger\Logger;
 use Netdust\Traits\Templates;
 
@@ -80,7 +82,11 @@ class VirtualPage
 
     public function loadTemplate( string $template ): string {
         remove_filter( 'page_template', [$this, 'loadTemplate']);
-        return $this->template;
+        if( App::get( Request::class )->getUri() == '/'.$this->uri ) {
+            return $this->template;
+        }
+
+        return $template;
     }
 
     private function createPostInstance( ): WP_Post {
