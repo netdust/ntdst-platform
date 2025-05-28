@@ -104,6 +104,11 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         $this->container->singleton( Response::class );
         $this->container->singleton( Factory::class );
 
+        // add config to application
+        $this->container->singleton( Config::class, new Config(
+            $this->file()->dir_path( $this->config_path )
+        ) );
+
         // add path builder to application
         $this->container->singleton( File::class, new File( $this->file, trim($this->build_path,'/') ) );
 
@@ -124,15 +129,7 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         if ( $requirements->satisfied( ) ) {
 
             add_action( 'plugins_loaded', function(){
-
-                $this->container->singleton( Config::class, new Config(
-                    $this->file()->dir_path( $this->config_path )
-                ) );
-
-                $this->container->register( \Netdust\Logger\LoggerService::class );
-                $this->container->register( \Netdust\View\TemplateServiceProvider::class );
-                $this->container->register( \Netdust\Http\Router\WPRouterService::class );
-
+                
                 do_action('application/register', $this );
 
                 $this->_register_if_exists();
