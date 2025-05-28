@@ -21,13 +21,13 @@ trait Mixins {
 
     public function hasMixin($name)
     {
-        return !empty($this->mixins[$name]);
+        return ( isset($this->mixins[$name]) && $this->mixins[$name] instanceof \Closure );
     }
 
     public function callMixin($name, ...$arguments): mixed
     {
         if (!$this->hasMixin($name)) {
-            return app()->make( LoggerInterface::class )->warning(
+            return app()->get( LoggerInterface::class )->warning(
                 'The provided method is invalid',
                 'invalid_method',
                 [
@@ -41,16 +41,15 @@ trait Mixins {
         return ( $mixin(...$arguments) );
     }
 
-    public function extend( $mixin, $replace = true ) {
-        $methods = (new ReflectionClass($mixin))->getMethods(
-            ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED
-        );
+    public function extend( $mixinInstance, $replace = true ) {
 
-        foreach ($methods as $method) {
-            if ($replace || ! $this->hasMixin($method->name)) {
-                $this->mixin($method->name, function( ...$args ) use ( $mixin, $method ) {
-                    return $method->invoke($mixin, ...$args );
-                });
+        // Optionally, if the mixin *itself* has methods that should be directly accessible:
+        $reflection = new \ReflectionClass($mixinInstance);
+        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED ) as $method) {
+            if ($method->getName() !== '__construct' && ($replace || ! $this->hasMixin($method->name)) ) {
+                $this->mixins[$method->getName()] = function( ...$args ) use ( $mixinInstance, $method ) {
+                    return $method->invoke($mixinInstance, ...$args );
+                };
             }
         }
     }

@@ -10,6 +10,7 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use Netdust\Core\Config;
+use Netdust\Core\Factory;
 use Netdust\Core\File;
 use Netdust\Http\Router\RouterInterface;
 use Netdust\Logger\Logger;
@@ -69,16 +70,8 @@ class App
 
     public static function __callStatic(string $name, array $arguments): mixed
     {
-        if( method_exists( static::$app, $name ) && count( $arguments ) == 0 ) {
-            return static::application()->$name();
-        }
-
-        if( static::application()->container()->has( $name ) && count($arguments)==0 ){
-            return static::application()->container()->get( $name );
-        }
-
-        if( count( $arguments ) == 0 && static::$app->container()->has( $name ) ) {
-            return static::$app->container()->get( $name );
+        if( method_exists( static::$app, '__call' ) ) {
+            return static::$app->__call( $name, $arguments );
         }
 
         return new \WP_Error(
@@ -113,7 +106,7 @@ class App
      */
     public static function make( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null, bool $singleton = false  ): mixed
     {
-        return static::$app->make( $id, $implementation, $args, $afterBuildMethods, $singleton );
+        return static::$app->get( Factory::class )->make( $id, $implementation, $args, $afterBuildMethods, $singleton );
     }
 
 }

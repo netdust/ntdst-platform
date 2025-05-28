@@ -222,7 +222,7 @@ class AdminPage {
 			return $this->sections[ $id ];
 		}
 
-		return app()->make( LoggerInterface::class )->error( 'No valid section could be found', 'no_admin_section_found',
+		return app()->get( LoggerInterface::class )->error( 'No valid section could be found', 'no_admin_section_found',
 			[ 'sections' => $this->sections, 'admin_page' => $this->parent_menu ]
 		);
 	}
@@ -301,7 +301,7 @@ class AdminPage {
 	public function handle_update_request():void {
 
         if ( is_wp_error( $errors = $this->validate_request() ) ) {
-            app()->make( LoggerInterface::class )->error( $errors );
+            app()->get( LoggerInterface::class )->error( $errors );
         }
 
         $errors = new \WP_Error();
@@ -315,7 +315,7 @@ class AdminPage {
 		}
 
         if( is_wp_error( $errors ) ) {
-            app()->make( LoggerInterface::class )->error( $errors );
+            app()->get( LoggerInterface::class )->error( $errors );
         }
         else wp_redirect($_POST['_wp_http_referer']);
 
@@ -349,7 +349,7 @@ class AdminPage {
 			);
 		}
 
-        app()->make( LoggerInterface::class )->info(
+        app()->get( LoggerInterface::class )->info(
 			'A page has been added.',
 			'admin_page_added'
 		);
@@ -460,7 +460,7 @@ class AdminPage {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-            return app()->make( LoggerInterface::class )->error( 'The section key ' . $key . ' could not be found.', 'param_not_set' );
+            return app()->get( LoggerInterface::class )->error( 'The section key ' . $key . ' could not be found.', 'param_not_set' );
         }
     }
 

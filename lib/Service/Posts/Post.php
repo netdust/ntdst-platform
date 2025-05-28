@@ -90,14 +90,14 @@ class Post {
         $this->args['labels'] = $this->create_labels( );
 
         if ( is_wp_error( $registered = register_post_type( $this->type, $this->args ) ) ) {
-	        return app()->make( LoggerInterface::class )->error(
+	        return app()->get( LoggerInterface::class )->error(
                 $registered->get_error_message(),
                 $registered->get_error_code(),
                 $registered->get_error_data()
             );
         }
 
-        app()->make( LoggerInterface::class )->info(
+        app()->get( LoggerInterface::class )->info(
             'The custom post type ' . $this->type . ' has been registered.',
             'custom_post_type_registered'
         );
@@ -259,7 +259,7 @@ class Post {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-            return app()->make( LoggerInterface::class )->error( 'The custom post type key ' . $key . ' could not be found.', 'custom_post_type_param_not_set' );
+            return app()->get( LoggerInterface::class )->error( 'The custom post type key ' . $key . ' could not be found.', 'custom_post_type_param_not_set' );
         }
     }
 

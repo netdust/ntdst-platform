@@ -4,22 +4,15 @@ namespace Netdust;
 
 use lucatume\DI52\Container;
 use lucatume\DI52\ServiceProvider;
-
-use Netdust\Core\File;
 use Netdust\Core\Config;
+use Netdust\Core\Factory;
+use Netdust\Core\File;
 use Netdust\Core\Requirements;
 use Netdust\Http\Request;
 use Netdust\Http\Response;
 use Netdust\Http\Router\RouterInterface;
-use Netdust\Logger\Logger;
-use Netdust\Logger\LoggerInterface;
-use Netdust\Traits\Collection;
 use Netdust\Traits\Mixins;
 use Netdust\Traits\Setters;
-use Netdust\View\TemplateInterface;
-use ReflectionClass;
-
-interface APIInterface {}
 
 class ApplicationProvider extends ServiceProvider implements ApplicationInterface {
 
@@ -47,20 +40,6 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
 
     protected ?Config $config = null;
 
-
-    /**
-     * Template Getter.
-     */
-    public function template():TemplateInterface {
-        return $this->container->get( TemplateInterface::class );
-    }
-
-    /**
-     * Router Getter.
-     */
-    public function router():RouterInterface {
-        return $this->container->get( RouterInterface::class );
-    }
 
     /**
      * Config Getter.
@@ -123,6 +102,7 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         //make sure we use 1 instance
         $this->container->singleton( Request::class );
         $this->container->singleton( Response::class );
+        $this->container->singleton( Factory::class );
 
         // add path builder to application
         $this->container->singleton( File::class, new File( $this->file, trim($this->build_path,'/') ) );
@@ -152,7 +132,6 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
                 $this->container->register( \Netdust\Logger\LoggerService::class );
                 $this->container->register( \Netdust\View\TemplateServiceProvider::class );
                 $this->container->register( \Netdust\Http\Router\WPRouterService::class );
-                $this->container->register( \Netdust\WordpressServiceProvider::class );
 
                 do_action('application/register', $this );
 
@@ -181,56 +160,6 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         else return $this->container->get( $id );
     }
 
-
-    public function make( string $id, mixed $implementation = null, array $args = null, array $afterBuildMethods = null, bool $singleton = false ): mixed {
-
-        if(!empty($args) )  {
-
-            $className = !empty($implementation) ? $implementation:$id;
-
-            if( class_exists($className) ) {
-                $constructor = ( new ReflectionClass($className) )->getConstructor();
-                $parameters = $constructor ? $constructor->getParameters() : [];
-
-                foreach ($parameters as $parameter) {
-                    if( key_exists($parameter->getName(),$args) ) {
-                        $this->container->when( $id )->needs('$'.$parameter->getName() )->give( $args[$parameter->getName()] );
-                    }
-                    else if( $parameter->getName() == 'args' ) {
-                        $this->container->when( $id )->needs('$args' )->give( $args );
-                    }
-                }
-            }
-
-        }
-
-        if(!empty($implementation) ) {
-
-            if( !empty($args) && key_exists('middlewares', $args ) ) {
-                $args['middlewares'][] = $implementation;
-
-                if( !$singleton ) {
-                    $this->container->bindDecorators($id, $args['middlewares'], $afterBuildMethods, true );
-                }
-                else {
-                    $this->container->singletonDecorators($id, $args['middlewares'], $afterBuildMethods, true );
-                }
-            }
-            else {
-                if( !$singleton ) {
-                    $this->container->bind( $id, $implementation, $afterBuildMethods );
-                }
-                else {
-                    $this->container->singleton( $id, $implementation, $afterBuildMethods );
-                }
-
-            }
-        }
-
-        return $this->container->get( $id );
-    }
-
-
     protected function _register_if_exists( ?string $path = null ): void {
         $path = $path ?? $this->file()->plugin_path() . '/register/';
 
@@ -245,20 +174,25 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
     }
 
     public function __call( $method, $parameters ): mixed {
+        
+        // check because App calls this directly and bypasses normal behaviour
+        if ( method_exists( $this, $method ) ) {
+            if ($method === '__call') {
+                return new \WP_Error('invalid_call', 'Cannot call __call recursively.');
+            }
+            return $this->$method(...$parameters);
+        }
 
-        // Check if the container has an instance binded with this name
+        // Check if the container has an instance bound with this name
         if( $this->container->has( $method ) && count($parameters)==0 ){
             return $this->container->get( $method );
         }
-
-        if ( $this->container->has( APIInterface::class ) && method_exists( app( APIInterface::class ), $method ) ) {
-            return app( APIInterface::class )->$method( ...$parameters );
-        }
-
+        
         // we need to check this, otherwise the trait Mixins will be skipped
         if( $this->hasMixin( $method ) ){
             return $this->callMixin($method, ...$parameters);
         }
+
 
         return new \WP_Error(
             'method_not_found',

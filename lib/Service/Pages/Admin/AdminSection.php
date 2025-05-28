@@ -185,7 +185,7 @@ class AdminSection {
             return $this->views[ $id ];
         }
 
-        return app()->make( LoggerInterface::class )->error( 'No valid view could be found', 'no_section_view_found',
+        return app()->get( LoggerInterface::class )->error( 'No valid view could be found', 'no_section_view_found',
             [ 'views' => $this->views, 'id'=> $id, 'section' => $this->id ]
         );
 
@@ -208,7 +208,7 @@ class AdminSection {
 			return $this->fields[ $key ];
 		}
 
-		return app()->make( LoggerInterface::class )->error( 'The provided field could not be found', 'invalid_field',
+		return app()->get( LoggerInterface::class )->error( 'The provided field could not be found', 'invalid_field',
             [ 'key' => $key ]
         );
 	}
@@ -237,7 +237,7 @@ class AdminSection {
 		}
 
 		if ( ! isset( $updated ) ) {
-            return app()->make( LoggerInterface::class )->error( 'The field was not updated because the value is the same as the current field value', 'field_not_changed', [
+            return app()->get( LoggerInterface::class )->error( 'The field was not updated because the value is the same as the current field value', 'field_not_changed', [
                 'field_name' => $field_name,
                 'value'      => $_POST[ $field_name ] ?? 'value not set',
             ] );
@@ -307,7 +307,7 @@ class AdminSection {
 		if ( isset( $this->$key ) ) {
 			return $this->$key;
         } else {
-            return app()->make( LoggerInterface::class )->error( 'The section key ' . $key . ' could not be found.', 'param_not_set' );
+            return app()->get( LoggerInterface::class )->error( 'The section key ' . $key . ' could not be found.', 'param_not_set' );
         }
 
 

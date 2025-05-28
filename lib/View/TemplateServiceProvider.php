@@ -28,9 +28,6 @@ class TemplateServiceProvider extends ServiceProvider {
             )
         );
 
-        //$this->container->singleton( UIInterface::class, UIHelper::class );
-        //UI::setUI( $this->container->get(UIInterface::class) );
-
         $this->template_mixin( $this->container->get( ApplicationInterface::class ) );
 
     }
@@ -68,6 +65,9 @@ class TemplateServiceProvider extends ServiceProvider {
         });
         $service->mixin( 'exists', function(string $layout ) use ( $template ): bool {
             return $template->exists( $layout );
+        });
+        $service->mixin( 'template', function() use ( $template ): Template {
+            return $template;
         });
     }
 }

@@ -112,13 +112,13 @@ class Style implements StyleInterface {
 
 
         if ( false === $registered ) {
-            app()->make( LoggerInterface::class )->error(
+            app()->get( LoggerInterface::class )->error(
                 'The style ' . $this->handle . ' failed to register. That is all I know, unfortunately.',
                 'style_was_not_registered',
                 [ 'ref' => $this->handle ]
             );
         } else {
-	        app()->make( LoggerInterface::class )->info(
+	        app()->get( LoggerInterface::class )->info(
                 'The style ' . $this->handle . ' registered successfully.',
                 'style_was_registered'
             );
@@ -136,12 +136,12 @@ class Style implements StyleInterface {
 
         // Confirm it was enqueued.
         if ( wp_style_is( $this->handle ) ) {
-	        app()->make( LoggerInterface::class )->info(
+	        app()->get( LoggerInterface::class )->info(
                 'The style ' . $this->handle . ' has been enqueued.',
                 'style_was_enqueued'
             );
         } else {
-	        app()->make( LoggerInterface::class )->error(
+	        app()->get( LoggerInterface::class )->error(
                 'The style ' . $this->handle . ' failed to enqueue.',
                 'style_failed_to_enqueue',
                 [ 'ref' => $this->handle ]
@@ -154,7 +154,7 @@ class Style implements StyleInterface {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-	        return app()->make( LoggerInterface::class )->error(
+	        return app()->get( LoggerInterface::class )->error(
 		        'The key ' . $key . ' could not be found',
 		        'style_param_not_set'
 	        );

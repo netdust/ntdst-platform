@@ -163,13 +163,13 @@ class Script implements ScriptInterface {
 
         // Confirm it was enqueued.
         if ( wp_script_is( $this->handle ) ) {
-	        app()->make( LoggerInterface::class )->info(
+	        app()->get( LoggerInterface::class )->info(
                 'The script ' . $this->handle . ' has been enqueued.',
                 'script_was_enqueued'
             );
 
         } else {
-	        app()->make( LoggerInterface::class )->error(
+	        app()->get( LoggerInterface::class )->error(
                 'The script ' . $this->handle . ' failed to enqueue.',
                 'script_failed_to_enqueue',
                 [ 'ref' => $this->handle, 'src' => $this->src ]
@@ -200,7 +200,7 @@ class Script implements ScriptInterface {
                     $this->ver = $file['version'];
                 }
             } else {
-	            app()->make( LoggerInterface::class )->error(
+	            app()->get( LoggerInterface::class )->error(
                     'A dependency file was specified, but it could not be found.',
                     'dependencies_file_not_found',
                     [
@@ -244,7 +244,7 @@ class Script implements ScriptInterface {
 
         // If the script is already enqueued, return an error.
         if ( $this->is_enqueued() ) {
-	        return app()->make( LoggerInterface::class )->error(
+	        return app()->get( LoggerInterface::class )->error(
 		        'The localized param ' . $key . ' was set after the script was already enqueued.',
 		        'param_set_too_late'
 	        );
@@ -268,7 +268,7 @@ class Script implements ScriptInterface {
 
         // If the script is already enqueued, return an error.
         if ( wp_script_is( $this->handle ) ) {
-            return app()->make( LoggerInterface::class )->error(
+            return app()->get( LoggerInterface::class )->error(
                 'The localized param ' . $key . ' attempted to be removed after the script was already enqueued.',
                 'param_removed_too_late',
                 [ 'handle' => $this->handle, 'key' => $key ]
@@ -309,13 +309,13 @@ class Script implements ScriptInterface {
             $localized = wp_localize_script( $this->handle, $this->localized_var, $localized_params );
 
             if ( false === $localized ) {
-	            app()->make( LoggerInterface::class )->error(
+	            app()->get( LoggerInterface::class )->error(
                     'The script ' . $this->handle . ' failed to localize. That is all I know, unfortunately.',
                     'script_was_not_localized',
                     [ 'handle' => $this->handle, 'params' => $localized_params ]
                 );
             } else {
-	            app()->make( LoggerInterface::class )->info(
+	            app()->get( LoggerInterface::class )->info(
                     'The script ' . $this->handle . ' localized successfully.',
                     'script_was_localized'
                 );
@@ -327,7 +327,7 @@ class Script implements ScriptInterface {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-	        return app()->make( LoggerInterface::class )->error(
+	        return app()->get( LoggerInterface::class )->error(
 		        'The key ' . $key . ' could not be found.',
 		        'scrip_param_not_set'
 	        );

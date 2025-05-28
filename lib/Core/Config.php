@@ -108,7 +108,7 @@ class Config implements ArrayAccess {
 
         } else {
 
-            app()->make( LoggerInterface::class )->warning(
+            app()->get( LoggerInterface::class )->warning(
                 'Could not load the configuration',
                 'invalid_configuration',
                 [

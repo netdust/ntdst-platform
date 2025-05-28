@@ -66,7 +66,7 @@ trait Setters {
 			return call_user_func( $callable, ...$args );
 		}
 
-		return app()->make( LoggerInterface::class )->warning(
+		return app()->get( LoggerInterface::class )->warning(
             'The provided callback is invalid',
 			'invalid_callback',
 			[

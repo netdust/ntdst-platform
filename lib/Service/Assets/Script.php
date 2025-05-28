@@ -105,7 +105,7 @@ class Script extends Asset
             $localized = wp_localize_script( $this->getHandle(), $this->getLocalizedVar(), $this->all() );
 
             if ( false === $localized ) {
-                app()->make( LoggerInterface::class )->error(
+                app()->get( LoggerInterface::class )->error(
                     'The script ' . $this->handle . ' failed to localize. That is all I know, unfortunately.',
                     'script_was_not_localized',
                     [ 'handle' => $this->handle ]
