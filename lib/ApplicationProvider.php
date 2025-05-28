@@ -104,13 +104,15 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         $this->container->singleton( Response::class );
         $this->container->singleton( Factory::class );
 
+        // add path builder to application
+        $this->container->singleton( File::class, new File(
+            $this->file, trim($this->build_path,'/')
+        ) );
+
         // add config to application
         $this->container->singleton( Config::class, new Config(
             $this->file()->dir_path( $this->config_path )
         ) );
-
-        // add path builder to application
-        $this->container->singleton( File::class, new File( $this->file, trim($this->build_path,'/') ) );
 
         // Make application accessible using its container
         if( !$this->container->has( ApplicationInterface::class ) ){

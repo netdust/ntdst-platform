@@ -90,17 +90,12 @@ class Post {
         $this->args['labels'] = $this->create_labels( );
 
         if ( is_wp_error( $registered = register_post_type( $this->type, $this->args ) ) ) {
-	        return app()->get( LoggerInterface::class )->error(
+            throw new \Exception(
                 $registered->get_error_message(),
                 $registered->get_error_code(),
                 $registered->get_error_data()
             );
         }
-
-        app()->get( LoggerInterface::class )->info(
-            'The custom post type ' . $this->type . ' has been registered.',
-            'custom_post_type_registered'
-        );
 
 		return true;
     }
@@ -122,8 +117,10 @@ class Post {
     public function change_title_text( string $title ): string {
         $screen = get_current_screen();
 
+        $d = apply_filters('get_textdomain', '');
+
         if  ( $this->type == $screen->post_type ) {
-            return sprintf( __( '%s Title', app()->text_domain ), $this->args['labels']['singular_name'] );
+            return sprintf( __( '%s Title', $d ), $this->args['labels']['singular_name'] );
         }
         return $title;
     }
@@ -164,33 +161,35 @@ class Post {
     public function messages( $messages ) {
         global $post, $post_ID;
 
+        $d = apply_filters('get_textdomain', '');
+        
         $cpt_messages = array(
             0 => '', // Unused. Messages start at index 1.
             2 => __( 'Custom field updated.' ),
             3 => __( 'Custom field deleted.' ),
-            4 => sprintf( __( '%1$s updated.', app()->text_domain ), $this->args['labels']['singular_name'] ),
+            4 => sprintf( __( '%1$s updated.', $d ), $this->args['labels']['singular_name'] ),
             /* translators: %s: date and time of the revision */
-            5 => isset( $_GET['revision'] ) ? sprintf( __( '%1$s restored to revision from %2$s', app()->text_domain ), $this->args['labels']['singular_name'] , wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-            7 => sprintf( __( '%1$s saved.', app()->text_domain ), $this->args['labels']['singular_name'] ),
+            5 => isset( $_GET['revision'] ) ? sprintf( __( '%1$s restored to revision from %2$s', $d ), $this->args['labels']['singular_name'] , wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+            7 => sprintf( __( '%1$s saved.', $d ), $this->args['labels']['singular_name'] ),
         );
 
         if ( $this->args[ 'public' ] ) {
 
-            $cpt_messages[1] = sprintf( __( '%1$s updated. <a href="%2$s">View %1$s</a>', app()->text_domain ), $this->args['labels']['singular_name'], esc_url( get_permalink( $post_ID ) ) );
-            $cpt_messages[6] = sprintf( __( '%1$s published. <a href="%2$s">View %1$s</a>', app()->text_domain ), $this->args['labels']['singular_name'], esc_url( get_permalink( $post_ID ) ) );
-            $cpt_messages[8] = sprintf( __( '%1$s submitted. <a target="_blank" href="%2$s">Preview %1$s</a>', app()->text_domain ), $this->args['labels']['singular_name'], esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) );
+            $cpt_messages[1] = sprintf( __( '%1$s updated. <a href="%2$s">View %1$s</a>', $d ), $this->args['labels']['singular_name'], esc_url( get_permalink( $post_ID ) ) );
+            $cpt_messages[6] = sprintf( __( '%1$s published. <a href="%2$s">View %1$s</a>', $d ), $this->args['labels']['singular_name'], esc_url( get_permalink( $post_ID ) ) );
+            $cpt_messages[8] = sprintf( __( '%1$s submitted. <a target="_blank" href="%2$s">Preview %1$s</a>', $d ), $this->args['labels']['singular_name'], esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) );
             // translators: Publish box date format, see http://php.net/date
-            $cpt_messages[9] = sprintf( __( '%1$s scheduled for: <strong>%2$s</strong>. <a target="_blank" href="%3$s">Preview %1$s</a>', app()->text_domain ), $this->args['labels']['singular_name'], date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ) );
-            $cpt_messages[10] = sprintf( __( '%1$s draft updated. <a target="_blank" href="%2$s">Preview %1$s</a>', app()->text_domain ), $this->args['labels']['singular_name'], esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) );
+            $cpt_messages[9] = sprintf( __( '%1$s scheduled for: <strong>%2$s</strong>. <a target="_blank" href="%3$s">Preview %1$s</a>', $d ), $this->args['labels']['singular_name'], date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ) );
+            $cpt_messages[10] = sprintf( __( '%1$s draft updated. <a target="_blank" href="%2$s">Preview %1$s</a>', $d ), $this->args['labels']['singular_name'], esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) );
 
         } else {
 
-            $cpt_messages[1] = sprintf( __( '%1$s updated.', app()->text_domain ), $this->args['labels']['singular_name'] );
-            $cpt_messages[6] = sprintf( __( '%1$s published.', app()->text_domain ), $this->args['labels']['singular_name'] );
-            $cpt_messages[8] = sprintf( __( '%1$s submitted.', app()->text_domain ), $this->args['labels']['singular_name'] );
+            $cpt_messages[1] = sprintf( __( '%1$s updated.', $d ), $this->args['labels']['singular_name'] );
+            $cpt_messages[6] = sprintf( __( '%1$s published.', $d ), $this->args['labels']['singular_name'] );
+            $cpt_messages[8] = sprintf( __( '%1$s submitted.', $d ), $this->args['labels']['singular_name'] );
             // translators: Publish box date format, see http://php.net/date
-            $cpt_messages[9] = sprintf( __( '%1$s scheduled for: <strong>%2$s</strong>.', app()->text_domain ), $this->args['labels']['singular_name'], date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) );
-            $cpt_messages[10] = sprintf( __( '%1$s draft updated.', app()->text_domain ), $this->args['labels']['singular_name'] );
+            $cpt_messages[9] = sprintf( __( '%1$s scheduled for: <strong>%2$s</strong>.', $d ), $this->args['labels']['singular_name'], date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) );
+            $cpt_messages[10] = sprintf( __( '%1$s draft updated.', $d ), $this->args['labels']['singular_name'] );
 
         }
 
@@ -207,19 +206,22 @@ class Post {
      * @return array                  Modified array of messages
      */
     function bulk_messages( $bulk_messages, $bulk_counts ) {
+
+        $d = apply_filters('get_textdomain', '');
+
         $bulk_messages[ $this->type ] = array(
-            'updated'   => sprintf( _n( '%1$s %2$s updated.', '%1$s %3$s updated.', $bulk_counts['updated'], app()->text_domain ), $bulk_counts['updated'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
-            'locked'    => sprintf( _n( '%1$s %2$s not updated, somebody is editing it.', '%1$s %3$s not updated, somebody is editing them.', $bulk_counts['locked'], app()->text_domain ), $bulk_counts['locked'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
-            'deleted'   => sprintf( _n( '%1$s %2$s permanently deleted.', '%1$s %3$s permanently deleted.', $bulk_counts['deleted'], app()->text_domain ), $bulk_counts['deleted'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
-            'trashed'   => sprintf( _n( '%1$s %2$s moved to the Trash.', '%1$s %3$s moved to the Trash.', $bulk_counts['trashed'], app()->text_domain ), $bulk_counts['trashed'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
-            'untrashed' => sprintf( _n( '%1$s %2$s restored from the Trash.', '%1$s %3$s restored from the Trash.', $bulk_counts['untrashed'], app()->text_domain ), $bulk_counts['untrashed'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
+            'updated'   => sprintf( _n( '%1$s %2$s updated.', '%1$s %3$s updated.', $bulk_counts['updated'], $d), $bulk_counts['updated'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
+            'locked'    => sprintf( _n( '%1$s %2$s not updated, somebody is editing it.', '%1$s %3$s not updated, somebody is editing them.', $bulk_counts['locked'], $d ), $bulk_counts['locked'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
+            'deleted'   => sprintf( _n( '%1$s %2$s permanently deleted.', '%1$s %3$s permanently deleted.', $bulk_counts['deleted'], $d ), $bulk_counts['deleted'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
+            'trashed'   => sprintf( _n( '%1$s %2$s moved to the Trash.', '%1$s %3$s moved to the Trash.', $bulk_counts['trashed'], $d ), $bulk_counts['trashed'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
+            'untrashed' => sprintf( _n( '%1$s %2$s restored from the Trash.', '%1$s %3$s restored from the Trash.', $bulk_counts['untrashed'], $d ), $bulk_counts['untrashed'], $this->args['labels']['singular_name'], $this->args['labels']['name'] ),
         );
         return $bulk_messages;
     }
 
     protected function create_labels( ): array {
 
-        $d = app()->text_domain;
+        $d = apply_filters('get_textdomain', '');
         
         $tax = $this->args['labels']['name'];
         $tax_single = $this->args['labels']['singular_name'];
@@ -259,9 +261,10 @@ class Post {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-            return app()->get( LoggerInterface::class )->error( 'The custom post type key ' . $key . ' could not be found.', 'custom_post_type_param_not_set' );
+            throw new \Exception(
+                'The custom post type key ' . $key . ' could not be found.'
+            );
         }
     }
-
 
 }

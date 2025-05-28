@@ -82,7 +82,8 @@ class VirtualPage
 
     public function loadTemplate( string $template ): string {
         remove_filter( 'page_template', [$this, 'loadTemplate']);
-        if( App::get( Request::class )->getUri() == '/'.$this->uri ) {
+
+        if(  $_SERVER['REQUEST_URI'] == '/'.$this->uri ) {
             return $this->template;
         }
 

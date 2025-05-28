@@ -54,14 +54,7 @@ class Config implements ArrayAccess {
      */
     public function add( string $type, array $configurations= [] ): void {
 
-        // Type should be defined
-        if( ! $type ) {
-            $error = new WP_Error( 'type_missing', __('Please define a configuration type', 'wp-config') );
-            echo $error->get_error_message();
-            return;
-        }
-
-        // If the configuration alreday exists for the array, we merge those arrays
+        // If the configuration already exists for the array, we merge those arrays
         if( isset($this->configurations[$type]) && is_array($this->configurations[$type]) ) {
             $configurations = $this->multi_parse_args( $configurations, $this->configurations[$type] );
         }
@@ -108,15 +101,9 @@ class Config implements ArrayAccess {
 
         } else {
 
-            app()->get( LoggerInterface::class )->warning(
-                'Could not load the configuration',
-                'invalid_configuration',
-                [
-                    'configuration' =>  $configuration
-                ]
+            throw new \Exception(
+                'Could not load the configuration ' . $configuration
             );
-
-            return [];
         }
 
     }

@@ -92,11 +92,10 @@ class Taxonomy {
         }
 
         if ( is_wp_error( $registered ) ) {
-	        return app()->get( LoggerInterface::class )->error( $registered->get_error_message(), $registered->get_error_code(), $registered->get_error_data() );
-        } else {
-	        app()->get( LoggerInterface::class )->info(
-                'The taxonomy ' . $this->id . ' has been registered to '.  print_r($this->post_type, true ) . '.',
-                'registered_taxonomy'
+            throw new \Exception(
+                $registered->get_error_message(),
+                $registered->get_error_code(),
+                $registered->get_error_data()
             );
         }
 
@@ -107,7 +106,9 @@ class Taxonomy {
         if ( isset( $this->$key ) ) {
             return $this->$key;
         } else {
-            return app()->get( LoggerInterface::class )->error( 'The key ' . $key . ' could not be found.', 'param_not_set' );
+            throw new \Exception(
+                'The custom post type key ' . $key . ' could not be found.'
+            );
         }
     }
 
@@ -201,21 +202,16 @@ class Taxonomy {
         }
 
         if ( empty( $name ) ) {
-            return app()->get( LoggerInterface::class )->error(
+            throw new \Exception(
                 'To save a term, you must provide an id or a term name to create.',
-                'save_term_invalid_args',
-                [ 'args' => $args ]
             );
         }
 
         $saved = isset( $id ) ? $this->_update( $id, $args ) : $this->_insert( $name, $args );
 
         if ( is_wp_error( $saved ) ) {
-	        return app()->get( LoggerInterface::class )->error( $saved->get_error_message(), $saved->get_error_code(), $saved->get_error_data() );
-        } else {
-	        app()->get( LoggerInterface::class )->debug(
-                'A ' . $this->id . ' term was saved',
-                $this->id . '_saved'
+	        throw new \Exception(
+                $saved->get_error_message(), $saved->get_error_code(), $saved->get_error_data()
             );
         }
 
@@ -248,14 +244,10 @@ class Taxonomy {
     public function delete( int $term, array $args = [] ): mixed {
         $deleted = $this->_delete( $term, $args );
 
-        if ( false === $deleted ) {
-            return app()->get( LoggerInterface::class )->warning(
-	            'The provided term could not be deleted because it does not exist',
-                'term_does_not_exist',
-                [ 'args' => $args, 'term' => $term ]
+        if ( is_wp_error( $deleted ) ) {
+            throw new \Exception(
+                $deleted->get_error_message(), $deleted->get_error_code(), $deleted->get_error_data()
             );
-        } elseif ( is_wp_error( $deleted ) ) {
-	        return app()->get( LoggerInterface::class )->error( $deleted->get_error_message(), $deleted->get_error_code(), $deleted->get_error_data()  );
         }
 
         return $deleted;
