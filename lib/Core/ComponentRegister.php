@@ -6,6 +6,7 @@ namespace Netdust\Core;
 use lucatume\DI52\ServiceProvider;
 use Netdust\ApplicationInterface;
 use Netdust\ApplicationProvider;
+use Netdust\Logger\Logger;
 
 
 class ComponentRegister {
@@ -20,16 +21,17 @@ class ComponentRegister {
 
     public function registerAll(): void
     {
-        $this->registerBlocks();
-        $this->registerPatterns();
-        $this->registerShortcodes();
-        $this->registerUserRoles();
-        $this->registerPostTypesAndTaxonomies();
-        $this->registerScriptStyles();
+        $this->registerBlocks( $this->config );
+        $this->registerPatterns( $this->config );
+        $this->registerShortcodes( $this->config );
+        $this->registerUserRoles( $this->config );
+        $this->registerPostTypesAndTaxonomies( $this->config );
+        $this->registerScriptStyles( $this->config );
+        $this->registerAdminPages( $this->config );
     }
 
-    public function registerBlocks() {
-        foreach( ($this->config['blocks']??[]) as $build => $module ) {
+    public function registerBlocks( $config ) {
+        foreach( ($config['blocks']??[]) as $build => $module ) {
             $module = is_array( reset($module) ) ? $module : [$module];
             foreach($module as $args ) {
                 $this->factory->make( $args['block_name'], $build, $args,[], true );
@@ -37,8 +39,8 @@ class ComponentRegister {
         }
     }
 
-    public function registerPatterns() {
-        foreach( ($this->config['patterns']??[]) as $build => $module ) {
+    public function registerPatterns( $config ) {
+        foreach( ($config['patterns']??[]) as $build => $module ) {
             $module = is_array( reset($module) ) ? $module : [$module];
             foreach($module as $args ) {
                 $this->factory->make( $args['type'], $build, $args,[], true );
@@ -46,8 +48,8 @@ class ComponentRegister {
         }
     }
 
-    public function registerShortcodes() {
-        foreach( ($this->config['shortcodes']??[]) as $build => $module ) {
+    public function registerShortcodes( $config ) {
+        foreach( ($config['shortcodes']??[]) as $build => $module ) {
             $module = is_array( reset($module) ) ? $module : [$module];
             foreach($module as $args ) {
                 $this->factory->make( $args['tag'], $build, $args, ['do_actions'], true );
@@ -55,8 +57,8 @@ class ComponentRegister {
         }
     }
 
-    public function registerUserRoles() {
-        foreach( ($this->config['roles']??[]) as $build => $module ) {
+    public function registerUserRoles( $config ) {
+        foreach( ($config['roles']??[]) as $build => $module ) {
             $module = is_array( reset($module) ) ? $module : [$module];
             foreach($module as $args ) {
                 $this->factory->make( $args['role'], $build, $args, ['do_actions'], true );
@@ -65,14 +67,14 @@ class ComponentRegister {
     }
 
 
-    public function registerPostTypesAndTaxonomies() {
-        foreach( ($this->config['posts']??[]) as $build => $module ) {
+    public function registerPostTypesAndTaxonomies( $config ) {
+        foreach( ($config['posts']??[]) as $build => $module ) {
             $module = is_array( reset($module) ) ? $module : [$module];
             foreach($module as $args ) {
                 $this->factory->make( $args['type'], $build, $args, ['do_actions'], true );
             }
         }
-        foreach( ($this->config['taxonomies']??[]) as $build => $module ) {
+        foreach( ($config['taxonomies']??[]) as $build => $module ) {
             $module = is_array( reset($module) ) ? $module : [$module];
             foreach($module as $args ) {
                 $this->factory->make( $args['taxonomy'], $build, $args, ['do_actions'], true );
@@ -80,9 +82,9 @@ class ComponentRegister {
         }
     }
 
-    public function registerScriptStyles() {
+    public function registerScriptStyles( $config ) {
 
-        foreach( ($this->config['styles']??[]) as $build => $module ) {
+        foreach( ($config['styles']??[]) as $build => $module ) {
             $module = is_array( reset($module) ) ? $module : [$module];
             foreach($module as $args ) {
                 $asset = $this->factory->make( $args['handle'], $build, $args,[],true)
@@ -94,7 +96,7 @@ class ComponentRegister {
                 $asset->register();
             }
         }
-        foreach( ($this->config['scripts']??[]) as $build => $module ) {
+        foreach( ($config['scripts']??[]) as $build => $module ) {
             $module = is_array( reset($module) ) ? $module : [$module];
             foreach($module as $args ) {
                 $asset = $this->factory->make( $args['handle'], $build, $args,[],true)
@@ -113,5 +115,13 @@ class ComponentRegister {
         }
     }
 
+    public function registerAdminPages( $config ): void {
+        foreach( ($config['admin']??[] )  as $build => $module ) {
+            $module = is_array( reset($module) ) ? $module : [$module];
+            foreach($module as $args ) {
+                $this->factory->make( $args['handle'], $build, $args, ['init'], true );
+            }
+        }
+    }
 
 }
