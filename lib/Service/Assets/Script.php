@@ -88,7 +88,9 @@ class Script extends Asset
                 $this->getUrl(),
                 $this->getDependencies(),
                 $this->getVersion(),
-                $this->getInFooter());
+                $this->getInFooter()
+            );
+
             $this->localize();
         };
     }

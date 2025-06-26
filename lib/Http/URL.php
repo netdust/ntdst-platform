@@ -2,6 +2,7 @@
 
 namespace Netdust\Http;
 
+use Netdust\Logger\Logger;
 use Netdust\Utils\Arr;
 
 class URL {
@@ -34,9 +35,6 @@ class URL {
         $pathTrimmed = trim($path, '/'); // normalise with no leading or trailing slash
         $pathTokens = explode('/', $pathTrimmed); // get segments delimited by a slash
 
-        if (substr($path, -1) === '/') {
-            array_pop($pathTokens);
-        }
         return end($pathTokens); // get the last segment
     }
 

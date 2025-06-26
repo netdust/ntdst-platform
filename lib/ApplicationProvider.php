@@ -193,14 +193,7 @@ class ApplicationProvider extends ServiceProvider implements ApplicationInterfac
         }
 
 
-        return new \WP_Error(
-            'method_not_found',
-            "The method could not be called. Either register this method as api, or create a method for this call.",
-            [
-                'method'    => $method,
-                'args'      => $parameters
-            ]
-        );
+        throw new \Exception("Method '$method' could not be called. Either register this method as API, or create a method for this call.");
     }
 
 }

@@ -96,6 +96,7 @@ class ComponentRegister {
                 $asset->register();
             }
         }
+
         foreach( ($config['scripts']??[]) as $build => $module ) {
             $module = is_array( reset($module) ) ? $module : [$module];
             foreach($module as $args ) {
