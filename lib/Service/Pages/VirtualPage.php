@@ -184,4 +184,5 @@ class VirtualPage
         wp_cache_add(0, $this->wpPost, 'posts');
     }
 
+
 }

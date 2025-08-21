@@ -102,6 +102,7 @@ class Template implements TemplateInterface {
         $found_template = locate_template(  preg_replace('/\.php$/', '', $template_name) . '.php');
 
         if (!$found_template) {
+
             foreach ($this->template_root as $folder) {
                 $template = $folder . '/' . preg_replace('/\.php$/', '', $template_name) . '.php';
                 if (file_exists($template)) {

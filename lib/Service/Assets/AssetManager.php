@@ -30,9 +30,9 @@ class AssetManager {
             ->setVersion( $params['ver']??'0.1' )
             ->to( $params['to']??['front'] );
 
-        if( !empty( $local = $params['local']??'' ) )  {
-            $this->get( $handle )->setLocalizedVar( $local['key']??$params['handle'], $local['vars'] );
-        }
+	    if( !empty( $local = $params['localized']??'' ) ) {
+		    $this->get( $handle )->setLocalizedVar( $local[0], $local[1] );
+	    }
 
         if( $register )
             $this->get( $handle )->register();
