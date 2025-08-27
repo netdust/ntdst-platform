@@ -78,7 +78,7 @@ class Template implements TemplateInterface {
         if ($this->exists($template_name)) {
             $template = $this->include_template($template_name, array_merge($this->globals, $data));
         } else {
-            app()->make(LoggerInterface::class)->error(
+            \Netdust\App::make(LoggerInterface::class)->error(
                 "Template $template_name was not loaded because the file located.",
                 'template_file_does_not_exist'
             );
